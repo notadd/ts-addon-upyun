@@ -14,7 +14,7 @@ import { EnableWatermarkConfig } from '../interface/config/EnableWatermarkConfig
 const formidable = require('formidable')
 const fs = require('fs')
 
-/* 配置控制器，配置公有空间、私有空间、保存格式、水印 */
+/* 配置控制器，配置公有空间、私有空间、保存格式、启用水印、图片水印 */
 @ApiUseTags('Config')
 @Controller('upyun/config')
 export class ConfigController {

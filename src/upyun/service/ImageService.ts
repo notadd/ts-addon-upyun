@@ -28,7 +28,7 @@ export class ImageService {
 /* 创建上传参数
    @Param data：返回信息，用来设置状态码
    @Param policy：policy对象
-   @Param isPublic：是否是公有空间上传
+   @Param config：空间配置
    @Param contentMd5：上传文件的md5值
    @Param contentSecret：文件访问密钥，可选
    @Param contentName：文件名

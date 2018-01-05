@@ -14,8 +14,9 @@ export class AuthUtil {
 
   /* 获取请求头信息中签名，restfulAPI与form回调通知签名使用这种签名方式
     @Param data：响应信息
-    @Param isPublic：是否为公有空间操作
+    @Param config：空间配置
     @Param url：请求url，即不包含域名、查询字符串之前的部分，对于回调通知为/image/notify
+    @Param date：加上超时之后的GMT格式字符串
     @Param method：请求方法，回调通知为异步时为post
     @Param contentMd5：请求体md5值，回调通知时获取请求体中的json字符串
   */
@@ -34,7 +35,7 @@ export class AuthUtil {
 
   /* 获取请求体信息签名，form表单上传采用这种签名方式
      @Param data：响应信息
-     @Param isPublic：是否是公有空间
+     @Param config：空间配置
      @Param method：请求方法
      @Param policy：上传参数对象
   */
@@ -54,7 +55,8 @@ export class AuthUtil {
 
 
   /* 获取访问私有空间图片token
-     @Param 访问图片的url
+     @Param url：访问图片的url
+     @Param config：空间配置
   */
   async getToken(config:Config,url:string){
     //生成过期时间戳
@@ -68,6 +70,7 @@ export class AuthUtil {
 
   /* 验证回调签名 
      @Param auth：回调响应头信息中签名字符串
+     @Param config：空间配置
      @Param save_key：回调信息中图片保存路径
      @Param url：回调通知url
      @Param method：回调通知方法，异步情况下问post
