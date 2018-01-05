@@ -1,10 +1,11 @@
-import { Entity,Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity,Column, PrimaryGeneratedColumn ,Index} from 'typeorm';
 /* 图片实体类，目前暂定，视频实体再说
    所有图片，不管私有空间、公有空间都在一张表里
    同一个空间下不能有相同的图片(目前认为一个空间一个目录)
    即bucket与save_key要符合唯一性约束
 */
 @Entity()
+@Index('buckt_save_key',['bucket','save_key'],{unique:true})
 export class Image {
   @PrimaryGeneratedColumn()
   id: number;
@@ -17,7 +18,7 @@ export class Image {
   @Column({ length: 50 })
   name: string;
 
-  //图片保存的键，包含目录、文件名、扩展名
+  //图片保存的键，形式为/目录名/文件名
   @Column({ length: 50 })
   save_key: string;
 
@@ -28,7 +29,7 @@ export class Image {
   @Column('int')
   height: number;
 
-  //图片类型
+  //图片类型，即扩展名
   @Column({ length: 20 })
   type: string;
 

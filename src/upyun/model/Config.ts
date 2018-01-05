@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column, PrimaryColumn, Index } from 'typeorm';
 /* 后台配置实体类 */
 @Entity()
 export class Config {
@@ -13,6 +13,7 @@ export class Config {
 
   //空间名
   @Column({ length: 50 })
+  @Index({ unique:true })
   bucket: string;
 
   //操作员名
@@ -29,6 +30,7 @@ export class Config {
 
   //基本url
   @Column({ length: 50 })
+  @Index({ unique:true })
   base_url: string;
 
   //目录

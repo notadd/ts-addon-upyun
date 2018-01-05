@@ -60,7 +60,7 @@ export class AuthUtil {
   */
   async getToken(config:Config,url:string){
     //生成过期时间戳
-    let expireTime = Date.now()*1 + config.token_expire
+    let expireTime = Math.floor((Date.now()*1)/1000) + config.token_expire
     let str = config.token_secret_key+'&'+expireTime+'&'+url
     let md5  = crypto.createHash('md5').update(str).digest('hex')
     //获取中间8位
@@ -80,7 +80,7 @@ export class AuthUtil {
     let rawBody = ''
     let keys = Object.keys(body)
     keys.forEach((key,index)=>{
-      if(body[key]&&!isNaN(parseInt(body[key]))){
+      if(body[key]&&!isNaN(parseInt(body[key]))&&key!=='task_ids'){
         body[key] = parseInt(body[key])
       }
       rawBody+=key+'='+encodeURIComponent(body[key])
@@ -89,6 +89,35 @@ export class AuthUtil {
       }
     })
     let md5 = crypto.createHash('md5').update(rawBody).digest('hex')
+    if(md5!==contentMd5){
+      console.log('md5值不正确')
+      return false
+    }
+    //生成签名
+    let ori = ''
+    ori += method.toUpperCase()+'&'
+    ori += url+'&'
+    ori += date+'&'
+    ori += contentMd5
+    let localSign = crypto.createHmac('sha1', config.password).update(ori).digest('base64')
+    //获取响应头信息中签名字符串
+    let remoteSign = auth.substr(auth.lastIndexOf(':')+1)
+    if(localSign === remoteSign){
+      return true
+    }
+    return false
+  }
+
+  /* 验证回调签名 
+     @Param auth：回调响应头信息中签名字符串
+     @Param config：空间配置
+     @Param save_key：回调信息中图片保存路径
+     @Param url：回调通知url
+     @Param method：回调通知方法，异步情况下问post
+     @Param body：回调通知请求体对象
+  */
+  async taskNotifyVerify(auth:string,config:Config,method:string,url:string,date:string,contentMd5:string,body:any):Promise<boolean>{
+    let md5 = crypto.createHash('md5').update(JSON.stringify(body)).digest('hex')
     if(md5!==contentMd5){
       return false
     }

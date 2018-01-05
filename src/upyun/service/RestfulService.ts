@@ -174,10 +174,12 @@ export class RestfulService {
         url:requestUrl,
         headers:{
           Authorization,
-          Date:date,
-          'x-upyun-async':true
+          Date:date
         }
       },(err, res, body)=>{
+        console.log(err)
+        //console.log(res)
+        console.log(body)
         if(err){
           data.code = 460
           data.message = '删除文件失败'

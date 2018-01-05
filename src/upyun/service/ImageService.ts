@@ -46,20 +46,19 @@ export class ImageService {
     //文件类型以文件名确定，默认为.jpg
     let type:string
     if(contentName){
-      type = contentName.substr(contentName.lastIndexOf('.'))
+      type = contentName.substr(contentName.lastIndexOf('.')+1)
     }else{
-      type = '.jpg'
+      type = 'jpeg'
     }
-    type = type?type:'.jpg'
     //保存路径为目录加上保存文件名，保存文件名为其md5值，扩展名不变
-    policy['save-key'] = '/'+config.directory+'/'+contentMd5+type
+    policy['save-key'] = '/'+config.directory+'/'+contentMd5+'.'+type.toLowerCase()
     policy['expiration'] = Math.floor((+new Date())/1000)+config.request_expire
     policy['date'] = new Date(+new Date()+config.request_expire*1000).toUTCString()
     //根据配置，设置预处理参数，只有一个预处理任务
     let obj = {
       'name': 'thumb',                      
       'x-gmkerl-thumb': '',   
-      'save_as': '',   
+      'save_as': '',
       'notify_url': policy['notify-url']
     }
     let format = config.format?config.format:'raw'
@@ -68,19 +67,20 @@ export class ImageService {
     }else if(format == 'webp_damage'){
       //保存为有损webp
       obj['x-gmkerl-thumb'] = '/format/webp'
-      obj['save_as'] = data.save_as.replace(type,'_webp_damage'+type)
+      obj['save_as'] = policy['save-key'].replace(type,'webp')
       //apps字段应为json字符串
-      policy['apps'] = JSON.stringify(new Array().push(obj))
+      policy['apps'] = [obj]
     }else if(format == 'webp_undamage'){
       //保存为无损webp
       obj['x-gmkerl-thumb'] = '/format/webp/lossless/true'
-      obj['save_as'] = data.save_as.replace(type,'_webp_undamage'+type)
-      policy['apps'] = JSON.stringify(new Array().push(obj))
+      obj['save_as'] = policy['save-key'].replace(type,'webp')
+      policy['apps'] = [obj]
     }else{
       data.code = 423
       data.message = '格式配置不正确'
       return 
     }
+    console.log(policy)
     //设置表单policy字段
     data.form.policy = Buffer.from(JSON.stringify(policy)).toString('base64')
     //生成签名，上传签名需要policy参数
@@ -99,11 +99,12 @@ export class ImageService {
     let bucket = config.bucket
     let directory = config.directory
     let baseUrl = config.base_url
-
+    let save_key = '/'+config.directory+'/'+policy['content-md5']
+    let type = contentName.substr(contentName.lastIndexOf('.')+1)
     //查找图片是否已经存在且保存状态为post,要使用save_key、bucket、status一起查找
     //如果找到post状态图片说明已经被回调保存，返回图片已存在
     //也可能有相应save_key、bucket的图片，但是状态为pre，则此时说明图片还未回调保存，则需要返回新的auth
-    let isExist = await this.imageRepository.findOne({save_key:policy['save-key'],bucket})
+    let isExist = await this.imageRepository.findOne({save_key,bucket})
     if(isExist&&isExist.status === 'post'){
       data.code = 424
       data.message = '图片已存在'
@@ -123,8 +124,9 @@ export class ImageService {
       let image = new Image()
       image.name = contentName?contentName:null
       //这里save-key是原图的，在回调通知里可以根据保存格式更新为webp的key
-      image.save_key = policy['save-key']
+      image.save_key = save_key
       image.bucket = policy['bucket']
+      image.type = type
       image.status = 'pre'
       image.content_secret = policy['content-secret']?policy['content-secret']:null
       await this.imageRepository.save(image)
@@ -140,62 +142,41 @@ export class ImageService {
 
   /* 回调通知验签成功，且响应码为200时，后保存图片 */
   async postSaveImage(config:Config,body:any){
-    let save_key = body.url
+    let save_key = body.url.substr(0,body.url.lastIndexOf('.'))
     let image_width = body['image-width']
     let image_height = body['image-height']
-    let image_type = body['image-type']
+    let image_type = body['image-type'].toLowerCase()
     let image_frames = body['image-frames']
-    let task_ids = body['task_ids']
     let format = config.format
-    if(format == 'raw'){
-      //保存原图时，更新图片信息与状态
-      await this.imageRepository.update({
-        save_key:body['url']
-      },{
-        width:image_width,
-        height:image_height,
-        type:image_type,
-        frames:image_frames,
-        status:'post'})
-    }else if(format == 'webp_damage' || format == 'webp_undamage'){
-      //处理结果不存在
-      if(!task_ids) {
-        return
-      }
-      let tasks:Array<any>
-      if((typeof task_ids)==='string'){
-        tasks = JSON.parse(task_ids)
-      }else{
-        tasks = task_ids
-      }
-      
-      if(!isArray(tasks) || tasks.length!=1 || tasks[0].status_code!=200){
-        return
-      }
-      let bucket:string = tasks[0].service
-      let imginfo:any = tasks[0].imginfo
-      if(!imginfo){
-        return
-      }
-      //更新原图信息为预处理后信息
-      await this.imageRepository.update({save_key,bucket},{
-        save_key:imginfo.path,
-        width:imginfo.width,
-        height:imginfo.height,
-        type:imginfo.type,
-        frames:imginfo.frames,
-        status:'post'})
-      await this.restfulService.deleteFile({code:200,message:''},config,save_key)
-    }else{
-      //format为其他格式
-    }
-    //回调通知暂不返回信息
+    await this.imageRepository.update({
+        save_key,
+        bucket:config.bucket,
+        status:'pre'
+    },{
+      width:image_width,
+      height:image_height,
+      type:image_type,
+      frames:image_frames,
+      status:'post'})
     return
   }
 
+  /* 异步预处理回调时后保存图片 */
+  async postSaveTaskResult(config:Config,body:any,save_key:string):Promise<string>{
+    let image:Image = await this.imageRepository.findOne({save_key,bucket:config.bucket,status:'pre'})
+    let rawPath = save_key+'.'+image.type
+    await this.imageRepository.update({save_key,bucket:config.bucket,status:'pre'},{
+      width:body.imginfo.width,
+      height:body.imginfo.height,
+      type:body.imginfo.type.toLowerCase(),
+      frames:body.imginfo.frames,
+      status:'post'})
+    return rawPath
+  }  
+
   //上传文件失败，删除本地图片
-  async postDeleteImage(save_key:string){
-    await this.imageRepository.delete({save_key,status:'pre'})
+  async postDeleteImage(save_key:string,bucket:string,status:string){
+    await this.imageRepository.delete({save_key,bucket,status})
   }
 
   //创建图片完成url
@@ -209,11 +190,11 @@ export class ImageService {
     //拼接基本url
     data.url += config.base_url
     //save_key
-    data.url += image.save_key
+    data.url += image.save_key+'.'+image.type
     //如果是私有空间需要拼接token查询字符串
     if(config.public_or_private=='private'){
       data.url += '?_upt='
-      data.url += this.authUtil.getToken(config,'/'+image.bucket+image.save_key)
+      data.url += this.authUtil.getToken(config,data.url)
     }
     
     data.url+='!'

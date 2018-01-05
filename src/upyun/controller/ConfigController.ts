@@ -43,14 +43,12 @@ export class ConfigController {
   @ApiResponse({status:405,description:'目录为空'})
   @ApiResponse({status:406,description:'云存储上创建目录失败'})
   async publicConfig(@Body() body:PublicConfig):Promise<any>{
-
     let data = {
       code:200,
       message:""
     }
-
     let {bucket,operator,password,base_url,directory,request_expire}  = body;
-    if(!bucket || !operator|| !password || !base_url || directory==null || !request_expire){
+    if(!bucket || !operator|| !password || !base_url || directory===undefined || !request_expire){
         data.code = 400
         data.message = '缺少参数'
         return data

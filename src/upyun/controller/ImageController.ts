@@ -134,52 +134,97 @@ export class ImageController {
   */
   @Post('notify')
   async asyncNotify(@Body() body,@Request() req,@Headers() headers):Promise<any>{
-    let code = +body.code
-    let url = body.url
-    let save_key = url
-
-    if(code!==200){
-        //上传失败删除预保存信息
-        await this.imageService.postDeleteImage(save_key)
-        return
-    }
-
-    //查找对应图片,此时图片应为预保存状态
-    let image:Image = await this.imageRepository.findOne({save_key,status:'pre'})
-    //找不到指定状态图片
-    //莫要不存在save_key，基本不可能，因为这个接口只会被回调调用，肯定有预保存
-    //要么状态为post，那么说吗图片以及被回调保存过了，这种也基本不可能，如果存在post状态图片，在预保存时就会返回错误码
-    //但是判断还是有必要
-    if(!image){
-      console.log('图片不存在')
-      return
-    }
-    //根据服务名查找配置
-    let config:Config = await this.configRepository.findOne({bucket:image.bucket})
-    if(!config){
-      console.log('相应配置不存在')
-      return
-    }
-
-
-    //验证回调签名
+    let content_type = headers['content-type']
+    let contentMd5 = headers['content-md5']
     let auth = headers['authorization']
     let date = headers['date']
-    let contentMd5 = headers['content-md5']
-    let pass =  await this.authUtil.notifyVerify(auth,config,'POST','/upyun/image/notify',date,contentMd5,body)
-
-    //验签失败，这种情况是破坏性的，此时图片没有后保存，但是客户端可能已经得到图片上传响应信息
-    //无法通知客户端，这种情况下，如果不删除预保存的数据，就只能等客户端再次请求auth或者再次上传图片，等待新的回调，但是如果没有，那么这个图片应该不会被显示
-    //如果删除预保存图片，下次客户端如果从获取auth开始就没问题，如果从上传开始，那么就可能出现云存储上的死资源，因为本地没保存路径
-    //暂定在验签失败时，先保存预保存数据
-    if(!pass){
-      console.log('验签失败')
+    console.log(body)
+    //接收到默认MIME类型，说吗是上传回调
+    if(content_type==='application/x-www-form-urlencoded'){
+      let code = +body.code
+      let save_key = body.url.substr(0,body.url.lastIndexOf('.'))
+      //查找对应图片,此时图片应为预保存状态
+      let image:Image = await this.imageRepository.findOne({save_key,status:'pre'})
+      //找不到指定状态图片
+      //莫要不存在save_key，基本不可能，因为这个接口只会被回调调用，肯定有预保存
+      //要么状态为post，那么说吗图片以及被回调保存过了，这种也基本不可能，如果存在post状态图片，在预保存时就会返回错误码
+      //但是判断还是有必要
+      if(!image){
+        return
+      }
+      //根据服务名查找配置
+      let config:Config = await this.configRepository.findOne({bucket:image.bucket})
+      if(!config){
+        await this.imageService.postDeleteImage(save_key,image.bucket,image.status)
+        return
+      }
+      //对上传回调进行验签
+      let pass =  await this.authUtil.notifyVerify(auth,config,'POST','/upyun/image/notify',date,contentMd5,body)
+      //验签失败，这种情况是破坏性的，此时图片没有后保存，但是客户端可能已经得到图片上传响应信息
+      //无法通知客户端，这种情况下，如果不删除预保存的数据，就只能等客户端再次请求auth或者再次上传图片，等待新的回调，但是如果没有，那么这个图片应该不会被显示
+      //如果删除预保存图片，下次客户端如果从获取auth开始就没问题，如果从上传开始，那么就可能出现云存储上的死资源，因为本地没保存路径
+      //暂定在验签失败时，先保存预保存数据
+      if(!pass){
+        console.log('验签失败')
+        await this.imageService.postDeleteImage(save_key,image.bucket,image.status)
+        return
+      }
+      //上传失败，只需要删除本地存储信息
+      if(code!==200){
+        //上传失败删除预保存信息
+        await this.imageService.postDeleteImage(save_key,image.bucket,image.status)
+        return
+      }
+      //如果保存格式为原图
+      if(config.format==='raw'){
+        //直接根据上传回调信息更新数据库
+        await this.imageService.postSaveImage(config,body)
+      }
+      //如果不是保存为原图
+      else{
+        //则这个上传回调信息无效
+      }
       return
     }
-
-    console.log('上传成功')
-    await this.imageService.postSaveImage(config,body)
+    //如果请求MIME为json类型，说吗为异步预处理回调信息
+    else if(content_type==='application/json'){
+      let code = body.status_code
+      let {bucket_name:bucket} = body
+      let path = body.imginfo.path
+      let save_key = path.substr(0,path.lastIndexOf('.'))
     
+      //查找对应图片,此时图片应为预保存状态
+      let image:Image = await this.imageRepository.findOne({save_key,bucket,status:'pre'})
+      //找不到指定状态图片
+      //莫要不存在save_key，基本不可能，因为这个接口只会被回调调用，肯定有预保存
+      //要么状态为post，那么说吗图片以及被回调保存过了，这种也基本不可能，如果存在post状态图片，在预保存时就会返回错误码
+      //但是判断还是有必要
+      if(!image){
+        console.log('图片不存在')
+        return
+      }
+      //根据服务名查找配置
+      let config:Config = await this.configRepository.findOne({bucket})
+      if(!config){
+        await this.imageService.postDeleteImage(save_key,bucket,image.status)
+        return
+      }
+      //对异步预处理任务请求进行验签。此时请求体为json字符串
+      let pass =  await this.authUtil.taskNotifyVerify(auth,config,'POST','/upyun/image/notify',date,contentMd5,body)
+      if(!pass){
+        await this.imageService.postDeleteImage(save_key,bucket,image.status)
+        return
+      }
+      if(code!==200){
+        //上传失败删除预保存信息
+        await this.imageService.postDeleteImage(save_key,bucket,image.status)
+        return
+      }
+      //上传成功，使用预处理结果更新数据库
+      let rawPath = await this.imageService.postSaveTaskResult(config,body,save_key)
+      //删除云存储上原图
+      await this.restfulService.deleteFile({code:200,message:''},config,rawPath)
+    }
     return
   }
 
@@ -258,7 +303,7 @@ export class ImageController {
 
     let image:Image
     try{
-      image = await  this.imageRepository.findOne({save_key,bucket:config.bucket})
+      image = await  this.imageRepository.findOne({save_key,bucket:config.bucket,status:'post'})
       if(image == null){
         data.code = 426
         data.message = '指定图片不存在'
@@ -294,8 +339,10 @@ export class ImageController {
      let data  = {
        code:200,
        message:'',
+       baseUrl:'',
        total:null,
-       images:[]
+       images:[],
+       urls:[]
      }
      //当前页数、每页条目数
      let {isPublic,page,pageSize} = body
@@ -328,8 +375,10 @@ export class ImageController {
        }
      }
 
+     data.baseUrl = config.base_url
+     let results:Image[]
      try{
-        let results:Image[] = await this.imageRepository
+        results= await this.imageRepository
         .createQueryBuilder("image")
         .where('image.bucket=:param1')
         .orderBy("image.id", "DESC")
@@ -341,7 +390,6 @@ export class ImageController {
         data.message = '查询图片成功'
         data.total = await this.imageRepository.count({bucket:config.bucket})
         data.images = results
-        return data
      }catch(err){
         data.code = 458
         data.message = '查询出现错误'
@@ -349,6 +397,24 @@ export class ImageController {
         data.images = null
         return data
      }
+
+     if(isPublic){
+        data.images.forEach((value,index)=>{
+          data.urls[index] = value.save_key+'.'+value.type
+          if(value.content_secret){
+            data.urls[index]+='!'+value.content_secret
+          }
+        })
+     }else{
+      data.images.forEach(async (value,index)=>{
+        data.urls[index] = value.save_key+'.'+value.type+'?_upt='+await this.authUtil.getToken(config,value.save_key+'.'+value.type)
+        if(value.content_secret){
+          data.urls[index]+='!'+value.content_secret
+        }
+      })
+     }
+     return data
+
   }
 
    /* 文件删除接口
@@ -386,7 +452,8 @@ export class ImageController {
           return data
         }
       }
-      await this.restfulService.deleteFile(data,config,save_key)
+      let image:Image = await this.imageRepository.findOne({save_key,bucket:config.bucket,status:'post'})
+      await this.restfulService.deleteFile(data,config,save_key+'.'+image.type)
       //删除文件失败
       if(data.code == 460){
           return data
