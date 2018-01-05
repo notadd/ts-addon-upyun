@@ -1,0 +1,40 @@
+{
+  "name": "ext-cloud-upyun",
+  "version": "1.0.0",
+  "description": "基于nestjs又拍云存储插件",
+  "scripts": {
+    "start": "node index.js",
+    "start:watch": "/usr/local/node-v8.9.0-linux-x64/node_global/bin/nodemon",
+    "prestart:prod": "tsc",
+    "start:prod": "node dist/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/ibenchu/ext-cloud-upyun.git"
+  },
+  "author": "czy12345",
+  "license": "ISC",
+  "dependencies": {
+    "@nestjs/common": "^4.4.0",
+    "@nestjs/core": "^4.4.0",
+    "@nestjs/microservices": "^4.4.0",
+    "@nestjs/swagger": "^1.1.3",
+    "@nestjs/testing": "^4.4.0",
+    "@nestjs/typeorm": "^1.0.1",
+    "@nestjs/websockets": "^4.4.0",
+    "formidable": "^1.1.1",
+    "mime": "^2.1.0",
+    "mysql": "^2.15.0",
+    "redis": "^2.7.1",
+    "reflect-metadata": "^0.1.10",
+    "request": "^2.83.0",
+    "rxjs": "^5.4.0",
+    "typeorm": "^0.1.9",
+    "typescript": "^2.5.2"
+  },
+  "devDependencies": {
+    "@types/node": "^8.0.28",
+    "nodemon": "^1.12.1",
+    "ts-node": "^3.3.0"
+  }
+}
