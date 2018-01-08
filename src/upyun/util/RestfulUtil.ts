@@ -1,11 +1,12 @@
 import { Component, Inject,forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ImageService } from './ImageService'
-import { ConfigService } from './ConfigService'
 import { AuthUtil } from '../util/AuthUtil'
-import { Config } from '../model/Config'
+import { Bucket } from '../model/Bucket'
+import { File } from '../model/File'
 import { Image} from '../model/Image'
+import { Directory } from '../model/Directory';
+import { WSAEACCES } from 'constants';
 const fs  = require('fs')
 const crypto = require('crypto')
 const request = require('request')
@@ -15,44 +16,42 @@ const mime = require('mime')
    删除文件、创建目录、删除目录、获取文件信息、获取目录文件列表、获取服务使用量
 */
 @Component()
-export class RestfulService {
+export class RestfulUtil{
 
   private readonly apihost = 'http://v0.api.upyun.com'
 
   constructor(
     private readonly authUtil:AuthUtil,
-    @Inject(forwardRef(() => ImageService)) private readonly imageService:ImageService,
     @InjectRepository(Image) private readonly imageRepository: Repository<Image>,
-    @InjectRepository(Config) private readonly configRepository: Repository<Config>){}
+    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>){}
 
 
-
-  async uploadFile(data:any,config:Config,file:any):Promise<string>{
+  //上传文件，其中文件信息来自于formidable解析得到的File对象
+  async uploadFile(data:any,bucket:Bucket,directory:Directory,file:any,md5:string):Promise<void>{
     
-    let {name,path,size} = file
-    let contentMd5 = crypto.createHash('md5').update(fs.readFileSync(path)).digest('hex')
-    let extension:string = name.substr(name.lastIndexOf('.'))
-    extension = extension?extension:'.jpg'
-    let save_key = '/'+config.directory+'/'+contentMd5+extension
-
-    //如果指定空间下已经存在这个文件，则不需要上传、保存
-    let isExist:Image = await this.imageRepository.findOne({save_key,bucket:config.bucket})
-    if(isExist){
-      data.code  =414
-      data.message = '上传文件已存在'
-      return ''
+    let contentMd5 = md5
+    let name = file.name
+    if(!contentMd5){
+        contentMd5 = crypto.createHash('md5').update(fs.readFileSync(file.path)).digest('hex')
     }
-    let requestUrl = this.apihost+'/'+config.bucket+save_key
-    let url = '/'+config.bucket+save_key
-    let date:string = new Date(+new Date()+config.request_expire*1000).toUTCString()
-    let Authorization = await this.authUtil.getHeaderAuth(config,'PUT',url,date,contentMd5)
+    let extension:string = name.substr(name.lastIndexOf('.'))
+    let save_key = '/'+directory.name+'/'+md5+extension
+    let parent:Directory = directory.parent
+    while(parent.level!=0){
+        save_key = ('/'+parent.name).concat(save_key)
+        parent = parent.parent
+    }
+    let requestUrl = this.apihost+'/'+bucket.name+save_key
+    let url = '/'+bucket.name+save_key
+    let date:string = new Date(+new Date()+bucket.request_expire*1000).toUTCString()
+    let Authorization = await this.authUtil.getHeaderAuth(bucket,'PUT',url,date,contentMd5)
     let headers
     await new Promise((resolve,reject)=>{
-      fs.createReadStream(path).pipe(request.put({
+      fs.createReadStream(file.path).pipe(request.put({
         url:requestUrl,
         headers:{
           'Content-Type':mime.getType(name),
-          'Content-Length':size,
+          'Content-Length':file.size,
           'Content-MD5':contentMd5,
           Authorization,
           Date:date,
@@ -60,7 +59,7 @@ export class RestfulService {
         }
       },(err, res, body)=>{
         if (err) {
-          data.code = 415
+          data.code = 408
           data.message = '文件上传失败,网络错误'
           resolve()
           return
@@ -78,50 +77,50 @@ export class RestfulService {
             data.code = code
             data.message = msg
           }catch(err){
-            data.code = 415
+            data.code = 408
             data.message = '响应体解析错误'
           }
         }else{
-          data.code = 415
+          data.code = 408
           data.message = '响应体不存在'
         }
         resolve()
         return
       }))
     })
-    if(data.code == 415){
-      return ''
-    }
-    let {'x-upyun-width':width,'x-upyun-height':height,'x-upyun-file-type':type,'x-upyun-frames':frames} = headers
-    await this.imageRepository.save({
-      name:file.name,
-      save_key,
-      bucket:config.bucket,
-      width,
-      height,
-      type,
-      frames,
-      status:'post'})
-    return save_key
-  }
-
-
-  async downloadFile(data:any,config:Config,save_key:string){
-
-  }
-
-  //创建指定空间的目录,在保存配置时使用
-  async createDirectory(data:any,config:Config,directory:string){
-    let {bucket} = config
-    if(directory.length==0){
-      data.code = 405
-      data.message = "指定目录为空字符串"
+    if(data.code == 408){
       return 
     }
-    let requestUrl = this.apihost+'/'+bucket+'/'+directory
-    let url = '/'+bucket+'/'+directory
-    let date:string = new Date(+new Date()+config.request_expire*1000).toUTCString()
-    let Authorization = await this.authUtil.getHeaderAuth(config,'POST',url,date,null)
+    return
+  }
+
+  /* 下载指定文件并且将得到的响应体发送给response对象
+     @Param data:状态码
+     @Param bucket：文件所属空间
+     @Param directory：文件所属目录
+     @Param file：文件对象
+     @Param res：要获取文件的响应
+  */
+  async downloadFile(data:any,bucket:Bucket,directory:Directory,file:File,res:any){
+
+  }
+
+  /*创建指定空间里的指定目录，前置判定父目录必须存在 
+      @Param data：状态码
+      @Param bucket：目录所属空间
+      @Param directory：端点目录对象
+  */
+  async createDirectory(data:any,bucket:Bucket,directory:Directory){
+    let path = '/'+directory.name
+    let parent:Directory = directory.parent
+    while(parent.level!=0){
+        path = ('/'+parent.name).concat(path)
+        parent = parent.parent
+    }
+    let requestUrl = this.apihost+'/'+bucket.name+path
+    let url = '/'+bucket.name+path
+    let date:string = new Date(+new Date()+bucket.request_expire*1000).toUTCString()
+    let Authorization = await this.authUtil.getHeaderAuth(bucket,'POST',url,date,null)
     await new Promise((resolve,reject)=>{
       request.post({
         url:requestUrl,
@@ -164,11 +163,23 @@ export class RestfulService {
     return 
   }
 
-  //删除指定文件，在回调通知中保存预处理结果后删除原文件用
-  async deleteFile(data:any,config:Config,save_key:string):Promise<void>{
-    let requestUrl = this.apihost+'/'+config.bucket+save_key
-    let date:string = new Date(+new Date()+config.request_expire*1000).toUTCString()
-    let Authorization = await this.authUtil.getHeaderAuth(config,'DELETE','/'+config.bucket+save_key,date,'')
+  /* 删除指定空间、目录下指定文件
+     @Param data:状态码
+     @Param bucket：文件所属空间
+     @Param directory：文件所属目录
+     @Param file：文件对象
+   */
+  async deleteFile(data:any,bucket:Bucket,directory:Directory,file:File):Promise<void>{
+    let save_key = '/'+directory.name+'/'+file.md5+'.'+file.type
+    let parent:Directory = directory.parent
+    while(parent.level!=0){
+        save_key = ('/'+parent.name).concat(save_key)
+        parent = parent.parent
+    }
+    let requestUrl = this.apihost+'/'+bucket.name+save_key
+    let url = '/'+bucket.name+save_key
+    let date:string = new Date(+new Date()+bucket.request_expire*1000).toUTCString()
+    let Authorization = await this.authUtil.getHeaderAuth(bucket,'DELETE',url,date,'')
     await new Promise((resolve,reject)=>{
       request.delete({
         url:requestUrl,

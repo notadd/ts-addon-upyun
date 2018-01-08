@@ -2,38 +2,48 @@ import { Controller, Get , Post, Request , Response , Body ,Param, Headers , Que
 import { InjectRepository } from '@nestjs/typeorm';
 import { ApiUseTags, ApiResponse, ApiOperation, ApiConsumes, ApiProduces, ApiImplicitBody} from '@nestjs/swagger';
 import { Repository } from 'typeorm';
-import { RestfulService } from '../service/RestfulService';
 import { ConfigService } from '../service/ConfigService';
-import { ImageService } from '../service/ImageService';
+import { FileService } from '../service/FileService';
+import { RestfulUtil } from '../util/RestfulUtil';
 import { AuthUtil } from '../util/AuthUtil'
 import { Image } from '../model/Image';
-import { Config} from '../model/Config';
+import { File } from '../model/File';
+import { Bucket } from '../model/Bucket';
+import { Directory } from '../model/Directory';
 import { UploadBody } from '../interface/image/UploadBody'
 import { ImageBody } from '../interface/image/ImageBody'
 import { ImagesBody } from '../interface/image/ImagesBody'
 import { DeleteQuery } from '../interface/image/DeleteQuery'
-
-
+const allowExtension = require('../allowExtension.json')
+const path = require('path')
 /*图片控制器，包含了图片上传处理、异步回调通知、获取单张图片、获取多张图片控制器
 */
-@ApiUseTags('Image')
-@Controller('upyun/image')
-export class ImageController {
+@ApiUseTags('File')
+@Controller('upyun/file')
+export class FileController {
 
+  private readonly imageExtension:Set<string>
+  private readonly audioExtension:Set<string>
+  private readonly videoExtension:Set<string>
 
   constructor(
     private readonly authUtil: AuthUtil,
-    private readonly imageService: ImageService,
+    private readonly fileService: FileService,
     private readonly configService: ConfigService,
-    private readonly restfulService: RestfulService,
+    private readonly restfulUtil: RestfulUtil,
     @InjectRepository(Image) private readonly imageRepository: Repository<Image>,
-    @InjectRepository(Config) private readonly configRepository: Repository<Config>) {}
+    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>) {
+      this.imageExtension = allowExtension.image
+      this.audioExtension = allowExtension.audio
+      this.videoExtension = allowExtension.video
+    }
 
-  /*图片上传处理接口
-    @Param isPublic：上传空间是否是公有空间
+  /*文件表单上传预处理接口
+    @Param bucket_name：上传空间是否是公有空间
+    @Param directorys：上传文件所属目录数组，按照下标由小到大为从顶层目录到底层目录
     @Param contentMd5：上传文件的md5值
-    @Param contentSecret：文件访问密钥
     @Param contentName：文件名
+    @Param contentSecret：文件访问密钥，可选
     @Return data.code：状态码，200为成功，400、401、402、403、404为错误
             data.message：响应信息
             data.baseUrl：上传时的基本url
@@ -41,17 +51,15 @@ export class ImageController {
             data.form：表单上传的字段对象，包含了policy、authorization字段，上传时需要加上file字段
   */
   @Post('upload')
-  @ApiOperation({title:'上传预处理接口，获取上传图片的路径、方法、字段'})
+  @ApiOperation({title:'上传预处理接口，获取上传文件的路径、方法、字段'})
   @ApiConsumes('application/json')
   @ApiProduces('application/json')
   @ApiResponse({status:200,description:'成功'})
   @ApiResponse({status:400,description:'缺少参数'})
   @ApiResponse({status:420,description:'md5值不正确，应为32位'})
-  @ApiResponse({status:421,description:'公有空间配置不存在'})
-  @ApiResponse({status:422,description:'私有空间配置不存在'})
   @ApiResponse({status:423,description:'格式配置不正确'})
-  @ApiResponse({status:424,description:'图片已存在'})
-  @ApiResponse({status:425,description:'图片保存失败'})
+  @ApiResponse({status:424,description:'文件已存在'})
+  @ApiResponse({status:425,description:'文件保存失败'})
   async uploadProcess(@Body() body:UploadBody,@Request() req):Promise<any>{
 
     let data = {
@@ -65,68 +73,59 @@ export class ImageController {
       }
     }
 
-    let {isPublic,contentMd5,contentSecret,contentName} = body
+    let {bucket_name,directorys,md5,contentSecret,contentName} = body
 
     let policy  = {
       'bucket':'',
       'save-key':'',
       'expiration':null,
       'date':'',
-      'content-md5':contentMd5,
-      'notify-url':'http://upyuns.frp2.chuantou.org/upyun/image/notify',
+      'content-md5':md5,
+      'notify-url':'http://upyuns.frp2.chuantou.org/upyun/file/notify',
       //图片生存期限默认为180天
-      'x-upyun-meta-ttl':180
+      'x-upyun-meta-ttl':180,
+      'ext-param':''
     }  
 
-    if(isPublic === null || isPublic===undefined || !contentMd5|| !contentName){
+    if(!bucket_name|| !directorys || !md5|| !contentName){
       data.code = 400
       data.message = '缺少参数'
       return data
     }
 
-    if(contentMd5.length!==32){
-      data.code = 420
-      data.message = 'contentMd5参数不正确'
+    if(md5.length!==32){
+      data.code = 410
+      data.message = 'md5参数不正确'
       return data
     }
 
-    let config:Config 
-    if(isPublic){
-      config = await this.configService.getPublicConfig()
-      if(!config){
-        data.code = 421
-        data.message = '公有空间配置不存在'
-        return data
-      }
-    }else{
-      config = await this.configService.getPrivateConfig()
-      if(!config){
-        data.code = 422
-        data.message = '私有空间配置不存在'
-        return data
-      }
+    let bucket:Bucket = await this.bucketRepository.findOne({name:bucket_name})
+    if(!bucket){
+      data.code = 411
+      data.message = '空间不存在'
+      return
     }
-
-
     //获取后台配置，创建上传参数
-    await this.imageService.makePolicy(data,policy,config,contentMd5,contentSecret,contentName)
-    //格式配置不正确
-    if(data.code == 423){
+    let {kind,parent} = await this.fileService.makePolicy(data,policy,bucket,body)
+    //文件类型不存在、文件类型不支持、指定目录不存在、指定图片已存在
+    if(data.code == 412 || data.code === 413 || data.code === 414 || data.code === 415){
       return data
     }
 
-    //预保存图片，保存原图save-key
-    await this.imageService.preSaveImage(data,policy,config,contentName)
+    //预保存图片
+    await this.fileService.preSaveFile(data,policy,bucket,parent,kind,contentName,)
 
     //图片已存在、图片保存失败
-    if(data.code == 424 || data.code == 425){
+    if(data.code == 416){
       return data
     }
     return data
   }
 
 
-  /* 异步回调通知接口
+  /* 异步回调通知接口,目前所有图片都进行预处理，
+     原图处理结果不变
+     webp_damage、webp_undamage会删除原图，保存处理后图片
      @Param code：响应码，200代表文件上传成功，其他为失败
      @Param message：响应信息
      @Param url：文件保存路径，按照官方文档推断，应该不包含bucket，不包含目录说不过去了
@@ -135,46 +134,48 @@ export class ImageController {
   @Post('notify')
   async asyncNotify(@Body() body,@Request() req,@Headers() headers):Promise<any>{
     let content_type = headers['content-type']
-    let contentMd5 = headers['content-md5']
+    let md5 = headers['content-md5']
     let auth = headers['authorization']
     let date = headers['date']
-    console.log(body)
-    //接收到默认MIME类型，说吗是上传回调
+
+    //接收到默认MIME类型，说明是上传回调
     if(content_type==='application/x-www-form-urlencoded'){
       let code = +body.code
-      let save_key = body.url.substr(0,body.url.lastIndexOf('.'))
-      //查找对应图片,此时图片应为预保存状态
-      let image:Image = await this.imageRepository.findOne({save_key,status:'pre'})
-      //找不到指定状态图片
-      //莫要不存在save_key，基本不可能，因为这个接口只会被回调调用，肯定有预保存
-      //要么状态为post，那么说吗图片以及被回调保存过了，这种也基本不可能，如果存在post状态图片，在预保存时就会返回错误码
-      //但是判断还是有必要
-      if(!image){
-        return
+      //文件名
+      let md5  = path.parse(body.url).name
+      //类型
+      let type = path.parse(body.url).ext.substr(1)
+      //目录数组，从顶层到底层
+      let directorys = path.parse(body.url).dir.spilt('/')
+      //第一个元素为空字符串
+      directorys.shift()
+      let [bucket_name,kind] = body['ext-param'].spilt('&')
+      let bucket:Bucket  = await this.bucketRepository.findOne({name:bucket_name})
+      let pass =  await this.authUtil.notifyVerify(auth,bucket,'POST','/upyun/file/notify',date,md5,body)
+      let status = 'pre'
+      if(kind==='image'){
+        if(!pass){
+          await this.fileService.postDeleteFile(bucket_name,md5,type,status,kind)
+          return
+        }else{
+          if(code!==200){
+            await this.fileService.postDeleteFile(bucket_name,md5,type,status,kind)
+            return
+          }
+          //如果保存格式为原图
+          if(bucket.format==='raw'){
+              //直接根据上传回调信息更新数据库
+          await this.fileService.postSaveFile(bucket_name,md5,type,body,kind)
       }
-      //根据服务名查找配置
-      let config:Config = await this.configRepository.findOne({bucket:image.bucket})
-      if(!config){
-        await this.imageService.postDeleteImage(save_key,image.bucket,image.status)
-        return
+      //如果不是保存为原图
+      else{
+        //则这个上传回调信息无效
       }
-      //对上传回调进行验签
-      let pass =  await this.authUtil.notifyVerify(auth,config,'POST','/upyun/image/notify',date,contentMd5,body)
-      //验签失败，这种情况是破坏性的，此时图片没有后保存，但是客户端可能已经得到图片上传响应信息
-      //无法通知客户端，这种情况下，如果不删除预保存的数据，就只能等客户端再次请求auth或者再次上传图片，等待新的回调，但是如果没有，那么这个图片应该不会被显示
-      //如果删除预保存图片，下次客户端如果从获取auth开始就没问题，如果从上传开始，那么就可能出现云存储上的死资源，因为本地没保存路径
-      //暂定在验签失败时，先保存预保存数据
-      if(!pass){
-        console.log('验签失败')
-        await this.imageService.postDeleteImage(save_key,image.bucket,image.status)
-        return
+      return
+        }
       }
-      //上传失败，只需要删除本地存储信息
-      if(code!==200){
-        //上传失败删除预保存信息
-        await this.imageService.postDeleteImage(save_key,image.bucket,image.status)
-        return
-      }
+
+     
       //如果保存格式为原图
       if(config.format==='raw'){
         //直接根据上传回调信息更新数据库
@@ -204,7 +205,7 @@ export class ImageController {
         return
       }
       //根据服务名查找配置
-      let config:Config = await this.configRepository.findOne({bucket})
+      let config:Config = await this.bucketRepository.findOne({bucket})
       if(!config){
         await this.imageService.postDeleteImage(save_key,bucket,image.status)
         return
@@ -417,7 +418,7 @@ export class ImageController {
 
   }
 
-   /* 文件删除接口
+  /* 文件删除接口
      当客户端需要删除某个文件时使用，由于目前只有两个空间，每个空间目录唯一，则只需传递save-key的不包含目录部分、是否为公有空间即可确定文件
    */
   @ApiOperation({title:'删除指定图片接口'})
@@ -429,7 +430,7 @@ export class ImageController {
   @ApiResponse({status:422,description:'私有空间配置不存在'})
   @ApiResponse({status:457,description:'参数不正确'})
   @ApiResponse({status:458,description:'查询出现错误'})
-  @Get('delete')
+  @Get('deleteFile')
   async deleteFile(@Query() query:DeleteQuery,@Response() res):Promise<any>{
       let data = {
           code : 200,

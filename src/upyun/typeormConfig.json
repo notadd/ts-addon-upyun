@@ -1,9 +1,11 @@
 {
+    "name":"upyun",
     "type": "mysql",
     "host": "localhost",
     "port": 3306,
     "username": "root",
     "password": "123456",
     "database": "upyun",
-    "entities": ["./src/upyun/model/Config.ts","./src/upyun/model/Image.ts"]
+    "entities": ["./src/upyun/model/Bucket.ts","./src/upyun/model/Image.ts","./src/upyun/model/Directory.ts"],
+    "synchronize":true
   }

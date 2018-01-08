@@ -1,6 +1,6 @@
 import { Component, Inject } from '@nestjs/common';
 import { isArray } from 'util';
-import { Config } from '../model/Config'
+import { Bucket } from '../model/Bucket'
 
 
 /* URL做图处理字符串服务，可以根据请求体参数，拼接URL处理字符串 */
@@ -25,7 +25,7 @@ export class ProcessStringUtil {
     }
 
     //根据请求体参数生成处理字符串
-    makeProcessString(data:any,body:any,config:Config):string{
+    makeProcessString(data:any,body:any,bucket:Bucket):string{
         //分别获取缩放、裁剪、圆角、水印、旋转、高斯模糊、锐化、输出格式、图片质量、是否渐进显示、是否去除元信息等参数
         let {resize,tailor,roundrect,watermark,rotate,blur,sharpen,format,quality,progressive,strip} = body
         let processString = ''
@@ -45,7 +45,7 @@ export class ProcessStringUtil {
             return ''
         }
         console.log('3:'+processString)
-        processString += this.watermarkString(data,watermark,config)
+        processString += this.watermarkString(data,watermark,bucket)
         if(data.code !== 200){
             return ''
         }
@@ -255,16 +255,16 @@ export class ProcessStringUtil {
        默认情况下全局启用水印，所有图片都打水印
        可以通过参数覆盖全局启用配置
     */
-    watermarkString(data:any,watermark:boolean,config:Config){
+    watermarkString(data:any,watermark:boolean,bucket:Bucket){
         let enable:boolean
         if(watermark===true){
             enable = true
         }else if(watermark === false){
             enable = false
         }else if(watermark === null || watermark === undefined){
-           if(config.watermark_enable==='true'){
+           if(bucket.watermark_enable===1){
                enable = true
-           }else if(config.watermark_enable === 'false'){
+           }else if(bucket.watermark_enable === 0){
                enable = false
            }else{
                enable = false
@@ -276,49 +276,49 @@ export class ProcessStringUtil {
         }
         let str:string = ''
         if(enable){
-            if(config.watermark_save_key){
-                str += '/watermark/url/'+Buffer.from(config.watermark_save_key).toString('base64')
+            if(bucket.watermark_save_key){
+                str += '/watermark/url/'+Buffer.from(bucket.watermark_save_key).toString('base64')
             }else{
                 data.code = 444
                 data.message = '水印图片url不存在'
                 return ''
             }
 
-            if(config.watermark_gravity&&!this.gravity.has(config.watermark_gravity)){
+            if(bucket.watermark_gravity&&!this.gravity.has(bucket.watermark_gravity)){
                 data.code = 445
                 data.message = '水印重心参数不正确'
                 return ''
             }else{
-                str+= '/align/'+config.watermark_gravity
+                str+= '/align/'+bucket.watermark_gravity
             }
 
-            if((config.watermark_x&&!Number.isInteger(config.watermark_x))||(config.watermark_y&&!Number.isInteger(config.watermark_y))){
+            if((bucket.watermark_x&&!Number.isInteger(bucket.watermark_x))||(bucket.watermark_y&&!Number.isInteger(bucket.watermark_y))){
                 data.code = 446
                 data.message = '偏移参数不正确'
                 return ''
-            }else if(!config.watermark_x&&!config.watermark_y){
+            }else if(!bucket.watermark_x&&!bucket.watermark_y){
                 str+='/margin/20x20'
-            }else if(!config.watermark_x&&config.watermark_y){
-                str+='/margin/20x'+config.watermark_y
-            }else if(config.watermark_x&&!config.watermark_y){
-                str+='/margin/'+config.watermark_x+'x20'
+            }else if(!bucket.watermark_x&&bucket.watermark_y){
+                str+='/margin/20x'+bucket.watermark_y
+            }else if(bucket.watermark_x&&!bucket.watermark_y){
+                str+='/margin/'+bucket.watermark_x+'x20'
             }else{
-                str+='/margin/'+config.watermark_x+'x'+config.watermark_y
+                str+='/margin/'+bucket.watermark_x+'x'+bucket.watermark_y
             }
 
-            if(config.watermark_opacity&&!Number.isInteger(config.watermark_opacity)){
+            if(bucket.watermark_opacity&&!Number.isInteger(bucket.watermark_opacity)){
                 data.code = 447
                 data.message = '透明度参数不正确'
                 return ''
-            }else if(!config.watermark_opacity){
+            }else if(!bucket.watermark_opacity){
                 //默认为100，不用管
             }else{
-                str+='/opacity/'+config.watermark_opacity
+                str+='/opacity/'+bucket.watermark_opacity
             }
 
-            if(config.watermark_ws&&Number.isInteger(config.watermark_ws)&&config.watermark_ws>=1&&config.watermark_ws<=100){
-                str+='/percent/'+config.watermark_ws
-            }else if(!config.watermark_ws){
+            if(bucket.watermark_ws&&Number.isInteger(bucket.watermark_ws)&&bucket.watermark_ws>=1&&bucket.watermark_ws<=100){
+                str+='/percent/'+bucket.watermark_ws
+            }else if(!bucket.watermark_ws){
                 //默认为0，不用管
             }else{
                 data.code = 448

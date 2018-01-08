@@ -1,20 +1,21 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ImageController } from './controller/ImageController';
+import { FileController } from './controller/FileController';
 import { ConfigController } from './controller/ConfigController';
-import { ImageService } from './service/ImageService';
+import { FileService } from './service/FileService';
 import { ConfigService } from './service/ConfigService';
-import { RestfulService } from './service/RestfulService';
+import { RestfulUtil } from './util/RestfulUtil';
 import { AuthUtil } from './util/AuthUtil';
 import { ProcessStringUtil } from './util/ProcessStringUtil';
-import { Config } from './model/Config';
+import { Directory } from './model/Directory';
+import { Bucket } from './model/Bucket';
 import { Image } from './model/Image';
 const typeormOptions = require('./typeormConfig')
 @Module({
-  modules: [TypeOrmModule.forRoot([Image,Config],typeormOptions)],  
-  controllers: [ConfigController,ImageController],
-  components: [ConfigService,ImageService,RestfulService,AuthUtil,ProcessStringUtil],
-  exports:[ConfigService,ImageService,RestfulService,AuthUtil,ProcessStringUtil]
+  modules: [TypeOrmModule.forRoot([Image,Bucket,Directory],typeormOptions)],  
+  controllers: [ConfigController,FileController],
+  components: [ConfigService,FileService,RestfulUtil,AuthUtil,ProcessStringUtil],
+  exports:[ConfigService,FileService,RestfulUtil,AuthUtil,ProcessStringUtil]
 })
 
 export class UpyunModule {}
