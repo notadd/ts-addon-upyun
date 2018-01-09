@@ -1,10 +1,14 @@
 import { Component, Inject } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository,getManager, getConnection ,Connection } from 'typeorm'
-import { RestfulUtil } from '../util/RestfulUtil'
-import { Image } from '../model/Image'
-import { Directory } from '../model/Directory'
-import { Bucket } from '../model/Bucket'
+import { RestfulUtil } from '../util/RestfulUtil';
+import { AuthUtil } from '../util/AuthUtil'
+import { Document } from '../model/Document'
+import { Bucket } from '../model/Bucket';
+import { Audio } from '../model/Audio'
+import { Video } from '../model/Video'
+import { Image } from '../model/Image';
+import { File } from '../model/File'
 import { BucketConfig } from '../interface/config/BucketConfig'
 import { FormatConfig } from '../interface/config/FormatConfig'
 import { EnableWatermarkConfig } from '../interface/config/EnableWatermarkConfig'
@@ -26,8 +30,7 @@ export class ConfigService {
 
   constructor(
     private readonly restfulUtil:RestfulUtil,
-    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>,
-    @InjectRepository(Directory) private readonly directoryRepository: Repository<Directory>
+    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>
   ){}
 
   //获取公有配置、会缓存配置到组件属性，不存在时返回null
@@ -52,11 +55,12 @@ export class ConfigService {
   }
 
 
-  async saveBucketConfig(data:any,body:BucketConfig){ 
+  async saveBucketConfig(data:any,body:BucketConfig):Promise<Bucket>{ 
     let bucket:Bucket = new Bucket()
     bucket.name = body.name
     bucket.operator = body.operator
     bucket.password = crypto.createHash('md5').update(body.password).digest('hex')
+    bucket.directory = body.directory
     bucket.request_expire = +body.request_expire
     if(body.isPublic){
       bucket.id = 1
@@ -67,23 +71,15 @@ export class ConfigService {
       bucket.token_expire  = +body.token_expire
       bucket.token_secret_key = body.token_secret_key
     }
-    let root:Directory = new Directory()
-    root.bucket_name = body.name
-    root.children  = new Array<Directory>()
-    root.parent = null
-    root.images = new Array<Image>()
-    root.level = 0
-    root.name  = '#'+body.name+'_root'
-    bucket.root = root
     try{
       await this.bucketRepository.save(bucket)
       data.code = 200
       data.message = '空间保存成功'
-      return
+      return bucket
     }catch(err){
       data.code  = 401
       data.message = '空间保存失败'+err.toString()
-      return
+      return null
     }
   }
   
@@ -92,14 +88,14 @@ export class ConfigService {
     let {format} = body
     format = format.toLowerCase()
     if(format!='raw'&&format!='webp_damage'&&format!='webp_undamage'){
-      data.code = 402
+      data.code = 401
       data.message = '保存格式不正确'
       return
     }
 
     let buckets:Bucket[] = await this.bucketRepository.find()
     if(buckets.length!==2){
-      data.code = 403
+      data.code = 402
       data.message = '空间配置不存在'
       return
     }
@@ -112,7 +108,7 @@ export class ConfigService {
       data.message = '图片保存格式配置成功'
       return
     }catch(err){
-      data.code = 404
+      data.code = 403
       data.message  = '图片保存格式配置失败'+err.toString()
       return
     }
@@ -123,7 +119,7 @@ export class ConfigService {
   async saveEnableWatermarkConfig(data:any,body:EnableWatermarkConfig):Promise<void>{
     let buckets:Bucket[] = await this.bucketRepository.find()
     if(buckets.length!==2){
-      data.code = 403
+      data.code = 401
       data.message = '空间配置不存在'
       return
     }
@@ -142,7 +138,7 @@ export class ConfigService {
       data.message = '水印启用配置成功'
       return
     }catch(err){
-      data.code = 405
+      data.code = 402
       data.message  = '水印启用保存失败'+err.toString()
       return
     }
@@ -151,19 +147,19 @@ export class ConfigService {
   async saveWatermarkConfig(data:any,file:any,obj:any):Promise<void>{
     let buckets:Bucket[] = await this.bucketRepository.find()
     if(buckets.length!==2){
-      data.code = 403
+      data.code = 401
       data.message = '空间配置不存在'
       return
     }
     let md5 = crypto.createHash('md5').update(fs.readFileSync(file.path)).digest('hex')
     for(let i=0;i<buckets.length;i++){
-      await this.restfulUtil.uploadFile(data,buckets[i],buckets[i].root,file,md5)
-      if(data.code === 408 ){
+      await this.restfulUtil.uploadFile(data,buckets[i],file,md5)
+      if(data.code === 404 ){
         break
       }
     }
     fs.unlinkSync(file.path)
-    if(data.code === 408 ){
+    if(data.code === 404 ){
       return
     }
     
@@ -174,32 +170,31 @@ export class ConfigService {
         await usedQueryRunner.startTransaction();
         for(let i=0;i<buckets.length;i++){
           let image:Image = new Image()
-          image.bucket_name = buckets[i].name
+          image.bucket = buckets[i]
           image.name = file.name
           image.type = file.name.substr(file.name.lastIndexOf('.')+1).toLowerCase()
           image.size = file.size
           image.md5 = md5
           image.status = 'post'
-          image.directory = buckets[i].root
-          buckets[i].root.images.add(image)
-          transactionEntityManager.save(buckets[i].root)
+          transactionEntityManager.save(image)
         }
         await usedQueryRunner.commitTransaction();
     }catch (err) {
         try { 
             await usedQueryRunner.rollbackTransaction();
-            data.code = 409
+            data.code = 405
             data.message = '保存水印图片出现错误'
         } catch (rollbackError) {
-            data.code = 409
+            data.code = 405
             data.message = '保存水印图片中出现回滚错误'
         }
     }finally {
         if (usedQueryRunner) 
             await usedQueryRunner.release();
     }
-    if(data.code === 409){
+    if(data.code === 405){
       return
     }
+    return
   }
 }

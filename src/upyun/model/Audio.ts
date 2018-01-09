@@ -2,9 +2,9 @@ import { Entity,Column,PrimaryGeneratedColumn,Index,ManyToOne,JoinColumn,OneToOn
 import { Bucket } from './Bucket'
 
 @Entity({
-    name:'file'
+    name:'audio'
 })
-export class File{
+export class Audio{
     
     @PrimaryGeneratedColumn({
         name:'id',
@@ -74,7 +74,7 @@ export class File{
     })
     update_date:Date;
 
-    @ManyToOne(type=>Bucket,bucket=>bucket.files,{
+    @ManyToOne(type=>Bucket,bucket=>bucket.audios,{
         cascadeInsert:false,
         cascadeUpdate:false,
         cascadeRemove:false,

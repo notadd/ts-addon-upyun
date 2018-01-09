@@ -15,6 +15,10 @@ export class BucketConfig {
   @ApiModelProperty({description:'密码',required:true})
   password: string;
 
+  //空间在云存储上的唯一目录，所有文件存储在它下面
+  @ApiModelProperty({description:'空间目录',required:true})
+  directory: string;
+
   @ApiModelProperty({description:'请求超时',required:true})
   request_expire: number|string;
 

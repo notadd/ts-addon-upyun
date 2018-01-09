@@ -2,19 +2,23 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FileController } from './controller/FileController';
 import { ConfigController } from './controller/ConfigController';
-import { FileService } from './service/FileService';
 import { ConfigService } from './service/ConfigService';
-import { RestfulUtil } from './util/RestfulUtil';
-import { AuthUtil } from './util/AuthUtil';
+import { FileService } from './service/FileService';
 import { ProcessStringUtil } from './util/ProcessStringUtil';
-import { Directory } from './model/Directory';
+import { RestfulUtil } from './util/RestfulUtil';
+import { KindUtil } from './util/KindUtil';
+import { AuthUtil } from './util/AuthUtil';
+import { Document } from './model/Document'
 import { Bucket } from './model/Bucket';
+import { Audio } from './model/Audio'
+import { Video } from './model/Video'
 import { Image } from './model/Image';
+import { File } from './model/File'
 const typeormOptions = require('./typeormConfig')
 @Module({
-  modules: [TypeOrmModule.forRoot([Image,Bucket,Directory],typeormOptions)],  
+  modules: [TypeOrmModule.forRoot([Image,File,Bucket,Video,Audio],typeormOptions)],  
   controllers: [ConfigController,FileController],
-  components: [ConfigService,FileService,RestfulUtil,AuthUtil,ProcessStringUtil],
+  components: [ConfigService,FileService,RestfulUtil,KindUtil,AuthUtil,ProcessStringUtil],
   exports:[ConfigService,FileService,RestfulUtil,AuthUtil,ProcessStringUtil]
 })
 

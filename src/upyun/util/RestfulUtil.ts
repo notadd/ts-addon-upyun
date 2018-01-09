@@ -2,11 +2,12 @@ import { Component, Inject,forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthUtil } from '../util/AuthUtil'
-import { Bucket } from '../model/Bucket'
+import { Document } from '../model/Document'
+import { Bucket } from '../model/Bucket';
+import { Audio } from '../model/Audio'
+import { Video } from '../model/Video'
+import { Image } from '../model/Image';
 import { File } from '../model/File'
-import { Image} from '../model/Image'
-import { Directory } from '../model/Directory';
-import { WSAEACCES } from 'constants';
 const fs  = require('fs')
 const crypto = require('crypto')
 const request = require('request')
@@ -27,7 +28,7 @@ export class RestfulUtil{
 
 
   //上传文件，其中文件信息来自于formidable解析得到的File对象
-  async uploadFile(data:any,bucket:Bucket,directory:Directory,file:any,md5:string):Promise<void>{
+  async uploadFile(data:any,bucket:Bucket,file:any,md5:string):Promise<void>{
     
     let contentMd5 = md5
     let name = file.name
@@ -35,12 +36,7 @@ export class RestfulUtil{
         contentMd5 = crypto.createHash('md5').update(fs.readFileSync(file.path)).digest('hex')
     }
     let extension:string = name.substr(name.lastIndexOf('.'))
-    let save_key = '/'+directory.name+'/'+md5+extension
-    let parent:Directory = directory.parent
-    while(parent.level!=0){
-        save_key = ('/'+parent.name).concat(save_key)
-        parent = parent.parent
-    }
+    let save_key = '/'+bucket.directory+'/'+md5+extension
     let requestUrl = this.apihost+'/'+bucket.name+save_key
     let url = '/'+bucket.name+save_key
     let date:string = new Date(+new Date()+bucket.request_expire*1000).toUTCString()
@@ -94,31 +90,15 @@ export class RestfulUtil{
     return
   }
 
-  /* 下载指定文件并且将得到的响应体发送给response对象
-     @Param data:状态码
-     @Param bucket：文件所属空间
-     @Param directory：文件所属目录
-     @Param file：文件对象
-     @Param res：要获取文件的响应
-  */
-  async downloadFile(data:any,bucket:Bucket,directory:Directory,file:File,res:any){
-
-  }
 
   /*创建指定空间里的指定目录，前置判定父目录必须存在 
       @Param data：状态码
       @Param bucket：目录所属空间
       @Param directory：端点目录对象
   */
-  async createDirectory(data:any,bucket:Bucket,directory:Directory){
-    let path = '/'+directory.name
-    let parent:Directory = directory.parent
-    while(parent.level!=0){
-        path = ('/'+parent.name).concat(path)
-        parent = parent.parent
-    }
-    let requestUrl = this.apihost+'/'+bucket.name+path
-    let url = '/'+bucket.name+path
+  async createDirectory(data:any,bucket:Bucket):Promise<void>{
+    let requestUrl = this.apihost+'/'+bucket.name+'/'+bucket.directory
+    let url = '/'+bucket.name+'/'+bucket.directory
     let date:string = new Date(+new Date()+bucket.request_expire*1000).toUTCString()
     let Authorization = await this.authUtil.getHeaderAuth(bucket,'POST',url,date,null)
     await new Promise((resolve,reject)=>{
@@ -132,7 +112,7 @@ export class RestfulUtil{
       },
       (err, res, body)=>{
         if (err) {
-          data.code = 406
+          data.code = 402
           data.message = '目录创建失败，网络错误'
           resolve()
           return
@@ -149,11 +129,11 @@ export class RestfulUtil{
             data.code = code
             data.message = msg
           }catch(err){
-            data.code = 405
+            data.code = 402
             data.message = '响应体解析错误'
           }
         }else{
-          data.code = 405
+          data.code = 402
           data.message = '响应体不存在'
         }
         resolve()
@@ -169,13 +149,8 @@ export class RestfulUtil{
      @Param directory：文件所属目录
      @Param file：文件对象
    */
-  async deleteFile(data:any,bucket:Bucket,directory:Directory,file:File):Promise<void>{
-    let save_key = '/'+directory.name+'/'+file.md5+'.'+file.type
-    let parent:Directory = directory.parent
-    while(parent.level!=0){
-        save_key = ('/'+parent.name).concat(save_key)
-        parent = parent.parent
-    }
+  async deleteFile(data:any,bucket:Bucket,file:File|Image|Video|Audio|Document):Promise<void>{
+    let save_key = '/'+bucket.directory+'/'+file.md5+'.'+file.type
     let requestUrl = this.apihost+'/'+bucket.name+save_key
     let url = '/'+bucket.name+save_key
     let date:string = new Date(+new Date()+bucket.request_expire*1000).toUTCString()
@@ -192,7 +167,7 @@ export class RestfulUtil{
         //console.log(res)
         console.log(body)
         if(err){
-          data.code = 460
+          data.code = 445
           data.message = '删除文件失败'
           resolve()
           return
@@ -209,11 +184,11 @@ export class RestfulUtil{
             data.code = code
             data.message = msg
           }catch(err){
-            data.code = 460
+            data.code = 445
             data.message = '响应体解析错误'
           }
         }else{
-          data.code = 460
+          data.code = 445
           data.message = '响应体不存在'
         }
         resolve()
@@ -222,9 +197,4 @@ export class RestfulUtil{
     })
     return 
   }
-
-  
-  async fileList(){
-  }
-
 }

@@ -1,15 +1,22 @@
+import { ApiUseTags, ApiResponse, ApiOperation, ApiConsumes, ApiProduces, ApiImplicitBody} from '@nestjs/swagger';
 import { Controller, Get , Post, Request , Response , Body ,Query } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ApiUseTags, ApiResponse, ApiOperation, ApiConsumes, ApiProduces, ApiImplicitBody} from '@nestjs/swagger';
 import { Repository } from 'typeorm';
 import { ConfigService } from '../service/ConfigService';
+import { FileService } from '../service/FileService'
+import { RestfulUtil } from '../util/RestfulUtil';
+import { KindUtil } from '../util/KindUtil'
+import { AuthUtil } from '../util/AuthUtil'
+import { Document } from '../model/Document'
 import { Bucket } from '../model/Bucket';
+import { Audio } from '../model/Audio'
+import { Video } from '../model/Video'
 import { Image } from '../model/Image';
+import { File } from '../model/File'
 import { BucketConfig } from '../interface/config/BucketConfig'
 import { FormatConfig } from '../interface/config/FormatConfig'
 import { WatermarkConfig } from '../interface/config/WatermarkConfig'
 import { EnableWatermarkConfig } from '../interface/config/EnableWatermarkConfig'
-const allowExtension = require('../allowExtension.json')
 const formidable = require('formidable')
 const fs = require('fs')
 
@@ -19,17 +26,13 @@ const fs = require('fs')
 export class ConfigController {
 
   private readonly gravity:Set<string>
-  private readonly imageExtension:Set<string>
-  private readonly audioExtension:Set<string>
-  private readonly videoExtension:Set<string>
 
   constructor(
+    private readonly kindUtil: KindUtil,
+    private readonly resufulUtil: RestfulUtil,
     private readonly configService: ConfigService,
     @InjectRepository(Image) private readonly imageRepository: Repository<Image>) {
       this.gravity = new Set(['northwest','north','northeast','west','center','east','southwest','south','southeast'])
-      this.imageExtension = allowExtension.image
-      this.audioExtension = allowExtension.audio
-      this.videoExtension = allowExtension.video
     }
 
   /* 配置空间基本信息 */
@@ -39,7 +42,8 @@ export class ConfigController {
   @ApiProduces('application/json')
   @ApiResponse({status:200,description:'保存配置成功'})
   @ApiResponse({status:400,description:'缺少参数,或参数无效'})
-  @ApiResponse({status:401,description:'公有空间配置保存失败'})
+  @ApiResponse({status:401,description:'空间配置保存失败'})
+  @ApiResponse({status:402,description:'目录创建失败'})
   async bucketConfig(@Body() body:BucketConfig):Promise<any>{
 
     let data = {
@@ -47,9 +51,9 @@ export class ConfigController {
       message:""
     }
 
-    let {isPublic,name,operator,password,base_url,request_expire}  = body;
+    let {isPublic,name,operator,password,directory,base_url,request_expire}  = body;
 
-    if(isPublic === undefined || !name || !operator|| !password || !base_url  || !request_expire){
+    if(isPublic === undefined || !name || !operator|| !password || !directory || !base_url  || !request_expire){
         data.code = 400
         data.message = '缺少参数'
         return data
@@ -99,12 +103,13 @@ export class ConfigController {
     }
 
     //保存配置，如果已存在就更新它
-    await this.configService.saveBucketConfig(data,body)
-    
+    let bucket:Bucket = await this.configService.saveBucketConfig(data,body)
     //空间配置保存失败
     if(data.code == 401){
       return data
     }
+    await this.resufulUtil.createDirectory(data,bucket)
+    
     return data
   }
  
@@ -116,9 +121,9 @@ export class ConfigController {
   @ApiProduces('application/json')
   @ApiResponse({status:200,description:'格式配置成功'})
   @ApiResponse({status:400,description:'缺少参数'})
-  @ApiResponse({status:402,description:'参数不正确，格式只能是raw、webp_damage、webp_undamage'})
-  @ApiResponse({status:403,description:'空间配置不存在'})
-  @ApiResponse({status:404,description:'图片保存格式配置失败'})
+  @ApiResponse({status:401,description:'格式参数不正确，格式只能是raw、webp_damage、webp_undamage'})
+  @ApiResponse({status:402,description:'空间配置不存在'})
+  @ApiResponse({status:403,description:'图片保存格式配置失败'})
   async  formatConfig(@Body() body:FormatConfig):Promise<any>{
 
     let data = {
@@ -138,7 +143,7 @@ export class ConfigController {
     await this.configService.saveFormatConfig(data,body)
     
     //格式参数不正确、配置不存在、保存失败
-    if(data.code == 402 || data.code == 403 ||data.code == 404){
+    if(data.code == 401 || data.code == 402 ||data.code == 403){
       return data
     }
 
@@ -151,8 +156,8 @@ export class ConfigController {
   @ApiProduces('application/json')
   @ApiResponse({status:200,description:'启用水印配置成功'})
   @ApiResponse({status:400,description:'缺少参数,或者参数错误'})
-  @ApiResponse({status:403,description:'空间配置不存在'})
-  @ApiResponse({status:405,description:'水印启用保存失败'})
+  @ApiResponse({status:401,description:'空间配置不存在'})
+  @ApiResponse({status:402,description:'水印启用保存失败'})
   async  enableWatermark(@Body() body:EnableWatermarkConfig ):Promise<any>{
     let data = {
       code:200,
@@ -180,7 +185,7 @@ export class ConfigController {
 
     await this.configService.saveEnableWatermarkConfig(data,body)
     //保存启用水印到数据库失败，无法模仿这个错误
-    if(data.code === 403 || data.code === 405){
+    if(data.code === 401 || data.code === 402){
       return data
     }
     return data
@@ -197,11 +202,11 @@ export class ConfigController {
   @ApiProduces('application/json')
   @ApiResponse({status:200,description:'图片水印配置成功'})
   @ApiResponse({status:400,description:'缺少参数,非法参数、水印图片类型不允许'})
-  @ApiResponse({status:403,description:'空间配置不存在，水印图片必须上传到相应空间'})
-  @ApiResponse({status:406,description:'请求解析错误'})
-  @ApiResponse({status:407,description:'不允许的水印图片类型'})
-  @ApiResponse({status:408,description:'上传水印图片失败'})
-  @ApiResponse({status:409,description:'保存水印图片信息失败'})
+  @ApiResponse({status:401,description:'空间配置不存在，水印图片必须上传到相应空间'})
+  @ApiResponse({status:402,description:'请求解析错误'})
+  @ApiResponse({status:403,description:'不允许的水印图片类型'})
+  @ApiResponse({status:404,description:'上传水印图片失败'})
+  @ApiResponse({status:405,description:'保存水印图片信息失败'})
   async  watermarkConfig(@Request() req,@Body() body:WatermarkConfig):Promise<any>{
     let data = {
       code:200,
@@ -214,7 +219,7 @@ export class ConfigController {
       form.parse(req, function(err, fields, files) {  
         if(err){
           //这个错误无法模仿
-          data.code = 406
+          data.code = 402
           data.message = '请求解析错误'
           resolve()
           return
@@ -231,7 +236,7 @@ export class ConfigController {
         return
       });  
     })
-    if(data.code == 400 || data.code == 406){
+    if(data.code == 400 || data.code == 402){
       return data
     }
 
@@ -281,8 +286,8 @@ export class ConfigController {
     }else{
       //暂定短边自适应比例可以大于100
     }
-    if(!this.imageExtension.has(file.name.substr(file.name.lastIndexOf('.')+1))){
-      data.code = 407
+    if(!this.kindUtil.isImage(file.name.substr(file.name.lastIndexOf('.')+1))){
+      data.code = 403
       data.message = '不允许的水印图片类型'
       return data
     }
@@ -290,7 +295,7 @@ export class ConfigController {
     //保存后台水印配置
     await this.configService.saveWatermarkConfig(data,file,obj)
 
-    if(data.code === 403 || data.code === 408 || data.code === 409 ){
+    if(data.code === 401 || data.code === 404|| data.code === 405 ){
       return data
     }
 

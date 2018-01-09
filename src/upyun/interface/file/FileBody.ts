@@ -48,49 +48,49 @@ class Blur{
 
 
 
-export class ImageBody{
+export class FileBody{
 
     @ApiModelProperty({description:'所属空间名',required:true})
     bucket_name:string
 
-    @ApiModelProperty({description:'图片所属的目录名数组，有顶层目录到底层目录',required:true})
-    directorys:string[]
-
     @ApiModelProperty({description:'图片的md5值',required:true})
     md5:string
 
+    @ApiModelProperty({description:'图片的类型',required:true})
+    type:string
+
     @ApiModelProperty({description:'缩放参数',required:false})
-    resize:Resize
+    resize?:Resize
 
     @ApiModelProperty({description:'裁剪参数',required:false})
-    tailor:Tailor
+    tailor?:Tailor
 
     @ApiModelProperty({description:'圆角参数',required:false})
-    roundrect:number
+    roundrect?:number
 
     @ApiModelProperty({description:'水印参数',required:false})
-    watermark:boolean
+    watermark?:boolean
 
     @ApiModelProperty({description:'旋转参数',required:false})
-    rotate:number
+    rotate?:number
 
     @ApiModelProperty({description:'高斯模糊参数',required:false})
-    blur:Blur
+    blur?:Blur
 
     @ApiModelProperty({description:'锐化参数',required:false})
-    sharpen:boolean
+    sharpen?:boolean
 
     @ApiModelProperty({description:'格式参数',required:false})
-    format:string
+    format?:string
 
     @ApiModelProperty({description:'图片质量参数',required:false})
-    quality:number
+    quality?:number
 
     @ApiModelProperty({description:'渐进显示参数',required:false})
-    progressive:boolean
+    progressive?:boolean
     
     @ApiModelProperty({description:'去除所有元信息',required:false})
-    strip:boolean
+    strip?:boolean
 
 }
 

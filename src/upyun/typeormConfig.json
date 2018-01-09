@@ -6,6 +6,11 @@
     "username": "root",
     "password": "123456",
     "database": "upyun",
-    "entities": ["./src/upyun/model/Bucket.ts","./src/upyun/model/Image.ts","./src/upyun/model/Directory.ts"],
+    "entities": ["./src/upyun/model/Bucket.ts",
+      "./src/upyun/model/Image.ts",
+      "./src/upyun/model/Document.ts",
+      "./src/upyun/model/File.ts",
+      "./src/upyun/model/Video.ts",
+      "./src/upyun/model/Audio.ts"],
     "synchronize":true
   }

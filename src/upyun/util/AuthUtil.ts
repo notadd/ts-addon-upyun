@@ -1,8 +1,12 @@
 import { Component, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Bucket } from '../model/Bucket'
-import { Image } from '../model/Image'
+import { Document } from '../model/Document'
+import { Bucket } from '../model/Bucket';
+import { Audio } from '../model/Audio'
+import { Video } from '../model/Video'
+import { Image } from '../model/Image';
+import { File } from '../model/File'
 const crypto = require('crypto')
 
 /* 验证签名服务组件，包含获取头信息签名、请求体签名、token、回调通知验签等功能 */
@@ -55,7 +59,7 @@ export class AuthUtil {
 
 
   /* 获取访问私有空间图片token
-     @Param url：访问图片的url
+     @Param url：访问图片的url,不包含域名
      @Param bucket：空间配置
   */
   async getToken(bucket:Bucket,url:string){
