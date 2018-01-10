@@ -30,10 +30,13 @@ export class FileService {
     private readonly kindUtil:KindUtil,
     private readonly restfulUtil:RestfulUtil,
     private readonly processStringUtil:ProcessStringUtil,
+    @InjectRepository(File) private readonly fileRepository: Repository<File>,
     @InjectRepository(Image) private readonly imageRepository: Repository<Image>,
-    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>){
-    }
+    @InjectRepository(Audio) private readonly audioRepository: Repository<Audio>,
+    @InjectRepository(Video) private readonly videoRepository: Repository<Video>,   
+    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>){}
 
+    
 /* 创建上传参数
    @Param data：返回信息，用来设置状态码
    @Param policy：policy对象
@@ -61,10 +64,8 @@ export class FileService {
     let kind = this.kindUtil.getKind(type)
     
     if(kind==='image'){
-      let image:Image = (await bucket.images).find((image)=>{
-        return image.md5 === md5
-      })
-      if(image){
+      let image:Image = await this.imageRepository.findOne({md5,bucketId:bucket.id})
+      if(image&&image.status==='post'){
         data.code = 403
         data.message = '指定文件已经存在'
         return
@@ -163,13 +164,7 @@ export class FileService {
   async postDeleteFile(bucket:Bucket,md5:string,type:string,status:string,kind:string){
     console.log('对文件进行后删除')
     if(kind==='image'){
-      let image:Image = (await bucket.images).find((image)=>{
-        return image.md5 === md5
-      })
-      if(!image){
-        return
-      }
-      this.imageRepository.delete(image)
+      this.imageRepository.delete({md5,bucketId:bucket.id})
     }else if(kind==='audio'){
        console.log('audio暂时未实现')
     }else if(kind==='video'){
@@ -180,27 +175,18 @@ export class FileService {
   }
 
   /* 回调通知验签成功，且响应码为200时，后保存图片 */
-  async postSaveFile(bucket:Bucket,md5:string,type:string,body:any,kind:string){
-    console.log('对文件进行后保存')
+  async postSaveFile(bucket:Bucket,md5:string,type:string,body:any,kind:string):Promise<boolean>{
     if(kind==='image'){
-      let image_width = body['image-width']
-      let image_height = body['image-height']
-      let image_type = body['image-type'].toLowerCase()
-      let image_frames = body['image-frames']
-      let format = bucket.format
-      let image:Image = (await bucket.images).find((image)=>{
-        return image.md5 === md5
-      })
+      let image:Image = await this.imageRepository.findOne({md5,bucketId:bucket.id})
       if(!image){
-        return
+        return false
       }
-      await this.imageRepository.update(image,{
-        width:image_width,
-        height:image_height,
-        type:image_type,
-        frames:image_frames,
-        status:'post'
-      })
+      image.width = body['image-width'],
+      image.height = body['image-height'],
+      image.type = body['image-type'].toLowerCase(),
+      image.frames = body['image-frames'],
+      image.status = 'post'
+      await this.imageRepository.save(image)
     }else if(kind==='audio'){
        console.log('audio暂时未实现')
     }else if(kind==='video'){
@@ -208,7 +194,30 @@ export class FileService {
     }else{
        throw new Error('kind不正确')
     }
-    return
+    return true
+  }
+
+  /* 预处理回调通知验签成功，且响应码为200时，后保存图片 */
+  async postSaveTask(bucket:Bucket,md5:string,type:string,body:any,kind:string):Promise<boolean>{
+    if(kind==='image'){
+      let image:Image = await this.imageRepository.findOne({md5,bucketId:bucket.id})
+      if(!image){
+        return false
+      }
+      image.width = body.imginfo['width'],
+      image.height = body.imginfo['height'],
+      image.type = body.imginfo['type'].toLowerCase(),
+      image.frames = body.imginfo['frames'],
+      image.status = 'post'
+      await this.imageRepository.save(image)
+    }else if(kind==='audio'){
+       console.log('audio暂时未实现')
+    }else if(kind==='video'){
+       console.log('video暂时未实现')
+    }else{
+       throw new Error('kind不正确')
+    }
+    return true
   }
 
   
@@ -231,6 +240,30 @@ export class FileService {
       data.url += this.processStringUtil.makeProcessString(data,body,bucket)
       console.log('2:'+data.url)
     }
+    return 
+  }
+
+  async getAll(data:any,bucket:Bucket){
+    data.files = await bucket.files
+    data.images = await bucket.images
+    data.audios  = await bucket.audios
+    data.videos = await bucket.videos
+    data.documents = await bucket.documents
+
+    let addUrl = function (value){
+      value.url = '/'+bucket.name+'/'+value.md5+'.'+value.type
+      if(bucket.public_or_private==='private'){
+        value.url+='?_upt='+this.authUtil.getToken(bucket,value.url)
+      }
+      if(value.content_secret){
+        value.url+='!'+value.content_secret
+      }
+    }
+    data.files.forEach(addUrl)
+    data.images.forEach(addUrl)
+    data.audios.forEach(addUrl)
+    data.videos.forEach(addUrl)
+    data.documents.forEach(addUrl)
     return 
   }
 }

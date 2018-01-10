@@ -8,6 +8,9 @@ import { Bucket } from './Bucket'
 @Entity({
   name: 'image'
 })
+@Index('bucketId_md5',['bucketId','md5'],{
+  unique:true
+})
 export class Image {
 
   @PrimaryGeneratedColumn({
@@ -28,7 +31,6 @@ export class Image {
     name: 'md5',
     type: 'varchar',
     length: 50,
-    unique: true,
     nullable: false
   })
   md5: string;
@@ -98,12 +100,15 @@ export class Image {
   })
   frames: number;
 
+  @Column({nullable:true})
+  bucketId:number
+
   @ManyToOne(type => Bucket, bucket => bucket.images, {
-    cascadeInsert: false,
+    cascadeInsert:false,
     cascadeRemove: false,
     cascadeUpdate:false,
     nullable: false,
-    eager: true
+    lazy:false
   })
   @JoinColumn()
   bucket: Bucket

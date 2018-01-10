@@ -97,7 +97,7 @@ export class ProcessStringUtil {
                 //这里的/force是为了保险
                 return '/scale/'+info.scale+'/force/true'
             }
-            data.code = 417
+            data.code = 403
             data.message = '比例参数不正确'
             return ''
         }else if(mode == 'wscale'){
@@ -105,7 +105,7 @@ export class ProcessStringUtil {
                 //为了保险，经验证这里可以不加/force/true
                 return '/wscale/'+info.wscale+'/force/true'
             }
-            data.code = 418
+            data.code = 404
             data.message = '宽度比例参数不正确'
             return ''
         }else if(mode == 'hscale'){
@@ -113,7 +113,7 @@ export class ProcessStringUtil {
                 //为了保险，经验证这里可以不加/force/true
                 return '/hscale/'+info.hscale+'/force/true'
             }
-            data.code = 419
+            data.code = 405
             data.message = '高度比例参数不正确'
             return ''
         }else if(mode == 'both'){
@@ -122,7 +122,7 @@ export class ProcessStringUtil {
                 //经验证不加/force/true图片边缘处有变化，这个居中裁剪后缩放不是字面意思
                 return '/both/'+info.width+'x'+info.height+'/force/true'
             }
-            data.code = 420
+            data.code = 406
             data.message = '宽高参数不正确'
             return ''
         }
@@ -131,7 +131,7 @@ export class ProcessStringUtil {
                 //强制指定可以放大，经验证这个必须加上/force/true才能放大
                 return '/fw/'+info.width+'/force/true'
             }
-            data.code = 421
+            data.code = 407
             data.message = '宽度参数不正确'
             return ''
         }else if(mode == 'fh'){
@@ -139,7 +139,7 @@ export class ProcessStringUtil {
                 //强制指定可以放大，经验证这个必须加上/force/true才能放大
                 return '/fh/'+info.height+'/force/true'
             }
-            data.code = 422
+            data.code = 408
             data.message = '高度参数不正确'
             return ''
         }else if(mode == 'fp'){
@@ -147,7 +147,7 @@ export class ProcessStringUtil {
                 //强制指定可以放大，经验证这个必须加上/force/true才能放大
                 return '/fp/'+info.pixel+'/force/true'
             }
-            data.code = 423
+            data.code = 409
             data.message = '像素参数不正确'
             return ''
         }else if(mode == 'fwfh'){
@@ -155,7 +155,7 @@ export class ProcessStringUtil {
                 //加上force，代表可以放大缩小，但是缩放后必须可以被指定矩形完全包含
                 return '/fwfh/'+info.width+'x'+info.height+'/force/true'
             }
-            data.code = 420
+            data.code = 406
             data.message = '宽高参数不正确'
             return ''
         }else if(mode == 'fwfh2'){
@@ -163,11 +163,11 @@ export class ProcessStringUtil {
                 //加上force，代表可以放大缩小，但是缩放后必须可以完全包含指定矩形
                 return '/fwfh2/'+info.width+'x'+info.height+'/force/true'
             }
-            data.code = 420
+            data.code = 406
             data.message = '宽高参数不正确'
             return ''
         }else{
-            data.code = 424
+            data.code = 410
             data.message = '缩放模式不正确'
             return  ''
         }
@@ -193,7 +193,7 @@ export class ProcessStringUtil {
             //默认为缩放之后裁剪
             str += '/clip'
         }else{
-            data.code = 425
+            data.code = 411
             data.message = '裁剪顺序指定错误'
             return ''
         }
@@ -204,14 +204,14 @@ export class ProcessStringUtil {
             //默认为西北角
             str += '/gravity/northwest'
         }else{
-            data.code = 426
+            data.code = 412
             data.message = '裁剪重心参数不正确'
             return ''
         }
         if(width&&Number.isInteger(width)&&height&&Number.isInteger(height)&&x&&Number.isInteger(x)&&y&&Number.isInteger(y)){
             str += '/'+width+'x'+height
         }else{
-            data.code = 427
+            data.code = 413
             data.message = '裁剪宽高参数不正确'
             return ''
         }
@@ -220,7 +220,7 @@ export class ProcessStringUtil {
         }else if(x&&Number.isInteger(x)&&x<0){
             str += 's'+x
         }else{
-            data.code = 428
+            data.code = 414
             data.message = 'x参数不正确'
             return ''
         }
@@ -229,7 +229,7 @@ export class ProcessStringUtil {
         }else if(y&&Number.isInteger(y)&&y<0){
             str += 's'+y
         }else{
-            data.code = 429
+            data.code = 415
             data.message = 'y参数不正确'
             return ''
         }
@@ -244,7 +244,7 @@ export class ProcessStringUtil {
         }else if(roundrect&&Number.isInteger(roundrect)){
             return '/roundrect/'+roundrect            
         }else{
-            data.code = 430
+            data.code = 416
             data.message = '圆角参数不正确'
             return '' 
         }
@@ -270,7 +270,7 @@ export class ProcessStringUtil {
                enable = false
            }
         }else{
-            data.code = 431
+            data.code = 417
             data.message = '水印参数不正确'
             return ''
         }
@@ -279,13 +279,13 @@ export class ProcessStringUtil {
             if(bucket.watermark_save_key){
                 str += '/watermark/url/'+Buffer.from(bucket.watermark_save_key).toString('base64')
             }else{
-                data.code = 432
+                data.code = 418
                 data.message = '水印图片url不存在'
                 return ''
             }
 
             if(bucket.watermark_gravity&&!this.gravity.has(bucket.watermark_gravity)){
-                data.code = 433
+                data.code = 419
                 data.message = '水印重心参数不正确'
                 return ''
             }else{
@@ -293,7 +293,7 @@ export class ProcessStringUtil {
             }
 
             if((bucket.watermark_x&&!Number.isInteger(bucket.watermark_x))||(bucket.watermark_y&&!Number.isInteger(bucket.watermark_y))){
-                data.code = 434
+                data.code = 420
                 data.message = '偏移参数不正确'
                 return ''
             }else if(!bucket.watermark_x&&!bucket.watermark_y){
@@ -307,7 +307,7 @@ export class ProcessStringUtil {
             }
 
             if(bucket.watermark_opacity&&!Number.isInteger(bucket.watermark_opacity)){
-                data.code = 435
+                data.code = 421
                 data.message = '透明度参数不正确'
                 return ''
             }else if(!bucket.watermark_opacity){
@@ -321,7 +321,7 @@ export class ProcessStringUtil {
             }else if(!bucket.watermark_ws){
                 //默认为0，不用管
             }else{
-                data.code = 436
+                data.code = 422
                 data.message = '短边自适应参数不正确'
                 return ''
             }
@@ -526,7 +526,7 @@ export class ProcessStringUtil {
         if(Number.isInteger(rotate)){
             return '/rotate/'+rotate
         }else{
-            data.code = 437
+            data.code = 423
             data.message = '旋转角度不正确'
             return ''
         }
@@ -538,12 +538,12 @@ export class ProcessStringUtil {
         }
         let {redius,sigma} = blur
         if( !redius|| !Number.isInteger(redius) || redius<0 || redius>50){
-            data.code = 438
+            data.code = 424
             data.message = '模糊半径不正确'
             return ''
         }
         if(!sigma || !Number.isInteger(sigma)){
-            data.code = 439
+            data.code = 425
             data.message = '标准差不正确'
             return ''
         }
@@ -556,7 +556,7 @@ export class ProcessStringUtil {
         if(sharpen===true){
             str+='/unsharp/true'
         }else if(sharpen){
-            data.code = 440
+            data.code = 426
             data.message = '锐化参数不正确'
             return ''
         }else{
@@ -566,7 +566,7 @@ export class ProcessStringUtil {
         if(format&&this.format.has(format)){
             str+='/format/'+format
         }else if(format&&!this.format.has(format)){
-            data.code = 441
+            data.code = 427
             data.message = '格式参数不正确'
             return ''
         }else{
@@ -578,7 +578,7 @@ export class ProcessStringUtil {
         }else if(!quality){
 
         }else{
-            data.code = 442
+            data.code = 428
             data.message = '图片质量参数不正确'
             return ''
         }
@@ -586,7 +586,7 @@ export class ProcessStringUtil {
         if(progressive===true){
             str+='/progressive/true'
         }else if(progressive){
-            data.code = 443
+            data.code = 429
             data.message = '渐进参数不正确'
             return ''
         }else{
@@ -596,7 +596,7 @@ export class ProcessStringUtil {
         if(strip===true){
             str+='/strip/true'
         }else if(strip){
-            data.code = 444
+            data.code = 430
             data.message = '去除元信息参数不正确'
             return ''
         }else{

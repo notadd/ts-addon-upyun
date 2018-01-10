@@ -35,6 +35,7 @@ export class ConfigController {
       this.gravity = new Set(['northwest','north','northeast','west','center','east','southwest','south','southeast'])
     }
 
+
   /* 配置空间基本信息 */
   @Post('bucket')
   @ApiOperation({title:'公有空间配置接口'})
@@ -272,9 +273,8 @@ export class ConfigController {
       data.message = '透明度大于100'
       return data
     }else{
-
+      
     }
-
     if(!Number.isInteger(obj.ws)){
       data.code = 400
       data.message = '短边自适应比例不是整数'
@@ -291,14 +291,12 @@ export class ConfigController {
       data.message = '不允许的水印图片类型'
       return data
     }
-  
     //保存后台水印配置
     await this.configService.saveWatermarkConfig(data,file,obj)
 
     if(data.code === 401 || data.code === 404|| data.code === 405 ){
       return data
     }
-
     return data
   }
 

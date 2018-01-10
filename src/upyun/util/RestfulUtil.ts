@@ -1,6 +1,4 @@
-import { Component, Inject,forwardRef } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Component, Inject} from '@nestjs/common';
 import { AuthUtil } from '../util/AuthUtil'
 import { Document } from '../model/Document'
 import { Bucket } from '../model/Bucket';
@@ -22,9 +20,7 @@ export class RestfulUtil{
   private readonly apihost = 'http://v0.api.upyun.com'
 
   constructor(
-    private readonly authUtil:AuthUtil,
-    @InjectRepository(Image) private readonly imageRepository: Repository<Image>,
-    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>){}
+    private readonly authUtil:AuthUtil){}
 
 
   //上传文件，其中文件信息来自于formidable解析得到的File对象
@@ -167,7 +163,7 @@ export class RestfulUtil{
         //console.log(res)
         console.log(body)
         if(err){
-          data.code = 445
+          data.code = 403
           data.message = '删除文件失败'
           resolve()
           return
@@ -184,11 +180,11 @@ export class RestfulUtil{
             data.code = code
             data.message = msg
           }catch(err){
-            data.code = 445
+            data.code = 403
             data.message = '响应体解析错误'
           }
         }else{
-          data.code = 445
+          data.code = 403
           data.message = '响应体不存在'
         }
         resolve()

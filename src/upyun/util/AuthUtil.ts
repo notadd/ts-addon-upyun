@@ -1,6 +1,4 @@
 import { Component, Inject } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Document } from '../model/Document'
 import { Bucket } from '../model/Bucket';
 import { Audio } from '../model/Audio'
@@ -80,7 +78,7 @@ export class AuthUtil {
      @Param method：回调通知方法，异步情况下问post
      @Param body：回调通知请求体对象
   */
-  async notifyVerify(auth:string,bucket:Bucket,method:string,url:string,date:string,md5:string,body:any):Promise<boolean>{
+  async notifyVerify(auth:string,bucket:Bucket,method:string,url:string,date:string,contentMd5:string,body:any):Promise<boolean>{
     let rawBody = ''
     let keys = Object.keys(body)
     keys.forEach((key,index)=>{
@@ -93,7 +91,7 @@ export class AuthUtil {
       }
     })
     let genarateMd5 = crypto.createHash('md5').update(rawBody).digest('hex')
-    if(genarateMd5!==md5){
+    if(genarateMd5!==contentMd5){
       return false
     }
     //生成签名
@@ -101,7 +99,7 @@ export class AuthUtil {
     ori += method.toUpperCase()+'&'
     ori += url+'&'
     ori += date+'&'
-    ori += md5
+    ori += contentMd5
     let localSign = crypto.createHmac('sha1', bucket.password).update(ori).digest('base64')
     //获取响应头信息中签名字符串
     let remoteSign = auth.substr(auth.lastIndexOf(':')+1)
@@ -119,9 +117,9 @@ export class AuthUtil {
      @Param method：回调通知方法，异步情况下问post
      @Param body：回调通知请求体对象
   */
-  async taskNotifyVerify(auth:string,bucket:Bucket,method:string,url:string,date:string,md5:string,body:any):Promise<boolean>{
+  async taskNotifyVerify(auth:string,bucket:Bucket,method:string,url:string,date:string,contentMd5:string,body:any):Promise<boolean>{
     let genarateMd5 = crypto.createHash('md5').update(JSON.stringify(body)).digest('hex')
-    if(md5!==genarateMd5){
+    if(contentMd5!==genarateMd5){
       return false
     }
     //生成签名
@@ -129,7 +127,7 @@ export class AuthUtil {
     ori += method.toUpperCase()+'&'
     ori += url+'&'
     ori += date+'&'
-    ori += md5
+    ori += contentMd5
     let localSign = crypto.createHmac('sha1', bucket.password).update(ori).digest('base64')
     //获取响应头信息中签名字符串
     let remoteSign = auth.substr(auth.lastIndexOf(':')+1)

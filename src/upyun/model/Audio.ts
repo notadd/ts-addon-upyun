@@ -4,6 +4,9 @@ import { Bucket } from './Bucket'
 @Entity({
     name:'audio'
 })
+@Index('bucketId_md5',['bucketId','md5'],{
+    unique:true
+})
 export class Audio{
     
     @PrimaryGeneratedColumn({
@@ -24,7 +27,6 @@ export class Audio{
         name:'md5',
         type:'varchar',
         length: 50,
-        unique:true,
         nullable:false 
     })
     md5: string;
@@ -74,12 +76,16 @@ export class Audio{
     })
     update_date:Date;
 
+
+    @Column({nullable:true})
+    bucketId:number
+
     @ManyToOne(type=>Bucket,bucket=>bucket.audios,{
         cascadeInsert:false,
         cascadeUpdate:false,
         cascadeRemove:false,
         nullable:false,
-        eager:true
+        lazy:false
       })
     @JoinColumn()
     bucket:Bucket;

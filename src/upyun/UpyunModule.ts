@@ -13,8 +13,10 @@ import { Bucket } from './model/Bucket';
 import { Audio } from './model/Audio'
 import { Video } from './model/Video'
 import { Image } from './model/Image';
-import { File } from './model/File'
+import { File} from './model/File'
 const typeormOptions = require('./typeormConfig')
+
+
 @Module({
   modules: [TypeOrmModule.forRoot([Image,File,Bucket,Video,Audio],typeormOptions)],  
   controllers: [ConfigController,FileController],

@@ -30,23 +30,9 @@ export class ConfigService {
 
   constructor(
     private readonly restfulUtil:RestfulUtil,
-    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>
-  ){}
+    @InjectRepository(Image) private readonly imageRepository: Repository<Image>,
+    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>){}
 
-  //获取公有配置、会缓存配置到组件属性，不存在时返回null
-  async getPublicBucket(){
-    if(!this.publicBucket){
-      this.publicBucket = await this.bucketRepository.findOneById(1)
-    }
-    return this.publicBucket
-  }
-
-  async getPrivateBucket(){
-    if(!this.privateBucket){
-      this.privateBucket = await this.bucketRepository.findOneById(2)
-    }
-    return this.privateBucket
-  }
 
 
   //根据属性查找单个配置对象
@@ -61,6 +47,7 @@ export class ConfigService {
     bucket.operator = body.operator
     bucket.password = crypto.createHash('md5').update(body.password).digest('hex')
     bucket.directory = body.directory
+    bucket.base_url = body.base_url
     bucket.request_expire = +body.request_expire
     if(body.isPublic){
       bucket.id = 1
@@ -146,6 +133,7 @@ export class ConfigService {
 
   async saveWatermarkConfig(data:any,file:any,obj:any):Promise<void>{
     let buckets:Bucket[] = await this.bucketRepository.find()
+    let type = file.name.substr(file.name.lastIndexOf('.')+1).toLowerCase()
     if(buckets.length!==2){
       data.code = 401
       data.message = '空间配置不存在'
@@ -153,48 +141,61 @@ export class ConfigService {
     }
     let md5 = crypto.createHash('md5').update(fs.readFileSync(file.path)).digest('hex')
     for(let i=0;i<buckets.length;i++){
-      await this.restfulUtil.uploadFile(data,buckets[i],file,md5)
-      if(data.code === 404 ){
+      //在指定空间下查找md5相同的图片，这里人为md5相同就是同一张图片，图片名也相同
+    
+      let image:Image = await this.imageRepository.findOne({md5,type,bucketId:buckets[i].id})
+      //如果图片已存在，说吗云存储上也存在
+      if(image){
+        continue
+      }
+      //图片不存在
+      else{
+        //先上传
+        await this.restfulUtil.uploadFile(data,buckets[i],file,md5)
+        if(data.code === 404 ){
+          break
+        }
+        //再保存图片到数据库
+        let image:Image = new Image()
+        //这里有坑，如果之前使用了await bucket.images，那么这个bucket的性质会改变，即便这样关联，最后image中仍旧没有bucketId值
+        image.bucket = buckets[i]
+        image.name = file.name
+        image.type = file.name.substr(file.name.lastIndexOf('.')+1).toLowerCase()
+        image.size = file.size
+        image.md5 = md5
+        image.status = 'post'
+        try{
+          await this.imageRepository.save(image)
+          data.code = 200
+          data.message = '保存水印图片成功'
+        }catch(err){
+          data.code = 405
+          data.message = '保存水印图片出现错误'
+        }
+        if(data.code === 405){
+          break
+        }
+      }
+      //保存空间配置
+      buckets[i].watermark_save_key = '/'+buckets[i].directory+'/'+md5+'.'+type
+      buckets[i].watermark_gravity = obj.gravity
+      buckets[i].watermark_opacity = obj.opacity
+      buckets[i].watermark_ws = obj.ws
+      buckets[i].watermark_x = obj.x
+      buckets[i].watermark_y = obj.y
+      try{
+        await this.bucketRepository.save(buckets[i])
+      }catch(err){
+        data.code = 405
+        data.message = '保存水印配置出现错误'
+      }
+      if(data.code === 405){
         break
       }
     }
     fs.unlinkSync(file.path)
-    if(data.code === 404 ){
+    if(data.code === 404 || data.code === 405){
       return
     }
-    
-    let connection:Connection =  getConnection(connectionOptions.name)
-    const usedQueryRunner = connection.createQueryRunner("master");
-    const transactionEntityManager = connection.createEntityManager(usedQueryRunner);
-    try {
-        await usedQueryRunner.startTransaction();
-        for(let i=0;i<buckets.length;i++){
-          let image:Image = new Image()
-          image.bucket = buckets[i]
-          image.name = file.name
-          image.type = file.name.substr(file.name.lastIndexOf('.')+1).toLowerCase()
-          image.size = file.size
-          image.md5 = md5
-          image.status = 'post'
-          transactionEntityManager.save(image)
-        }
-        await usedQueryRunner.commitTransaction();
-    }catch (err) {
-        try { 
-            await usedQueryRunner.rollbackTransaction();
-            data.code = 405
-            data.message = '保存水印图片出现错误'
-        } catch (rollbackError) {
-            data.code = 405
-            data.message = '保存水印图片中出现回滚错误'
-        }
-    }finally {
-        if (usedQueryRunner) 
-            await usedQueryRunner.release();
-    }
-    if(data.code === 405){
-      return
-    }
-    return
   }
 }

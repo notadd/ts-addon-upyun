@@ -4,6 +4,9 @@ import { Bucket } from './Bucket'
 @Entity({
     name:'file'
 })
+@Index('bucketId_md5',['bucketId','md5'],{
+    unique:true
+})
 export class File{
     
     @PrimaryGeneratedColumn({
@@ -24,7 +27,6 @@ export class File{
         name:'md5',
         type:'varchar',
         length: 50,
-        unique:true,
         nullable:false 
     })
     md5: string;
@@ -74,12 +76,16 @@ export class File{
     })
     update_date:Date;
 
+
+    @Column({nullable:true})
+    bucketId:number
+
     @ManyToOne(type=>Bucket,bucket=>bucket.files,{
         cascadeInsert:false,
         cascadeUpdate:false,
         cascadeRemove:false,
         nullable:false,
-        eager:true
+        lazy:false
       })
     @JoinColumn()
     bucket:Bucket;

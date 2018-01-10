@@ -12,5 +12,6 @@
       "./src/upyun/model/File.ts",
       "./src/upyun/model/Video.ts",
       "./src/upyun/model/Audio.ts"],
-    "synchronize":true
+    "synchronize":true,
+    "dropSchema":true
   }
