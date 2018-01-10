@@ -527,7 +527,7 @@ export class FileController {
         if(data.code === 403){
           return data
         }
-        await this.imageRepository.delete(image)
+        await this.imageRepository.delete({md5,bucketId:bucket.id})
       }
       
       return data

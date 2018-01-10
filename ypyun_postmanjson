@@ -1,0 +1,445 @@
+{
+	"info": {
+		"name": "UPYUN",
+		"_postman_id": "e020219b-1adb-dc04-1c4e-51ead33821f6",
+		"description": "又拍云插件API接口文档\n\n测试环境：\n\n\t公有空间：\n\t\t\tbucket：benchu1\n\t\t\toperator：caozuoyuan\n\t\t\tpassword：a12345678\n\t\t\tapiSecretKey：wMtdPbjvao0INNI8ZM/2lRMIEW8=\n\t\t\t测试域名：benchu1.test.upcdn.net\n    私有空间：\n    \t\tbucket：benchu2\n    \t\toperator：caozuoyuan\n    \t\tpassword：a12345678\n    \t\tapiSecretKey：dBpyszVlsmo4GHMkmrV0hmUT5xQ=\n    \t\t测试域名：benchu2.test.upcdn.net\n    \t\ttokenSecretKey：dBpyszVlsmo4GHMkmr\n    数据库：\n    \t\t{\n    \t\t\t\"type\": \"mysql\",\n    \t\t\t\"host\": \"localhost\",\n    \t\t\t\"port\": 3306,\n    \t\t\t\"username\": \"root\",\n    \t\t\t\"password\": \"123456\",\n    \t\t\t\"database\": \"upyun\",\n    \t\t\t\"entities\": [\"./src/modules/upyun/model/Config.ts\",\"./src/modules/upyun/model/Image.ts\"]\n\t\t\t }\n\tSQL：\n\t\t\tCREATE TABLE `config` (\n\t\t\t\t`id` int(11) NOT NULL,\n\t\t\t\t`public_or_private` varchar(20) NOT NULL,\n\t\t\t\t`bucket` varchar(50) NOT NULL,\n\t\t\t\t`operator` varchar(50) NOT NULL,\n\t\t\t\t`password` varchar(50) NOT NULL,\n\t\t\t\t`request_expire` int(11) NOT NULL,\n\t\t\t\t`base_url` varchar(50) NOT NULL,\n\t\t\t\t`directory` varchar(50) NOT NULL,\n\t\t\t\t`api_secret_key` varchar(250) NOT NULL,\n\t\t\t\t`token_secret_key` varchar(250) DEFAULT NULL,\n\t\t\t\t`token_expire` int(11) DEFAULT NULL,\n\t\t\t\t`format` varchar(50) DEFAULT NULL,\n\t\t\t\t`watermark_enable` varchar(20) DEFAULT NULL,\n\t\t\t\t`watermark_save_key` varchar(50) DEFAULT NULL,\n\t\t\t\t`watermark_gravity` varchar(20) DEFAULT NULL,\n\t\t\t\t`watermark_x` int(11) DEFAULT NULL,\n\t\t\t\t`watermark_opacity` int(11) DEFAULT NULL,\n\t\t\t\t`watermark_ws` int(11) DEFAULT NULL,\n\t\t\t\t`watermark_y` int(11) DEFAULT NULL,\n\t\t\t\tPRIMARY KEY (`id`),\n\t\t\t\tUNIQUE KEY `public_or_private_UNIQUE` (`public_or_private`),\n\t\t\t\tUNIQUE KEY `bucket_UNIQUE` (`bucket`)\n\t\t\t) ENGINE=InnoDB DEFAULT CHARSET=utf8;\n\t\t\t\n\t\t\t\n\t\t\tCREATE TABLE `image` (\n\t\t\t\t`id` int(11) NOT NULL AUTO_INCREMENT,\n\t\t\t\t`bucket` varchar(50) DEFAULT NULL,\n\t\t\t\t`name` varchar(50) DEFAULT NULL,\n\t\t\t\t`save_key` varchar(50) DEFAULT NULL,\n\t\t\t\t`width` int(11) DEFAULT NULL,\n\t\t\t\t`height` int(11) DEFAULT NULL,\n\t\t\t\t`type` varchar(20) DEFAULT NULL,\n\t\t\t\t`frames` int(11) DEFAULT NULL,\n\t\t\t\t`content_secret` varchar(50) DEFAULT NULL,\n\t\t\t\t`status` varchar(20) DEFAULT NULL,\n\t\t\t\t`user_id` int(11) DEFAULT NULL,\n\t\t\t\tPRIMARY KEY (`id`),\n\t\t\t\tUNIQUE KEY `save_key_bucket` (`bucket`,`save_key`)\n\t\t\t) ENGINE=InnoDB DEFAULT CHARSET=utf8;",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "config",
+			"description": "",
+			"item": [
+				{
+					"name": "http://localhost:3000/upyun/config/bucket",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "isPublic",
+									"value": "true",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "benchu1",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "operator",
+									"value": "caozuoyuan",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "a12345678",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "directory",
+									"value": "mulu1",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "request_expire",
+									"value": "1800",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "base_url",
+									"value": "http://benchu1.test.upcdn.net",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "token_secret_key",
+									"value": "dBpyszVlsmo4GHMkmr",
+									"description": "",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "token_expire",
+									"value": "",
+									"description": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": "http://localhost:3000/upyun/config/bucket",
+						"description": "公有空间配置请求"
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:3000/upyun/config/bucket",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "isPublic",
+									"value": "false",
+									"type": "text",
+									"description": ""
+								},
+								{
+									"key": "name",
+									"value": "benchu2",
+									"type": "text",
+									"description": ""
+								},
+								{
+									"key": "operator",
+									"value": "caozuoyuan",
+									"type": "text",
+									"description": ""
+								},
+								{
+									"key": "password",
+									"value": "a12345678",
+									"type": "text",
+									"description": ""
+								},
+								{
+									"key": "directory",
+									"value": "mulu2",
+									"type": "text",
+									"description": ""
+								},
+								{
+									"key": "request_expire",
+									"value": "1800",
+									"type": "text",
+									"description": ""
+								},
+								{
+									"key": "base_url",
+									"value": "http://benchu2.test.upcdn.net",
+									"type": "text",
+									"description": ""
+								},
+								{
+									"key": "token_secret_key",
+									"value": "dBpyszVlsmo4GHMkmr",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "token_expire",
+									"value": "1800",
+									"description": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": "http://localhost:3000/upyun/config/bucket",
+						"description": "私有空间配置请求"
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:3000/upyun/config/format",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "format",
+									"value": "webp_damage",
+									"description": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": "http://localhost:3000/upyun/config/format",
+						"description": "保存格式配置接口"
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:3000/upyun/config/enableWatermark",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "enable",
+									"value": "true",
+									"description": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": "http://localhost:3000/upyun/config/enableWatermark",
+						"description": "启用水印配接口"
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:3000/upyun/config/watermark",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"description": "",
+									"type": "file",
+									"src": "shuiyin.jpeg"
+								},
+								{
+									"key": "gravity",
+									"value": "southeast",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "x",
+									"value": "20",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "y",
+									"value": "20",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "opacity",
+									"value": "80",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "ws",
+									"value": "20",
+									"description": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": "http://localhost:3000/upyun/config/watermark",
+						"description": "图片水印配置接口"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "file",
+			"description": "",
+			"item": [
+				{
+					"name": "http://localhost:3000/upyun/file/downloadProcess",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"bucket_name\":\"benchu1\",\n\t\"md5\":\"18ba231546b55df87e74c6cdbef0d005\",\n\t\"type\":\"jpeg\"\n}"
+						},
+						"url": "http://localhost:3000/upyun/file/downloadProcess",
+						"description": "下载预处理接口"
+					},
+					"response": []
+				},
+				{
+					"name": "http://v0.api.upyun.com/benchu1/mulu1/18ba231546b55df87e74c6cdbef0d005.jpeg",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "UPYUN caozuoyuan:LpW61Y/cSOraTrGCTp4BaJz+rmQ="
+							},
+							{
+								"key": "date",
+								"value": "Wed, 10 Jan 2018 07:26:41 GMT"
+							}
+						],
+						"body": {},
+						"url": "http://v0.api.upyun.com/benchu1/mulu1/18ba231546b55df87e74c6cdbef0d005.jpeg",
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:3000/upyun/file/uploadProcess",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"bucket_name\":\"benchu1\",\n\t\"md5\":\"4f58f848b46a2ac6a817c9f5289a0f97\",\n\t\"contentName\":\"test.jpeg\"\n}"
+						},
+						"url": "http://localhost:3000/upyun/file/uploadProcess",
+						"description": "文件上传预处理"
+					},
+					"response": []
+				},
+				{
+					"name": "http://v0.api.upyun.com/benchu1",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"description": "",
+									"type": "file",
+									"src": "test.jpeg"
+								},
+								{
+									"key": "policy",
+									"value": "eyJidWNrZXQiOiJiZW5jaHUxIiwic2F2ZS1rZXkiOiIvbXVsdTEvNGY1OGY4NDhiNDZhMmFjNmE4MTdjOWY1Mjg5YTBmOTcuanBlZyIsImV4cGlyYXRpb24iOjE1MTU1Nzg3NDcsImRhdGUiOiJXZWQsIDEwIEphbiAyMDE4IDEwOjA1OjQ3IEdNVCIsImNvbnRlbnQtbWQ1IjoiNGY1OGY4NDhiNDZhMmFjNmE4MTdjOWY1Mjg5YTBmOTciLCJub3RpZnktdXJsIjoiaHR0cDovL3VweXVucy5mcnAyLmNodWFudG91Lm9yZy91cHl1bi9maWxlL25vdGlmeSIsIngtdXB5dW4tbWV0YS10dGwiOjE4MCwiZXh0LXBhcmFtIjoiYmVuY2h1MSIsImFwcHMiOlt7Im5hbWUiOiJ0aHVtYiIsIngtZ21rZXJsLXRodW1iIjoiL2Zvcm1hdC93ZWJwIiwic2F2ZV9hcyI6Ii9tdWx1MS80ZjU4Zjg0OGI0NmEyYWM2YTgxN2M5ZjUyODlhMGY5Ny53ZWJwIiwibm90aWZ5X3VybCI6Imh0dHA6Ly91cHl1bnMuZnJwMi5jaHVhbnRvdS5vcmcvdXB5dW4vZmlsZS9ub3RpZnkifV19",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "authorization",
+									"value": "UPYUN caozuoyuan:6ZtXEhNQS5WmWJorsmtfy9or24E=",
+									"description": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": "http://v0.api.upyun.com/benchu1",
+						"description": "文件上传示例"
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:3000/upyun/file/one",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"bucket_name\":\"benchu1\",\n\t\"md5\":\"4f58f848b46a2ac6a817c9f5289a0f97\",\n\t\"type\":\"jpeg\",\n\t\"resize\":{\n\t\t\"mode\":\"scale\",\n\t\t\"data\":{\n\t\t\t\"scale\":40\n\t\t}\n\t}\n}"
+						},
+						"url": "http://localhost:3000/upyun/file/one",
+						"description": "获取单张图片url的接口，包括了域名、目录、文件名、token、密钥、处理字符串"
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:3000/upyun/file/all",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"bucket_name\":\"benchu1\"\n}"
+						},
+						"url": "http://localhost:3000/upyun/file/all",
+						"description": "获取整个空间下所有文件的方法"
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:3000/upyun/file/deleteFile",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"bucket_name\":\"benchu1\",\n\t\"md5\":\"4f58f848b46a2ac6a817c9f5289a0f97\",\n\t\"type\":\"webp\"\n}"
+						},
+						"url": "http://localhost:3000/upyun/file/deleteFile",
+						"description": "删除文件接口"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "0d148397-4bb0-4140-a1a0-7e1a06797be7",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "af9d1651-1551-4de3-9a48-6b0f2a4d3638",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
