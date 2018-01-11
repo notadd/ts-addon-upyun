@@ -287,17 +287,16 @@ export class ConfigController {
       //暂定短边自适应比例可以大于100
     }
     if(!this.kindUtil.isImage(file.name.substr(file.name.lastIndexOf('.')+1))){
-      data.code = 403
+      data.code = 400
       data.message = '不允许的水印图片类型'
       return data
     }
     //保存后台水印配置
     await this.configService.saveWatermarkConfig(data,file,obj)
 
-    if(data.code === 401 || data.code === 404|| data.code === 405 ){
+    if(data.code === 401 || data.code === 402|| data.code === 403 ){
       return data
     }
     return data
   }
-
 }

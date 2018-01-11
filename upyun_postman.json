@@ -175,7 +175,7 @@
 							"urlencoded": [
 								{
 									"key": "format",
-									"value": "webp_damage",
+									"value": "webp_undamage",
 									"description": "",
 									"type": "text"
 								}
@@ -281,7 +281,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"bucket_name\":\"benchu1\",\n\t\"md5\":\"18ba231546b55df87e74c6cdbef0d005\",\n\t\"type\":\"jpeg\"\n}"
+							"raw": "{\n\t\"bucket_name\":\"benchu1\",\n\t\"name\":\"4f58f848b46a2ac6a817c9f5289a0f97_1515666728969\",\n\t\"type\":\"webp\"\n}"
 						},
 						"url": "http://localhost:3000/upyun/file/downloadProcess",
 						"description": "下载预处理接口"
@@ -289,22 +289,22 @@
 					"response": []
 				},
 				{
-					"name": "http://v0.api.upyun.com/benchu1/mulu1/18ba231546b55df87e74c6cdbef0d005.jpeg",
+					"name": "http://v0.api.upyun.com/benchu1/mulu1/4f58f848b46a2ac6a817c9f5289a0f97_1515666728969.webp",
 					"request": {
 						"method": "GET",
 						"header": [
 							{
 								"key": "authorization",
-								"value": "UPYUN caozuoyuan:LpW61Y/cSOraTrGCTp4BaJz+rmQ="
+								"value": "UPYUN caozuoyuan:mVEjF/clm48QDz103jFcXrXyc/k="
 							},
 							{
 								"key": "date",
-								"value": "Wed, 10 Jan 2018 07:26:41 GMT"
+								"value": "Thu, 11 Jan 2018 11:05:04 GMT"
 							}
 						],
 						"body": {},
-						"url": "http://v0.api.upyun.com/benchu1/mulu1/18ba231546b55df87e74c6cdbef0d005.jpeg",
-						"description": ""
+						"url": "http://v0.api.upyun.com/benchu1/mulu1/4f58f848b46a2ac6a817c9f5289a0f97_1515666728969.webp",
+						"description": "下载文件示例"
 					},
 					"response": []
 				},
@@ -343,13 +343,13 @@
 								},
 								{
 									"key": "policy",
-									"value": "eyJidWNrZXQiOiJiZW5jaHUxIiwic2F2ZS1rZXkiOiIvbXVsdTEvNGY1OGY4NDhiNDZhMmFjNmE4MTdjOWY1Mjg5YTBmOTcuanBlZyIsImV4cGlyYXRpb24iOjE1MTU1Nzg3NDcsImRhdGUiOiJXZWQsIDEwIEphbiAyMDE4IDEwOjA1OjQ3IEdNVCIsImNvbnRlbnQtbWQ1IjoiNGY1OGY4NDhiNDZhMmFjNmE4MTdjOWY1Mjg5YTBmOTciLCJub3RpZnktdXJsIjoiaHR0cDovL3VweXVucy5mcnAyLmNodWFudG91Lm9yZy91cHl1bi9maWxlL25vdGlmeSIsIngtdXB5dW4tbWV0YS10dGwiOjE4MCwiZXh0LXBhcmFtIjoiYmVuY2h1MSIsImFwcHMiOlt7Im5hbWUiOiJ0aHVtYiIsIngtZ21rZXJsLXRodW1iIjoiL2Zvcm1hdC93ZWJwIiwic2F2ZV9hcyI6Ii9tdWx1MS80ZjU4Zjg0OGI0NmEyYWM2YTgxN2M5ZjUyODlhMGY5Ny53ZWJwIiwibm90aWZ5X3VybCI6Imh0dHA6Ly91cHl1bnMuZnJwMi5jaHVhbnRvdS5vcmcvdXB5dW4vZmlsZS9ub3RpZnkifV19",
+									"value": "eyJidWNrZXQiOiJiZW5jaHUxIiwic2F2ZS1rZXkiOiIvbXVsdTEvNGY1OGY4NDhiNDZhMmFjNmE4MTdjOWY1Mjg5YTBmOTdfMTUxNTY2NjcyODk3Ni5qcGVnIiwiZXhwaXJhdGlvbiI6MTUxNTY2ODUyOCwiZGF0ZSI6IlRodSwgMTEgSmFuIDIwMTggMTE6MDI6MDggR01UIiwiY29udGVudC1tZDUiOiI0ZjU4Zjg0OGI0NmEyYWM2YTgxN2M5ZjUyODlhMGY5NyIsIm5vdGlmeS11cmwiOiJodHRwOi8vdXB5dW5zLmZycDIuY2h1YW50b3Uub3JnL3VweXVuL2ZpbGUvbm90aWZ5IiwieC11cHl1bi1tZXRhLXR0bCI6MTgwLCJleHQtcGFyYW0iOiJiZW5jaHUxIiwiYXBwcyI6W3sibmFtZSI6InRodW1iIiwieC1nbWtlcmwtdGh1bWIiOiIvZm9ybWF0L3dlYnAvbG9zc2xlc3MvdHJ1ZS9zdHJpcC90cnVlIiwic2F2ZV9hcyI6Ii9tdWx1MS80ZjU4Zjg0OGI0NmEyYWM2YTgxN2M5ZjUyODlhMGY5N18xNTE1NjY2NzI4OTY5LndlYnAiLCJub3RpZnlfdXJsIjoiaHR0cDovL3VweXVucy5mcnAyLmNodWFudG91Lm9yZy91cHl1bi9maWxlL25vdGlmeSJ9XX0=",
 									"description": "",
 									"type": "text"
 								},
 								{
 									"key": "authorization",
-									"value": "UPYUN caozuoyuan:6ZtXEhNQS5WmWJorsmtfy9or24E=",
+									"value": "UPYUN caozuoyuan:K4frsnC7L8vWVkvwet9I7mki5+g=",
 									"description": "",
 									"type": "text"
 								}
@@ -372,7 +372,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"bucket_name\":\"benchu1\",\n\t\"md5\":\"4f58f848b46a2ac6a817c9f5289a0f97\",\n\t\"type\":\"jpeg\",\n\t\"resize\":{\n\t\t\"mode\":\"scale\",\n\t\t\"data\":{\n\t\t\t\"scale\":40\n\t\t}\n\t}\n}"
+							"raw": "{\n\t\"bucket_name\":\"benchu1\",\n\t\"name\":\"4f58f848b46a2ac6a817c9f5289a0f97_1515666728969\",\n\t\"type\":\"webp\",\n\t\"imagePostProcessInfo\":{\n\t\t\"resize\":{\n\t\t\"mode\":\"scale\",\n\t\t\"data\":{\n\t\t\t\"scale\":40\n\t\t}\n\t}\n\t}\n\t\n}"
 						},
 						"url": "http://localhost:3000/upyun/file/one",
 						"description": "获取单张图片url的接口，包括了域名、目录、文件名、token、密钥、处理字符串"
@@ -410,10 +410,48 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"bucket_name\":\"benchu1\",\n\t\"md5\":\"4f58f848b46a2ac6a817c9f5289a0f97\",\n\t\"type\":\"webp\"\n}"
+							"raw": "{\n\t\"bucket_name\":\"benchu1\",\n\t\"name\":\"4f58f848b46a2ac6a817c9f5289a0f97_1515666728969\",\n\t\"type\":\"webp\"\n}"
 						},
 						"url": "http://localhost:3000/upyun/file/deleteFile",
 						"description": "删除文件接口"
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:3000/upyun/file/getFileInfo",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"bucket_name\":\"benchu1\",\n\t\"name\":\"18ba231546b55df87e74c6cdbef0d005_1515666724717\",\n\t\"type\":\"jpeg\"\n}"
+						},
+						"url": "http://localhost:3000/upyun/file/info",
+						"description": "从又拍云上获取文件信息接口\n获取文件实际md5,size，date"
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:3000/upyun/file/list",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"bucket_name\":\"benchu1\"\n}"
+						},
+						"url": "http://localhost:3000/upyun/file/list",
+						"description": "获取指定空间下目录、文件列表"
 					},
 					"response": []
 				}

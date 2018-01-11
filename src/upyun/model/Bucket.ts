@@ -121,7 +121,7 @@ export class Bucket {
   @Column({
     name: 'watermark_save_key',
     type: 'varchar',
-    length: 50,
+    length: 80,
     nullable: true
   })
   watermark_save_key: string;

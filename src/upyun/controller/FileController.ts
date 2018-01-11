@@ -18,10 +18,12 @@ import { UploadProcessBody } from '../interface/file/UploadProcessBody'
 import { FileBody } from '../interface/file/FileBody'
 import { FilesBody } from '../interface/file/FilesBody'
 import { DeleteFileBody } from '../interface/file/DeleteFileBody'
+import { FileInfoBody } from '../interface/file/FileInfoBody'
+import { FileListBody } from '../interface/file/FileListBody'
 const formidable = require('formidable')
 const path = require('path')
-/*文件控制器，包含了文件上传、下载处理、异步回调通知、获取单个文件、获取多个文件
-  文件的上传、下载，目录的创建、删除等接口
+
+/*文件控制器，包含了文件下载预处理、上传预处理、异步回调通知、获取单个文件url、获取多个文件信息以及url、删除文件、从云存储获取单个文件信息、获取指定空间下文件列表等接口
   所有文件接口只接受json类型请求体，post请求方法
 */
 @ApiUseTags('File')
@@ -44,14 +46,14 @@ export class FileController {
      返回下载文件的方法、url、参数、头信息(包含了签名)
      @Param bucket_name：文件所属空间名
      @Param type：       上传文件扩展名，即文件类型
-     @Param md5：        文件的md5值，下载之前应该向服务器获取文件信息
+     @Param name：       文件名
      @Return data.code：状态码，200为成功，其他为错误
              data.message：响应信息
              data.baseUrl：下载时的基本url
              data.method： 下载方法
              data.headers：下载文件时的头信息，包含了日期、签名
   */
-  @ApiOperation({title:'下载图片预处理接口'})
+  @ApiOperation({title:'下载文件预处理接口，获取下载文件的方法、url、头信息'})
   @ApiConsumes('application/json')
   @ApiProduces('application/json')
   @ApiResponse({status:200,description:'成功'})
@@ -63,9 +65,9 @@ export class FileController {
       let data = {
         code:200,
         message:'',
-        baseUrl:'http://v0.api.upyun.com',
         //下载文件使用get方法
         method:'get',
+        baseUrl:'http://v0.api.upyun.com',
         headers:{
           //头信息中签名
           authorization:'',
@@ -73,8 +75,8 @@ export class FileController {
           date:''
         }
       }
-      let {bucket_name,md5,type} =body
-      if(!bucket_name|| !md5){
+      let {bucket_name,name,type} =body
+      if(!bucket_name|| !name){
         data.message = '缺少参数'
         return data
       }
@@ -90,17 +92,16 @@ export class FileController {
       let status = 'post'
       let file:File|Audio|Video|Image|Document
       if(this.kindUtil.isImage(type)){
-        file = await this.imageRepository.findOne({md5,type,bucketId:bucket.id})
+        file = await this.imageRepository.findOne({name,type,bucketId:bucket.id})
       }else{
-
+        //其他类型暂不支持
       }
       if(!file){
         data.code = 402
-        data.message = '指定文件不存在'
+        data.message  = '指定文件'+name+'不存在'
         return data
       }
-      data.baseUrl += '/'+bucket.name+'/'+bucket.directory
-      data.baseUrl+='/'+file.md5+'.'+file.type
+      data.baseUrl += '/'+bucket.name+'/'+bucket.directory+'/'+file.name+'.'+file.type
       data.headers.date = new Date(+new Date()+bucket.request_expire*1000).toUTCString()
       data.headers.authorization = await this.authUtil.getHeaderAuth(bucket,'GET',data.baseUrl.replace('http://v0.api.upyun.com',''),data.headers.date,'')
       return data
@@ -125,9 +126,28 @@ export class FileController {
   @ApiResponse({status:200,description:'成功'})
   @ApiResponse({status:400,description:'缺少参数或者参数不正确'})
   @ApiResponse({status:401,description:'指定空间不存在'})
-  @ApiResponse({status:402,description:'文件类型不存在'})
-  @ApiResponse({status:403,description:'文件已存在'})
-  @ApiResponse({status:404,description:'文件保存失败'})
+  @ApiResponse({status:402,description:'文件保存失败'})
+  @ApiResponse({status:403,description:'比例参数不正确'})
+  @ApiResponse({status:404,description:'宽度比例参数不正确'})
+  @ApiResponse({status:405,description:'高度比例参数不正确'})
+  @ApiResponse({status:406,description:'宽高参数不正确'})
+  @ApiResponse({status:407,description:'宽度参数不正确'})
+  @ApiResponse({status:408,description:'高度参数不正确'})
+  @ApiResponse({status:409,description:'像素参数不正确'})
+  @ApiResponse({status:410,description:'缩放模式不正确'})
+  @ApiResponse({status:411,description:'裁剪顺序不正确'})
+  @ApiResponse({status:412,description:'裁剪重心不正确'})
+  @ApiResponse({status:413,description:'裁剪宽高不正确'})
+  @ApiResponse({status:414,description:'x参数不正确'})
+  @ApiResponse({status:415,description:'y参数不正确'})
+  @ApiResponse({status:416,description:'圆角参数不正确'})
+  @ApiResponse({status:417,description:'水印参数不正确'})
+  @ApiResponse({status:418,description:'水印图片url不存在'})
+  @ApiResponse({status:419,description:'水印重心参数不正确'})
+  @ApiResponse({status:420,description:'偏移参数不正确'})
+  @ApiResponse({status:421,description:'透明度参数不正确'})
+  @ApiResponse({status:422,description:'短边自适应参数不正确'})
+  @ApiResponse({status:423,description:'旋转角度不正确'})
   async uploadProcess(@Body() body:UploadProcessBody,@Request() req):Promise<any>{
 
     let data = {
@@ -141,7 +161,7 @@ export class FileController {
       }
     }
 
-    let {bucket_name,md5,contentSecret,contentName} = body
+    let {bucket_name,md5,contentName} = body
 
     let policy  = {
       //空间名
@@ -178,179 +198,121 @@ export class FileController {
       data.message = '指定空间'+bucket_name+'不存在'
       return
     }
-    //获取后台配置，创建上传参数，返回文件种类、以及文件所属目录
-     await this.fileService.makePolicy(data,policy,bucket,body)
-    //文件类型不存在、指定文件已存在
-    if(data.code == 402 || data.code === 403 ){
-      return data
-    }
 
-    //预保存图片
-    await this.fileService.preSaveFile(data,policy,bucket,contentName,)
-
+    //预保存图片,获取保存的图片，图片名为预处理图片名，会设置到policy的apps中去
+    let image = await this.fileService.preSaveFile(data,bucket,body)
     //图片保存失败
-    if(data.code == 405){
+    if(data.code == 402){
       return data
     }
+    //获取后台配置，创建上传参数，返回文件种类、以及文件所属目录
+    await this.fileService.makePolicy(data,policy,bucket,body,image)
     return data
   }
 
 
-  /* 异步回调通知接口,原图不进行预处理，webp_damage、webp_undamage会删除原图，保存处理后图片
-     接受两种请求
-     application/x-www-form-urlencoded：即原图的上传回调，包含了原图的保存信息，保存为原图时根据它来更新数据库，
-                                        但是其中没有空间名，所以需要从ext-param中获取空间名
-     application/json：                 异步预处理上传回调                             
+  /* 异步回调通知接口，接受两种请求，默认所有文件都会进行预处理，所有每个上传请求会接收到两个回调请求，一个是原图的，一个是预处理结果
+     application/x-www-form-urlencoded：即原图的上传回调，包含了原图的保存信息，其中没有空间名，需要从ext-param中获取空间名，原图文件名并未在数据库中保存，直接删除即可
+     application/json：                 异步预处理上传回调 ，根据文件名更新数据库                          
   */
   @Post('notify')
+  @ApiOperation({title:'上传、预处理回调接口，由云存储调用'})
   async asyncNotify(@Body() body,@Request() req,@Headers() headers,@Response() res):Promise<any>{
-    
     let content_type = headers['content-type']
     let contentMd5 = headers['content-md5']
     let auth = headers['authorization']
     let date = headers['date']
 
+    let data = {
+      code:200,
+      message:''
+    }
     //接收到默认MIME类型，说明是上传回调
     if(content_type==='application/x-www-form-urlencoded'){
       let code = +body.code
-      //解析出文件名即为文件md5
-      let md5  = path.parse(body.url).name
+      //上传不成功时，要返回200,提示云存储不再发送回调请求
+      if(code!==200){
+        //打印出错信息
+        res.sendStatus(200)
+        res.end()
+        return
+      }
+      //解析出原图文件名
+      let name  = path.parse(body.url).name
       //文件扩展名，不包含.
       let type = path.parse(body.url).ext.substr(1)
+      console.log('将要删除文件')
+      console.log(name+'.'+type)
+      let kind = this.kindUtil.getKind(type)
       //从扩展参数中获取空间名
       let bucket_name= body['ext-param']
       //查找指定空间
       let bucket:Bucket  = await this.bucketRepository.findOne({name:bucket_name})
       //验签获取结果
       let pass =  await this.authUtil.notifyVerify(auth,bucket,'POST','/upyun/file/notify',date,contentMd5,body)
-      let status = 'pre'
-      let kind = this.kindUtil.getKind(type)
-      //处理图片类型
-      if(kind==='image'){
-        //验签未通过
-        if(!pass){
-          //删除本地数据库中图片信息
-          await this.fileService.postDeleteFile(bucket,md5,type,status,kind)
-          res.sendStatus(400)
-          res.end()
-          return 
-        }
-        //验签通过
-        else{
-          //上传不成功
-          if(code!==200){
-            //删除本地数据库中图片信息
-            await this.fileService.postDeleteFile(bucket,md5,type,status,kind)
-            //打印出错信息
-            res.sendStatus(200)
-            res.end()
-            return
-          }
-          //上传成功
-          //如果保存格式为原图
-          if(bucket.format==='raw'){
-            //直接根据上传回调信息更新数据库
-            let success = await this.fileService.postSaveFile(bucket,md5,type,body,kind)
-            if(success){
-              res.sendStatus(200)
-              res.end()
-              return
-            }else{
-              res.sendStatus(400)
-              res.end()
-              return
-            }
-          }
-          //如果不是保存为原图不做处理
-          else{
-            res.sendStatus(200)
-            res.end()
-            return
-          }
-        }
-      }else if(kind==='audio'){
-        console.log('audio暂时未实现')
-      }else if(kind==='video'){
-        console.log('video暂时未实现')
-      }else{
-        throw new Error('kind不正确')
+      //验签不成功，要返回400,提示云存储继续发送回调请求
+      if(!pass){
+        res.sendStatus(400)
+        res.end()
+        return
       }
+      if(kind==='image'){
+        let  image = new Image()
+        image.name = name
+        image.type = type
+        await this.restfulUtil.deleteFile(data,bucket,image)
+      }else{
+        //暂不支持
+      }
+      if(data.code === 403){
+        res.sendStatus(400)
+        res.end()
+        return
+      }
+      res.sendStatus(200)
+      res.end()
+      return
     }
     //如果请求MIME为json类型，说吗为异步预处理回调信息，只有图片保存格式不是原图时采用这种方式
     else if(content_type==='application/json'){
       let code = body.status_code
+      //上传不成功时，要返回200,提示云存储不再发送回调请求
+      if(code!==200){
+        res.sendStatus(200)
+        res.end()
+        return
+      }
       //响应体中空间名
       let bucket_name = body.bucket_name
-      //解析出文件名即为文件md5
-      let md5  = path.parse(body.imginfo.path).name
-      //文件扩展名，不包含.
+      //解析出文件名，根据它查找数据库保存文件
+      let name  = path.parse(body.imginfo.path).name
+      //文件扩展名，不包含.，不是原图时为webp
       let type = path.parse(body.imginfo.path).ext.substr(1)
+      let kind = this.kindUtil.getKind(type)
       //查找指定空间
       let bucket:Bucket  = await this.bucketRepository.findOne({name:bucket_name})
       //验签获取结果
       let pass =  await this.authUtil.taskNotifyVerify(auth,bucket,'POST','/upyun/file/notify',date,contentMd5,body)
-      let status = 'pre'
-      let kind = this.kindUtil.getKind(type)
-      //处理图片类型
-      if(kind==='image'){
-        //验签未通过，这里也需要删除图片，因为两个回调信息顺序不确定
-        if(!pass){
-          await this.fileService.postDeleteFile(bucket,md5,type,status,kind)
-          res.sendStatus(400)
-          res.end()
-          return
-        }
-        //验签通过
-        else{
-          //上传不成功
-          if(code!==200){
-            //删除本地数据库中图片信息
-            await this.fileService.postDeleteFile(bucket,md5,type,status,kind)
-            //打印出错信息
-            res.sendStatus(200)
-            res.end()
-            return
-          }
-          //上传成功
-          //如果保存格式为原图
-          if(bucket.format==='raw'){
-            res.sendStatus(400)
-            res.end()
-            return
-          }
-          //如果不是保存为原图才对，根据预处理信息更新原图
-          else{
-            //获取原图
-            let image:Image = await this.imageRepository.findOne({md5,bucketId:bucket.id})
-            //直接根据上传回调信息更新数据库
-            let success = await this.fileService.postSaveTask(bucket,md5,type,body,kind)
-            if(success){
-  
-            }else{
-              res.sendStatus(400)
-              res.end()
-              return
-            }
-            //删除云存储上原图,这部如果失败，就不管了，因为如果再发个请求过来很难到这一步了
-            await this.restfulUtil.deleteFile({code:200,message:''},bucket,image)
-            res.sendStatus(200)
-            res.end()
-            return
-          }
-        }
-      }else if(kind==='audio'){
-        console.log('audio暂时未实现')
-      }else if(kind==='video'){
-        console.log('video暂时未实现')
-      }else{
-        throw new Error('kind不正确')
+      //验签不成功，要返回400,提示云存储继续发送回调请求
+      if(!pass){
+        res.sendStatus(400)
+        res.end()
+        return
       }
-    return 
+      await this.fileService.postSaveTask(data,bucket,name,body,kind)
+      if(data.code === 401){
+        res.sendStatus(400)
+        res.end()
+        return
+      }
+      res.sendStatus(200)
+      res.end()
+      return
     }
   }  
 
 
-  /* 获取单个文件url方法 
+  /* 获取单个文件url方法 ，从后台获取
      @Param bucket_name：空间名
      @Param md5：        文件的md5值
      @Return data.code：状态码，200为成功，其他为错误
@@ -399,10 +361,10 @@ export class FileController {
       message:"",
       url:''
     }
-    //空间名、目录数组、文件md5
-    let {bucket_name,md5,type} = body
+    //空间名、目录数组、文件名
+    let {bucket_name,name,type} = body
 
-    if(!bucket_name || !md5){
+    if(!bucket_name || !name || !type){
       data.code = 400
       data.message = '缺少参数'
       return data
@@ -417,12 +379,13 @@ export class FileController {
     let kind = this.kindUtil.getKind(type)
     //处理图片类型
     if(kind==='image'){
-      let image:Image = await this.imageRepository.findOne({md5,bucketId:bucket.id})
+      let image:Image = await this.imageRepository.findOne({name,bucketId:bucket.id})
       if(!image){
         data.code = 402
         data.message = '指定图片不存在'
         return data
       }
+      //所有文件调用统一的拼接Url方法
       await this.fileService.makeUrl(data,bucket,image,body,kind)
     }else if(kind==='audio'){
       console.log('audio暂时未实现')
@@ -435,7 +398,7 @@ export class FileController {
   }
 
 
-  /* 暂定获取指定空间下文件
+  /* 获取指定空间下文件，从后台数据库中获取
      @Param bucket_name：文件所属空间
      @Return data.code： 状态码，200为成功，其他为错误
             data.message：响应信息
@@ -490,7 +453,7 @@ export class FileController {
      当客户端需要删除某个文件时使用，
      @Param bucket_name：文件所属空间名
      @Param type：       文件扩展名，即文件类型
-     @Param md5：        文件的md5值
+     @Param name：       文件名
      @Return data.code：状态码，200为成功，其他为错误
              data.message：响应信息
   */
@@ -508,7 +471,13 @@ export class FileController {
           code : 200,
           message:''
       }
-      let {bucket_name,type,md5} =body
+      let {bucket_name,type,name} =body
+      if(!bucket_name || !name || !type){
+        data.code = 400
+        data.message = '缺少参数'
+        return data
+      }
+
       let bucket:Bucket = await this.bucketRepository.findOne({name:bucket_name})
       if(!bucket){
         data.code = 401
@@ -517,19 +486,106 @@ export class FileController {
       }
       let kind = this.kindUtil.getKind(type)
       if(kind==='image'){
-        let image:Image = await this.imageRepository.findOne({md5,bucketId:bucket.id})
+        let image:Image = await this.imageRepository.findOne({name,bucketId:bucket.id})
         if(!image){
           data.code = 402
-          data.message = '文件md5='+md5+'不存在'
+          data.message = '文件md5='+name+'不存在'
           return
         }
         await this.restfulUtil.deleteFile(data,bucket,image)
         if(data.code === 403){
           return data
         }
-        await this.imageRepository.delete({md5,bucketId:bucket.id})
+        await this.imageRepository.delete({name,bucketId:bucket.id})
       }
       
       return data
   }
+
+  /* 获取文件信息接口,从有拍云获取
+     @Param bucket_name：文件所属空间名
+     @Param type：       文件扩展名，即文件类型
+     @Param name：       文件的名
+     @Return data.code：状态码，200为成功，其他为错误
+             data.message：响应信息
+             data.info.size:文件大小
+             data.info.date：文件创建时间
+             data.info.md5:文件实际md5,目前文件名为原图md5,预处理md5结果未保存
+  */
+  @ApiOperation({title:'获取指定文件信息接口'})
+  @ApiConsumes('application/json')
+  @ApiProduces('application/json')
+  @ApiResponse({status:200,description:'成功'})
+  @ApiResponse({status:400,description:'缺少参数'})
+  @ApiResponse({status:401,description:'指定空间不存在'})
+  @ApiResponse({status:402,description:'指定文件不存在'})
+  @ApiResponse({status:403,description:'获取文件信息失败'})
+  @Post('info')
+  async info(@Body() body:FileInfoBody):Promise<any>{
+      let data = {
+          code : 200,
+          message:'',
+          info:{
+            size:null,
+            md5:'',
+            date:''
+          }
+      }
+      let {bucket_name,type,name} =body
+      let bucket:Bucket = await this.bucketRepository.findOne({name:bucket_name})
+      if(!bucket){
+        data.code = 401
+        data.message = '空间'+bucket_name+'不存在'
+        return
+      }
+      let kind = this.kindUtil.getKind(type)
+      if(kind==='image'){
+        let image:Image = await this.imageRepository.findOne({name,bucketId:bucket.id})
+        if(!image){
+          data.code = 402
+          data.message = '文件'+name+'不存在'
+          return
+        }
+        let info = await this.restfulUtil.getFileInfo(data,bucket,image)
+        if(data.code === 403){
+          return data
+        }
+        data.info.size = info.file_size
+        data.info.md5 = info.file_md5
+        data.info.date = info.file_date
+      }
+      return data
+  }
+
+  /* 获取文目录文件列表,只能获取指定下的目录、文件的名称、大小、最后修改日期
+     @Param bucket_name：文件所属空间名，由于每个空间使用一个目录，所以这里不需要目录名
+     @Return data.code：状态码，200为成功，其他为错误
+             data.message：响应信息
+  */
+  @ApiOperation({title:'从又拍云获取指定空间下文件列表，只能获取指定下的目录、文件的名称、大小、最后修改日期'})
+  @ApiConsumes('application/json')
+  @ApiProduces('application/json')
+  @ApiResponse({status:200,description:'成功'})
+  @ApiResponse({status:400,description:'缺少参数'})
+  @ApiResponse({status:401,description:'指定空间不存在'})
+  @ApiResponse({status:402,description:'获取文件列表失败'})
+  @Post('list')
+  async list(@Body() body:FileListBody):Promise<any>{
+      let data = {
+          code : 200,
+          message:''
+      }
+      let {bucket_name} =body
+      let bucket:Bucket = await this.bucketRepository.findOne({name:bucket_name})
+      if(!bucket){
+        data.code = 401
+        data.message = '空间'+bucket_name+'不存在'
+        return
+      }
+      let info = await this.restfulUtil.getFileList(data,bucket)
+      if(data.code === 402){
+        return data
+      }
+      return info
+    }
 }

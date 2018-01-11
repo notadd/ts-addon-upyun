@@ -22,27 +22,20 @@ export class RestfulUtil{
   constructor(
     private readonly authUtil:AuthUtil){}
 
-
   //上传文件，其中文件信息来自于formidable解析得到的File对象
-  async uploadFile(data:any,bucket:Bucket,file:any,md5:string):Promise<void>{
-    
-    let contentMd5 = md5
-    let name = file.name
-    if(!contentMd5){
-        contentMd5 = crypto.createHash('md5').update(fs.readFileSync(file.path)).digest('hex')
-    }
-    let extension:string = name.substr(name.lastIndexOf('.'))
-    let save_key = '/'+bucket.directory+'/'+md5+extension
+  async uploadFile(data:any,bucket:Bucket,file:File|Image|Video|Audio|Document,path:string):Promise<any>{
+    let contentMd5 = file.md5
+    let save_key = '/'+bucket.directory+'/'+file.name+'.'+file.type
     let requestUrl = this.apihost+'/'+bucket.name+save_key
     let url = '/'+bucket.name+save_key
     let date:string = new Date(+new Date()+bucket.request_expire*1000).toUTCString()
     let Authorization = await this.authUtil.getHeaderAuth(bucket,'PUT',url,date,contentMd5)
-    let headers
+    let height , width , frames
     await new Promise((resolve,reject)=>{
-      fs.createReadStream(file.path).pipe(request.put({
+      fs.createReadStream(path).pipe(request.put({
         url:requestUrl,
         headers:{
-          'Content-Type':mime.getType(name),
+          'Content-Type':mime.getType(path),
           'Content-Length':file.size,
           'Content-MD5':contentMd5,
           Authorization,
@@ -51,7 +44,7 @@ export class RestfulUtil{
         }
       },(err, res, body)=>{
         if (err) {
-          data.code = 408
+          data.code = 402
           data.message = '文件上传失败,网络错误'
           resolve()
           return
@@ -59,7 +52,9 @@ export class RestfulUtil{
         if(res.statusCode === 200){
           data.code = 200
           data.message = '文件上传成功'
-          headers = res.headers
+          width = res.headers['x-upyun-width']
+          height = res.headers['x-upyun-height']
+          frames = res.headers['x-upyun-frames']
           resolve()
           return 
         }
@@ -69,28 +64,27 @@ export class RestfulUtil{
             data.code = code
             data.message = msg
           }catch(err){
-            data.code = 408
+            data.code = 402
             data.message = '响应体解析错误'
           }
         }else{
-          data.code = 408
+          data.code = 402
           data.message = '响应体不存在'
         }
         resolve()
         return
       }))
     })
-    if(data.code == 408){
-      return 
+    if(data.code == 402){
+      return  {}
     }
-    return
+    return {width,height,frames}
   }
 
 
-  /*创建指定空间里的指定目录，前置判定父目录必须存在 
+  /*创建指定空间里的指定目录，空间下唯一目录在配置中指定 
       @Param data：状态码
       @Param bucket：目录所属空间
-      @Param directory：端点目录对象
   */
   async createDirectory(data:any,bucket:Bucket):Promise<void>{
     let requestUrl = this.apihost+'/'+bucket.name+'/'+bucket.directory
@@ -139,14 +133,13 @@ export class RestfulUtil{
     return 
   }
 
-  /* 删除指定空间、目录下指定文件
+  /* 删除指定空间指定文件
      @Param data:状态码
      @Param bucket：文件所属空间
-     @Param directory：文件所属目录
      @Param file：文件对象
    */
   async deleteFile(data:any,bucket:Bucket,file:File|Image|Video|Audio|Document):Promise<void>{
-    let save_key = '/'+bucket.directory+'/'+file.md5+'.'+file.type
+    let save_key = '/'+bucket.directory+'/'+file.name+'.'+file.type
     let requestUrl = this.apihost+'/'+bucket.name+save_key
     let url = '/'+bucket.name+save_key
     let date:string = new Date(+new Date()+bucket.request_expire*1000).toUTCString()
@@ -159,18 +152,18 @@ export class RestfulUtil{
           Date:date
         }
       },(err, res, body)=>{
-        console.log(err)
-        //console.log(res)
-        console.log(body)
         if(err){
           data.code = 403
           data.message = '删除文件失败'
+          console.log('删除文件失败')
+          console.log(err)
           resolve()
           return
         }
         if(res.statusCode == 200){
           data.code = 200
           data.message = '删除文件成功'
+          console.log('删除文件成功')
           resolve()
           return
         }
@@ -192,5 +185,115 @@ export class RestfulUtil{
       });
     })
     return 
+  }
+
+
+  /* 获取指定文件的保存信息
+   */
+  async getFileInfo(data:any,bucket:Bucket,file:File|Image|Video|Audio|Document):Promise<any>{
+    let save_key = '/'+bucket.directory+'/'+file.name+'.'+file.type
+    let requestUrl = this.apihost+'/'+bucket.name+save_key
+    let url = '/'+bucket.name+save_key
+    let date:string = new Date(+new Date()+bucket.request_expire*1000).toUTCString()
+    let Authorization = await this.authUtil.getHeaderAuth(bucket,'HEAD',url,date,'')
+    let file_size,file_date,file_md5
+    await new Promise((resolve,reject)=>{
+      request.head({
+        url:requestUrl,
+        headers:{
+          Authorization,
+          Date:date
+        }
+      },(err, res, body)=>{
+        if(err){
+          data.code = 403
+          data.message = '获取文件信息失败'
+          resolve()
+          return
+        }
+        if(res.statusCode == 200){
+          data.code = 200
+          data.message = '获取文件信息成功'
+          file_size = +res.headers['x-upyun-file-size']
+          file_date = +res.headers['x-upyun-file-date']
+          file_md5 = res.headers['content-md5']
+          resolve()
+          return
+        }
+        if(body){
+          try{
+            let {msg,code,id}  = JSON.parse(body)
+            data.code = code
+            data.message = msg
+          }catch(err){
+            data.code = 403
+            data.message = '响应体解析错误'
+          }
+        }else{
+          data.code = 403
+          data.message = '响应体不存在'
+        }
+        resolve()
+        return
+      });
+    })
+    return  {file_size,file_date,file_md5}
+  }
+
+
+  /* 获取指定空间下文件\目录列表
+     响应头信息中指明了分页位置
+     响应体为换行符、空格拼接的字符串，列分别为
+     文件名/目录名  类型(N表示文件、F标志目录) 大小 最后修改时间
+   */
+  async getFileList(data:any,bucket:Bucket):Promise<any>{
+    let save_key = '/'+bucket.directory
+    let requestUrl = this.apihost+'/'+bucket.name+save_key
+    let url = '/'+bucket.name+save_key
+    let date:string = new Date(+new Date()+bucket.request_expire*1000).toUTCString()
+    let Authorization = await this.authUtil.getHeaderAuth(bucket,'GET',url,date,'')
+    let info
+    await new Promise((resolve,reject)=>{
+      request.get({
+        url:requestUrl,
+        headers:{
+          Authorization,
+          Date:date
+        }
+      },(err, res, body)=>{
+        if(err){
+          data.code = 403
+          data.message = '获取文件信息失败'
+          resolve()
+          return
+        }
+        if(res.statusCode == 200){
+          data.code = 200
+          data.message = '获取文件信息成功'
+          console.log('响应头信息')
+          console.log(res.headers)
+          console.log('响应体')
+          console.log(body)
+          resolve()
+          return
+        }
+        if(body){
+          try{
+            let {msg,code,id}  = JSON.parse(body)
+            data.code = code
+            data.message = msg
+          }catch(err){
+            data.code = 403
+            data.message = '响应体解析错误'
+          }
+        }else{
+          data.code = 403
+          data.message = '响应体不存在'
+        }
+        resolve()
+        return
+      });
+    })
+    return  {}
   }
 }

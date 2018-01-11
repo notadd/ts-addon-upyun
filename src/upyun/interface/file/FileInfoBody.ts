@@ -1,11 +1,11 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 
-export class DownloadProcessBody{
+export class FileInfoBody{
 
     @ApiModelProperty({description:'所属空间名',required:true})
     bucket_name:string
 
-    @ApiModelProperty({description:'下载文件的文件名',required:true})
+    @ApiModelProperty({description:'文件名',required:true})
     name:string
 
     @ApiModelProperty({description:'文件类型',required:true})

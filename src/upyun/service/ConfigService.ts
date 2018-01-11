@@ -141,43 +141,38 @@ export class ConfigService {
     }
     let md5 = crypto.createHash('md5').update(fs.readFileSync(file.path)).digest('hex')
     for(let i=0;i<buckets.length;i++){
-      //在指定空间下查找md5相同的图片，这里人为md5相同就是同一张图片，图片名也相同
-    
-      let image:Image = await this.imageRepository.findOne({md5,type,bucketId:buckets[i].id})
-      //如果图片已存在，说吗云存储上也存在
-      if(image){
-        continue
+
+      let image:Image = new Image()
+      //这里有坑，如果之前使用了await bucket.images，那么这个bucket的性质会改变，即便这样关联，最后image中仍旧没有bucketId值
+      image.bucket = buckets[i]
+      image.raw_name = file.name
+      //图片文件名为md5_时间戳
+      image.name = md5+'_'+(+new Date())
+      image.type = file.name.substr(file.name.lastIndexOf('.')+1).toLowerCase()
+      image.size = file.size
+      image.md5 = md5
+      image.status = 'post'
+      let { width, height, frames } = await this.restfulUtil.uploadFile(data,buckets[i],image,file.path)
+      if(data.code === 402){
+        break
       }
-      //图片不存在
-      else{
-        //先上传
-        await this.restfulUtil.uploadFile(data,buckets[i],file,md5)
-        if(data.code === 404 ){
-          break
-        }
-        //再保存图片到数据库
-        let image:Image = new Image()
-        //这里有坑，如果之前使用了await bucket.images，那么这个bucket的性质会改变，即便这样关联，最后image中仍旧没有bucketId值
-        image.bucket = buckets[i]
-        image.name = file.name
-        image.type = file.name.substr(file.name.lastIndexOf('.')+1).toLowerCase()
-        image.size = file.size
-        image.md5 = md5
-        image.status = 'post'
-        try{
-          await this.imageRepository.save(image)
-          data.code = 200
-          data.message = '保存水印图片成功'
-        }catch(err){
-          data.code = 405
-          data.message = '保存水印图片出现错误'
-        }
-        if(data.code === 405){
-          break
-        }
+      image.width = width
+      image.height = height
+      image.frames = frames
+      try{
+        await this.imageRepository.save(image)
+        data.code = 200
+        data.message = '保存水印图片成功'
+      }catch(err){
+        data.code = 403
+        data.message = '保存水印图片出现错误'+err.toString()
       }
+      if(data.code === 403){
+        break
+      }
+
       //保存空间配置
-      buckets[i].watermark_save_key = '/'+buckets[i].directory+'/'+md5+'.'+type
+      buckets[i].watermark_save_key = '/'+buckets[i].directory+'/'+image.name+'.'+image.type
       buckets[i].watermark_gravity = obj.gravity
       buckets[i].watermark_opacity = obj.opacity
       buckets[i].watermark_ws = obj.ws
@@ -186,15 +181,15 @@ export class ConfigService {
       try{
         await this.bucketRepository.save(buckets[i])
       }catch(err){
-        data.code = 405
-        data.message = '保存水印配置出现错误'
+        data.code = 403
+        data.message = '保存水印配置出现错误'+err.toString()
       }
-      if(data.code === 405){
+      if(data.code === 403){
         break
       }
     }
     fs.unlinkSync(file.path)
-    if(data.code === 404 || data.code === 405){
+    if(data.code === 402|| data.code === 403){
       return
     }
   }

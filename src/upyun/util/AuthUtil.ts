@@ -20,7 +20,7 @@ export class AuthUtil {
     @Param url：请求url，即不包含域名、查询字符串之前的部分，对于回调通知为/image/notify
     @Param date：加上超时之后的GMT格式字符串
     @Param method：请求方法，回调通知为异步时为post
-    @Param contentMd5：请求体md5值，回调通知时获取请求体中的json字符串
+    @Param contentMd5：请求体md5值
   */
   async getHeaderAuth(bucket:Bucket,method:string,url:string,date:string,md5:string):Promise<string>{
     let ori = ''
@@ -73,10 +73,11 @@ export class AuthUtil {
   /* 验证回调签名 
      @Param auth：回调响应头信息中签名字符串
      @Param bucket：空间配置
-     @Param save_key：回调信息中图片保存路径
      @Param url：回调通知url
      @Param method：回调通知方法，异步情况下问post
      @Param body：回调通知请求体对象
+     @Param date：回调请求头信息中date字符串
+     @Param contentMd5：回调请求头信息中md5值
   */
   async notifyVerify(auth:string,bucket:Bucket,method:string,url:string,date:string,contentMd5:string,body:any):Promise<boolean>{
     let rawBody = ''
@@ -112,7 +113,6 @@ export class AuthUtil {
   /* 验证回调签名 
      @Param auth：回调响应头信息中签名字符串
      @Param bucket：空间配置
-     @Param save_key：回调信息中图片保存路径
      @Param url：回调通知url
      @Param method：回调通知方法，异步情况下问post
      @Param body：回调通知请求体对象

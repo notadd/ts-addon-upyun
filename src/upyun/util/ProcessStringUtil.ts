@@ -1,6 +1,7 @@
 import { Component, Inject } from '@nestjs/common';
 import { isArray } from 'util';
 import { Bucket } from '../model/Bucket'
+import { ImagePostProcessInfo,ImagePreProcessInfo } from '../interface/file/ImageProcessInfo'
 
 
 /* URL做图处理字符串服务，可以根据请求体参数，拼接URL处理字符串 */
@@ -25,42 +26,48 @@ export class ProcessStringUtil {
     }
 
     //根据请求体参数生成处理字符串
-    makeProcessString(data:any,body:any,bucket:Bucket):string{
-        //分别获取缩放、裁剪、圆角、水印、旋转、高斯模糊、锐化、输出格式、图片质量、是否渐进显示、是否去除元信息等参数
-        let {resize,tailor,roundrect,watermark,rotate,blur,sharpen,format,quality,progressive,strip} = body
+    makeImageProcessString(data:any,bucket:Bucket,imageProcessInfo:ImagePostProcessInfo&ImagePreProcessInfo={}):string{
+        //分别获取缩放、裁剪、水印、旋转、圆角、高斯模糊、锐化、输出格式、图片质量、是否渐进显示、是否去除元信息等参数
         let processString = ''
-        
-        processString += this.resizeString(data,resize)
+
+        if(imageProcessInfo.resize) processString += this.resizeString(data,imageProcessInfo.resize)
         if(data.code !== 200){
             return ''
         }
         console.log('1:'+processString)
-        processString += this.tailorString(data,tailor)
+
+        if(imageProcessInfo.tailor) processString += this.resizeString(data,imageProcessInfo.tailor)
         if(data.code !== 200){
             return ''
         }
         console.log('2:'+processString)
-        processString += this.roundrectString(data,roundrect)
+
+        if(imageProcessInfo.roundrect) processString += this.roundrectString(data,imageProcessInfo.roundrect)
         if(data.code !== 200){
             return ''
         }
         console.log('3:'+processString)
-        processString += this.watermarkString(data,watermark,bucket)
+
+        if(imageProcessInfo.watermark) processString += this.watermarkString(data,imageProcessInfo.watermark,bucket)
         if(data.code !== 200){
             return ''
         }
         console.log('4:'+processString)
-        processString += this.rotateString(data,rotate)
+
+        if(imageProcessInfo.rotate) processString += this.rotateString(data,imageProcessInfo.rotate)
         if(data.code !== 200){
             return ''
         }
         console.log('5:'+processString)
-        processString += this.blurString(data,blur)
+
+        if(imageProcessInfo.blur) processString += this.blurString(data,imageProcessInfo.blur)
         if(data.code !== 200){
             return ''
         }
         console.log('6:'+processString)
-        processString += this.outputString(data,sharpen,format,quality,progressive,strip)
+
+        if(imageProcessInfo.sharpen||imageProcessInfo.format||imageProcessInfo.quality||imageProcessInfo.progressive||imageProcessInfo.strip)
+        processString += this.outputString(data,imageProcessInfo.sharpen,imageProcessInfo.format,imageProcessInfo.quality,imageProcessInfo.progressive,imageProcessInfo.strip)
         if(data.code !== 200){
             return ''
         }

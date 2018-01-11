@@ -12,6 +12,7 @@ import { Audio } from '../model/Audio'
 import { Video } from '../model/Video'
 import { Image } from '../model/Image';
 import { File } from '../model/File'
+import { FileBody } from '../interface/file/FileBody'
 import { UploadProcessBody } from '../interface/file/UploadProcessBody'
 import { isArray } from 'util';
 const request = require('request')
@@ -44,7 +45,7 @@ export class FileService {
    @Param body: 请求体
    @Return null
  */
-  async makePolicy(data:any,policy:any,bucket:Bucket,body:UploadProcessBody):Promise<void>{
+  async makePolicy(data:any,policy:any,bucket:Bucket,body:UploadProcessBody,file:File|Image|Video|Audio|Document):Promise<void>{
     let {md5,contentSecret,contentName} = body
     //设置各种上传参数
     if(contentSecret){
@@ -53,28 +54,11 @@ export class FileService {
     policy['bucket'] = bucket.name
     policy['ext-param']+=bucket.name
     data['baseUrl'] +='/'+bucket.name
-
-    //文件类型以文件名确定，默认为.jpg
-    let type:string = contentName.substr(contentName.lastIndexOf('.')+1).toLowerCase()
-    if(!type){
-      data.code = 402
-      data.message = '文件类型不存在'
-      return
-    }
+    //文件类型以文件扩展名确定，如果不存在扩展名为file
+    let type:string = file.type || ''
     let kind = this.kindUtil.getKind(type)
-    
-    if(kind==='image'){
-      let image:Image = await this.imageRepository.findOne({md5,bucketId:bucket.id})
-      if(image&&image.status==='post'){
-        data.code = 403
-        data.message = '指定文件已经存在'
-        return
-      }
-    }else{
-      console.log('还不支持')
-    }
-    
-    policy['save-key'] +='/'+bucket.directory+'/'+md5+'.'+type
+    //这里原图的save_key不保存它，在回调中直接删除
+    policy['save-key'] +='/'+bucket.directory+'/'+md5+'_'+(+new Date())+'.'+type
     policy['expiration'] = Math.floor((+new Date())/1000)+bucket.request_expire
     policy['date'] = new Date(+new Date()+bucket.request_expire*1000).toUTCString()
     //根据配置，设置预处理参数，只有一个预处理任务
@@ -85,33 +69,32 @@ export class FileService {
         'save_as': '',
         'notify_url': policy['notify-url']
       }
-      let format = bucket.format?bucket.format:'raw'
+      let format = bucket.format || 'raw'
       //原图不处理
       if(format == 'raw'){
-        //原图不出里
+        //保存为原图，为了防止没有预处理字符串时不进行预处理任务，加上了/scale/100
+        obj['x-gmkerl-thumb'] = this.processStringUtil.makeImageProcessString(data,bucket,body.imagePreProcessInfo)+'/scale/100'
+        //这里将预处理的文件名设置为刚才保存的文件名，在回调中根据文件名来更新它，保存为原图时，
+        obj['save_as'] = '/'+bucket.directory+'/'+file.name+'.'+file.type
+        //apps字段应为json字符串
+        policy['apps'] = [obj]
       }else if(format == 'webp_damage'){
         //保存为有损webp
-        obj['x-gmkerl-thumb'] = '/format/webp'
-        obj['save_as'] = policy['save-key'].replace(type,'webp')
+        obj['x-gmkerl-thumb'] = this.processStringUtil.makeImageProcessString(data,bucket,body.imagePreProcessInfo)+'/format/webp/strip/true'
+        obj['save_as'] = '/'+bucket.directory+'/'+file.name+'.'+'webp'
         //apps字段应为json字符串
         policy['apps'] = [obj]
       }else if(format == 'webp_undamage'){
         //保存为无损webp
-        obj['x-gmkerl-thumb'] = '/format/webp/lossless/true'
-        obj['save_as'] = policy['save-key'].replace(type,'webp')
+        obj['x-gmkerl-thumb'] = this.processStringUtil.makeImageProcessString(data,bucket,body.imagePreProcessInfo)+'/format/webp/lossless/true/strip/true'
+        obj['save_as'] = '/'+bucket.directory+'/'+file.name+'.'+'webp'
         policy['apps'] = [obj]
       }else{
         throw new Error('格式配置不正确，应该不能发生')
       }
-    }else if(kind==='audio'){
-      //暂时不管
-      console.log('audio暂时未实现')
-   }else if(kind==='video'){
-      console.log('video暂时未实现')
-   }else{
-     console.log('还不知池')
+    }else{
+     //暂时不支持
    }
-    
     //设置表单policy字段
     data.form.policy = Buffer.from(JSON.stringify(policy)).toString('base64')
     //生成签名，上传签名需要policy参数
@@ -122,94 +105,62 @@ export class FileService {
     return 
   }
 
-  /* 预保存文件，作为一个锚点，在回调通知中进行验证
+  /* 预保存文件，只保存预处理结果，在回调中对其进行更新，原图在回调中直接删除
      @Param data：返回信息，用来设置状态码
-     @Param policy：policy对象
      @Param bucket：空间配置
-     @Param parent：文件所属目录对象
      @Param contentName：文件名
      @Return null
    */
-  async preSaveFile(data:any,policy:any,bucket:Bucket,contentName:string):Promise<void>{
+  async preSaveFile(data:any,bucket:Bucket,body:UploadProcessBody):Promise<File|Image|Video|Audio|Document>{
+    let { md5 , contentName , contentSecret , tags} = body
     let type = contentName.substr(contentName.lastIndexOf('.')+1).toLowerCase()
     let kind = this.kindUtil.getKind(type)
     if(kind==='image'){
+      //创建图片
+      let image = new Image()
+      image.raw_name = contentName
+      //这个文件名会设置到预处理参数apps的save_as中去，而不是上传参数的save_key中，那个文件名不保存，在回调中直接删除
+      image.name = md5+'_'+(+new Date())
+      image.md5 = md5
+      image.tags = tags
+      image.type = type
+      image.status = 'pre'
+      image.content_secret = contentSecret || null
+      image.bucket = bucket
       try{
-        //创建图片
-        let image = new Image()
-        image.name = contentName
-        image.md5 =policy['content-md5']
-        image.type = type
-        image.status = 'pre'
-        image.content_secret = policy['content-secret']?policy['content-secret']:null
-        image.bucket = bucket
         await this.imageRepository.save(image)
         data.code = 200
         data.message = '图片保存成功'
       }catch(err){
-        data.code = 405
+        data.code = 402
         data.message = '图片保存失败'+err.toString()
       }  
-    }else if(kind==='audio'){
-       console.log('audio暂时未实现')
-    }else if(kind==='video'){
-       console.log('video暂时未实现')
+      return image
     }else{
-       throw new Error('kind不正确')
-    }
-    return 
-  }
-
-
-  async postDeleteFile(bucket:Bucket,md5:string,type:string,status:string,kind:string){
-    console.log('对文件进行后删除')
-    if(kind==='image'){
-      this.imageRepository.delete({md5,bucketId:bucket.id})
-    }else if(kind==='audio'){
-       console.log('audio暂时未实现')
-    }else if(kind==='video'){
-       console.log('video暂时未实现')
-    }else{
-       throw new Error('kind不正确')
+       //还不支持
     }
   }
 
-  /* 回调通知验签成功，且响应码为200时，后保存图片 */
-  async postSaveFile(bucket:Bucket,md5:string,type:string,body:any,kind:string):Promise<boolean>{
-    if(kind==='image'){
-      let image:Image = await this.imageRepository.findOne({md5,bucketId:bucket.id})
-      if(!image){
-        return false
-      }
-      image.width = body['image-width'],
-      image.height = body['image-height'],
-      image.type = body['image-type'].toLowerCase(),
-      image.frames = body['image-frames'],
-      image.status = 'post'
-      await this.imageRepository.save(image)
-    }else if(kind==='audio'){
-       console.log('audio暂时未实现')
-    }else if(kind==='video'){
-       console.log('video暂时未实现')
-    }else{
-       throw new Error('kind不正确')
-    }
-    return true
-  }
 
   /* 预处理回调通知验签成功，且响应码为200时，后保存图片 */
-  async postSaveTask(bucket:Bucket,md5:string,type:string,body:any,kind:string):Promise<boolean>{
+  async postSaveTask(data:any,bucket:Bucket,name:string,body:any,kind:string):Promise<void>{
     if(kind==='image'){
-      let image:Image = await this.imageRepository.findOne({md5,bucketId:bucket.id})
-      if(!image){
-        return false
-      }
+      let image:Image = await this.imageRepository.findOne({name,bucketId:bucket.id,status:'pre'})
       image.width = body.imginfo['width'],
       image.height = body.imginfo['height'],
       image.type = body.imginfo['type'].toLowerCase(),
       image.frames = body.imginfo['frames'],
       image.status = 'post'
-      await this.imageRepository.save(image)
+      //从云存储获取预处理文件的md5与处理后大小
+      let {file_size,file_md5} = await this.restfulUtil.getFileInfo(data,bucket,image)
+      image.size = file_size
+      image.md5 = file_md5
+      try{
+        await this.imageRepository.save(image)
+      }catch(err){
+        data.code = 401
+        data.message = '更新预处理图片失败'
+      }
     }else if(kind==='audio'){
        console.log('audio暂时未实现')
     }else if(kind==='video'){
@@ -217,13 +168,13 @@ export class FileService {
     }else{
        throw new Error('kind不正确')
     }
-    return true
+    return
   }
 
   
   //创建图片完成url
-  async makeUrl(data:any,bucket:Bucket,file:File|Image|Video|Audio|Document,body:any,kind:string):Promise<void>{
-    data.url += '/'+bucket.directory+'/'+file.md5+'.'+file.type
+  async makeUrl(data:any,bucket:Bucket,file:File|Image|Video|Audio|Document,body:FileBody,kind:string):Promise<void>{
+    data.url += '/'+bucket.directory+'/'+file.name+'.'+file.type
     //如果是私有空间需要拼接token查询字符串
     if(bucket.public_or_private=='private'){
       data.url += '?_upt='
@@ -237,7 +188,7 @@ export class FileService {
     console.log('1:'+data.url)
     if(kind==='image'){
       //拼接处理字符串，使用请求体参数
-      data.url += this.processStringUtil.makeProcessString(data,body,bucket)
+      data.url += this.processStringUtil.makeImageProcessString(data,bucket,body.imagePostProcessInfo)
       console.log('2:'+data.url)
     }
     return 
@@ -251,7 +202,7 @@ export class FileService {
     data.documents = await bucket.documents
 
     let addUrl = function (value){
-      value.url = '/'+bucket.name+'/'+value.md5+'.'+value.type
+      value.url = '/'+bucket.name+'/'+value.name+'.'+value.type
       if(bucket.public_or_private==='private'){
         value.url+='?_upt='+this.authUtil.getToken(bucket,value.url)
       }
