@@ -21,8 +21,8 @@ export class ProcessStringUtil {
        this.colorRegex = new RegExp('^[0-9A-F]{6}$','g') 
        //验证文字描边的正则表达式
        this.borderRegex = new RegExp('^[0-9A-F]{8}$','g') 
-       //图片保存格式
-       this.format = new Set(['jpg','png','webp'])
+       //图片后处理保存格式集合
+       this.format = new Set(['jpeg','png','webp'])
     }
 
     //根据请求体参数生成处理字符串
@@ -269,9 +269,9 @@ export class ProcessStringUtil {
         }else if(watermark === false){
             enable = false
         }else if(watermark === null || watermark === undefined){
-           if(bucket.watermark_enable===1){
+           if(bucket.image_config.watermark_enable===1){
                enable = true
-           }else if(bucket.watermark_enable === 0){
+           }else if(bucket.image_config.watermark_enable === 0){
                enable = false
            }else{
                enable = false
@@ -283,49 +283,49 @@ export class ProcessStringUtil {
         }
         let str:string = ''
         if(enable){
-            if(bucket.watermark_save_key){
-                str += '/watermark/url/'+Buffer.from(bucket.watermark_save_key).toString('base64')
+            if(bucket.image_config.watermark_save_key){
+                str += '/watermark/url/'+Buffer.from(bucket.image_config.watermark_save_key).toString('base64')
             }else{
                 data.code = 418
                 data.message = '水印图片url不存在'
                 return ''
             }
 
-            if(bucket.watermark_gravity&&!this.gravity.has(bucket.watermark_gravity)){
+            if(bucket.image_config.watermark_gravity&&!this.gravity.has(bucket.image_config.watermark_gravity)){
                 data.code = 419
                 data.message = '水印重心参数不正确'
                 return ''
             }else{
-                str+= '/align/'+bucket.watermark_gravity
+                str+= '/align/'+bucket.image_config.watermark_gravity
             }
 
-            if((bucket.watermark_x&&!Number.isInteger(bucket.watermark_x))||(bucket.watermark_y&&!Number.isInteger(bucket.watermark_y))){
+            if((bucket.image_config.watermark_x&&!Number.isInteger(bucket.image_config.watermark_x))||(bucket.image_config.watermark_y&&!Number.isInteger(bucket.image_config.watermark_y))){
                 data.code = 420
                 data.message = '偏移参数不正确'
                 return ''
-            }else if(!bucket.watermark_x&&!bucket.watermark_y){
+            }else if(!bucket.image_config.watermark_x&&!bucket.image_config.watermark_y){
                 str+='/margin/20x20'
-            }else if(!bucket.watermark_x&&bucket.watermark_y){
-                str+='/margin/20x'+bucket.watermark_y
-            }else if(bucket.watermark_x&&!bucket.watermark_y){
-                str+='/margin/'+bucket.watermark_x+'x20'
+            }else if(!bucket.image_config.watermark_x&&bucket.image_config.watermark_y){
+                str+='/margin/20x'+bucket.image_config.watermark_y
+            }else if(bucket.image_config.watermark_x&&!bucket.image_config.watermark_y){
+                str+='/margin/'+bucket.image_config.watermark_x+'x20'
             }else{
-                str+='/margin/'+bucket.watermark_x+'x'+bucket.watermark_y
+                str+='/margin/'+bucket.image_config.watermark_x+'x'+bucket.image_config.watermark_y
             }
 
-            if(bucket.watermark_opacity&&!Number.isInteger(bucket.watermark_opacity)){
+            if(bucket.image_config.watermark_opacity&&!Number.isInteger(bucket.image_config.watermark_opacity)){
                 data.code = 421
                 data.message = '透明度参数不正确'
                 return ''
-            }else if(!bucket.watermark_opacity){
+            }else if(!bucket.image_config.watermark_opacity){
                 //默认为100，不用管
             }else{
-                str+='/opacity/'+bucket.watermark_opacity
+                str+='/opacity/'+bucket.image_config.watermark_opacity
             }
 
-            if(bucket.watermark_ws&&Number.isInteger(bucket.watermark_ws)&&bucket.watermark_ws>=1&&bucket.watermark_ws<=100){
-                str+='/percent/'+bucket.watermark_ws
-            }else if(!bucket.watermark_ws){
+            if(bucket.image_config.watermark_ws&&Number.isInteger(bucket.image_config.watermark_ws)&&bucket.image_config.watermark_ws>=1&&bucket.image_config.watermark_ws<=100){
+                str+='/percent/'+bucket.image_config.watermark_ws
+            }else if(!bucket.image_config.watermark_ws){
                 //默认为0，不用管
             }else{
                 data.code = 422

@@ -14,9 +14,11 @@ import { Video } from '../model/Video'
 import { Image } from '../model/Image';
 import { File } from '../model/File'
 import { BucketConfig } from '../interface/config/BucketConfig'
-import { FormatConfig } from '../interface/config/FormatConfig'
-import { WatermarkConfig } from '../interface/config/WatermarkConfig'
-import { EnableWatermarkConfig } from '../interface/config/EnableWatermarkConfig'
+import { VideoFormatConfig } from '../interface/config/VideoFormatConfig'
+import { ImageFormatConfig } from '../interface/config/ImageFormatConfig'
+import { AudioFormatConfig } from '../interface/config/AudioFormatConfig'
+import { ImageWatermarkConfig } from '../interface/config/ImageWatermarkConfig'
+import { EnableImageWatermarkConfig } from '../interface/config/EnableImageWatermarkConfig'
 const formidable = require('formidable')
 const fs = require('fs')
 
@@ -29,12 +31,11 @@ export class ConfigController {
 
   constructor(
     private readonly kindUtil: KindUtil,
-    private readonly resufulUtil: RestfulUtil,
+    private readonly restfulUtil: RestfulUtil,
     private readonly configService: ConfigService,
     @InjectRepository(Image) private readonly imageRepository: Repository<Image>) {
       this.gravity = new Set(['northwest','north','northeast','west','center','east','southwest','south','southeast'])
     }
-
 
   /* 配置空间基本信息 */
   @Post('bucket')
@@ -109,15 +110,15 @@ export class ConfigController {
     if(data.code == 401){
       return data
     }
-    await this.resufulUtil.createDirectory(data,bucket)
+    await this.restfulUtil.createDirectory(data,bucket)
     
     return data
   }
  
 
-  /* 保存格式配置，目前公有空间、私有空间采用一个保存格式，会在两个配置信息中各保存一次 */
-  @Post('format')
-  @ApiOperation({title:'保存格式配置接口'})
+  /* 图片保存格式配置，目前公有空间、私有空间采用一个保存格式，会在两个配置信息中各保存一次 */
+  @Post('imageFormat')
+  @ApiOperation({title:'图片保存格式配置接口'})
   @ApiConsumes('application/x-www-form-urlencoded','application/json')
   @ApiProduces('application/json')
   @ApiResponse({status:200,description:'格式配置成功'})
@@ -125,7 +126,7 @@ export class ConfigController {
   @ApiResponse({status:401,description:'格式参数不正确，格式只能是raw、webp_damage、webp_undamage'})
   @ApiResponse({status:402,description:'空间配置不存在'})
   @ApiResponse({status:403,description:'图片保存格式配置失败'})
-  async  formatConfig(@Body() body:FormatConfig):Promise<any>{
+  async  imageFormatConfig(@Body() body:ImageFormatConfig):Promise<any>{
 
     let data = {
       code:200,
@@ -141,7 +142,7 @@ export class ConfigController {
     }
 
     //保存公有空间格式
-    await this.configService.saveFormatConfig(data,body)
+    await this.configService.saveImageFormatConfig(data,body)
     
     //格式参数不正确、配置不存在、保存失败
     if(data.code == 401 || data.code == 402 ||data.code == 403){
@@ -159,7 +160,7 @@ export class ConfigController {
   @ApiResponse({status:400,description:'缺少参数,或者参数错误'})
   @ApiResponse({status:401,description:'空间配置不存在'})
   @ApiResponse({status:402,description:'水印启用保存失败'})
-  async  enableWatermark(@Body() body:EnableWatermarkConfig ):Promise<any>{
+  async  enableImageWatermark(@Body() body:EnableImageWatermarkConfig ):Promise<any>{
     let data = {
       code:200,
       message:''
@@ -184,7 +185,7 @@ export class ConfigController {
       body.enable = false
     }
 
-    await this.configService.saveEnableWatermarkConfig(data,body)
+    await this.configService.saveEnableImageWatermarkConfig(data,body)
     //保存启用水印到数据库失败，无法模仿这个错误
     if(data.code === 401 || data.code === 402){
       return data
@@ -197,7 +198,7 @@ export class ConfigController {
      为了向前端提供统一接口，这里采用将水印图片上传到服务器，由服务发起restful上传请求的方式
      如果客户端上传，客户端调用会比较繁杂
   */
-  @Post('watermark')
+  @Post('imageWatermark')
   @ApiOperation({title:'图片水印配置接口'})
   @ApiConsumes('application/form-data')
   @ApiProduces('application/json')
@@ -208,7 +209,7 @@ export class ConfigController {
   @ApiResponse({status:403,description:'不允许的水印图片类型'})
   @ApiResponse({status:404,description:'上传水印图片失败'})
   @ApiResponse({status:405,description:'保存水印图片信息失败'})
-  async  watermarkConfig(@Request() req,@Body() body:WatermarkConfig):Promise<any>{
+  async  imageWatermarkConfig(@Request() req,@Body() body:ImageWatermarkConfig):Promise<any>{
     let data = {
       code:200,
       message:''
@@ -292,11 +293,83 @@ export class ConfigController {
       return data
     }
     //保存后台水印配置
-    await this.configService.saveWatermarkConfig(data,file,obj)
+    await this.configService.saveImageWatermarkConfig(data,file,obj)
 
     if(data.code === 401 || data.code === 402|| data.code === 403 ){
       return data
     }
     return data
   }
+
+   /* 音频保存格式配置，目前公有空间、私有空间采用一个保存格式，会在两个配置信息中各保存一次 */
+   @Post('audioFormat')
+   @ApiOperation({title:'音频保存格式配置接口'})
+   @ApiConsumes('application/x-www-form-urlencoded','application/json')
+   @ApiProduces('application/json')
+   @ApiResponse({status:200,description:'格式配置成功'})
+   @ApiResponse({status:400,description:'缺少参数'})
+   @ApiResponse({status:401,description:'格式参数不正确，格式只能是raw、mp3、aac'})
+   @ApiResponse({status:402,description:'空间配置不存在'})
+   @ApiResponse({status:403,description:'图片保存格式配置失败'})
+   async  audioFormatConfig(@Body() body:AudioFormatConfig):Promise<any>{
+ 
+     let data = {
+       code:200,
+       message:""
+     }
+ 
+     let format = body.format
+ 
+     if(format==undefined||format.length==0){
+       data.code = 400
+       data.message = '缺少参数'
+       return data
+     }
+ 
+     //保存公有空间格式
+     await this.configService.saveAudioFormatConfig(data,body)
+     
+     //格式参数不正确、配置不存在、保存失败
+     if(data.code == 401 || data.code == 402 ||data.code == 403){
+       return data
+     }
+ 
+     return data
+   }
+
+   /* 视频保存配置，目前公有空间、私有空间采用一个保存格式，会在两个配置信息中各保存一次 */
+   @Post('videoFormat')
+   @ApiOperation({title:'视频保存格式配置接口，包含编码类型、分辨率'})
+   @ApiConsumes('application/x-www-form-urlencoded','application/json')
+   @ApiProduces('application/json')
+   @ApiResponse({status:200,description:'格式配置成功'})
+   @ApiResponse({status:400,description:'缺少参数'})
+   @ApiResponse({status:401,description:'格式或者分辨率不正确'})
+   @ApiResponse({status:402,description:'空间配置不存在'})
+   @ApiResponse({status:403,description:'图片保存格式配置失败'})
+   async videoFormatConfig(@Body() body:VideoFormatConfig):Promise<any>{
+ 
+     let data = {
+       code:200,
+       message:""
+     }
+ 
+     let {format,resolution} = body
+ 
+     if(!format||!resolution){
+       data.code = 400
+       data.message = '缺少参数'
+       return data
+     }
+ 
+     //保存公有空间格式
+     await this.configService.saveVideoFormatConfig(data,body)
+     
+     //格式参数不正确、配置不存在、保存失败
+     if(data.code == 401 || data.code == 402 ||data.code == 403){
+       return data
+     }
+ 
+     return data
+   }
 }

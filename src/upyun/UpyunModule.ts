@@ -9,6 +9,9 @@ import { RestfulUtil } from './util/RestfulUtil';
 import { KindUtil } from './util/KindUtil';
 import { AuthUtil } from './util/AuthUtil';
 import { Document } from './model/Document'
+import { ImageConfig } from './model/ImageConfig';
+import { AudioConfig } from './model/AudioConfig';
+import { VideoConfig } from './model/VideoConfig';
 import { Bucket } from './model/Bucket';
 import { Audio } from './model/Audio'
 import { Video } from './model/Video'
@@ -18,7 +21,7 @@ const typeormOptions = require('./typeormConfig')
 
 
 @Module({
-  modules: [TypeOrmModule.forRoot([Image,File,Bucket,Video,Audio],typeormOptions)],  
+  modules: [TypeOrmModule.forRoot([ImageConfig,AudioConfig,VideoConfig,Bucket,Image,File,Video,Audio,Document],typeormOptions)],  
   controllers: [ConfigController,FileController],
   components: [ConfigService,FileService,RestfulUtil,KindUtil,AuthUtil,ProcessStringUtil],
   exports:[ConfigService,FileService,RestfulUtil,AuthUtil,ProcessStringUtil]

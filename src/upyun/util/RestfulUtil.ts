@@ -180,6 +180,7 @@ export class RestfulUtil{
           data.code = 403
           data.message = '响应体不存在'
         }
+        console.log('删除文件失败')
         resolve()
         return
       });
@@ -252,7 +253,6 @@ export class RestfulUtil{
     let url = '/'+bucket.name+save_key
     let date:string = new Date(+new Date()+bucket.request_expire*1000).toUTCString()
     let Authorization = await this.authUtil.getHeaderAuth(bucket,'GET',url,date,'')
-    let info
     await new Promise((resolve,reject)=>{
       request.get({
         url:requestUrl,
@@ -270,30 +270,23 @@ export class RestfulUtil{
         if(res.statusCode == 200){
           data.code = 200
           data.message = '获取文件信息成功'
-          console.log('响应头信息')
-          console.log(res.headers)
-          console.log('响应体')
-          console.log(body)
+          data.info = body.split('\n').map((value,index,raw)=>{
+            let temp = value.split('\t')
+            return {
+              name:temp[0],
+              isDirectory:(temp[1]==='N'?false:true),
+              size:parseInt(temp[2]),
+              timestamp:parseInt(temp[3])
+            }
+          })
           resolve()
           return
         }
-        if(body){
-          try{
-            let {msg,code,id}  = JSON.parse(body)
-            data.code = code
-            data.message = msg
-          }catch(err){
-            data.code = 403
-            data.message = '响应体解析错误'
-          }
-        }else{
-          data.code = 403
-          data.message = '响应体不存在'
-        }
+        data.code = 403
+        data.message = '获取文件信息失败'
         resolve()
         return
       });
     })
-    return  {}
   }
 }

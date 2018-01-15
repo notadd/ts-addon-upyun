@@ -1,4 +1,4 @@
-import { Component, Inject } from '@nestjs/common';
+import { Component } from '@nestjs/common';
 import { Document } from '../model/Document'
 import { Bucket } from '../model/Bucket';
 import { Audio } from '../model/Audio'

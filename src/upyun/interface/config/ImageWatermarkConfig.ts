@@ -1,6 +1,6 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 
-export class WatermarkConfig{
+export class ImageWatermarkConfig{
 
     @ApiModelProperty({description:'水印图片，暂时使用string类型',required:true})
     file:string

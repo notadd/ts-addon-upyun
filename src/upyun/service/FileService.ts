@@ -69,7 +69,7 @@ export class FileService {
         'save_as': '',
         'notify_url': policy['notify-url']
       }
-      let format = bucket.format || 'raw'
+      let format = bucket.image_config.format || 'raw'
       //原图不处理
       if(format == 'raw'){
         //保存为原图，为了防止没有预处理字符串时不进行预处理任务，加上了/scale/100

@@ -33,9 +33,9 @@ export class FileController {
   constructor(
     private readonly authUtil: AuthUtil,
     private readonly kindUtil: KindUtil,
+    private readonly restfulUtil: RestfulUtil,
     private readonly fileService: FileService,
     private readonly configService: ConfigService,
-    private readonly restfulUtil: RestfulUtil,
     @InjectRepository(File) private readonly fileRepository: Repository<File>,
     @InjectRepository(Image) private readonly imageRepository: Repository<Image>,
     @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>) {
@@ -192,7 +192,12 @@ export class FileController {
       return data
     }
 
-    let bucket:Bucket = await this.bucketRepository.findOne({name:bucket_name})
+    let bucket:Bucket = await this.bucketRepository.createQueryBuilder("bucket")
+                        .leftJoinAndSelect("bucket.image_config", "image_config")
+                        .leftJoinAndSelect("bucket.audio_config", "audio_config")
+                        .leftJoinAndSelect("bucket.video_config", "video_config")
+                        .where("bucket.name = :name", { name: bucket_name })
+                        .getOne()
     if(!bucket){
       data.code = 401
       data.message = '指定空间'+bucket_name+'不存在'
@@ -222,7 +227,7 @@ export class FileController {
     let contentMd5 = headers['content-md5']
     let auth = headers['authorization']
     let date = headers['date']
-
+    console.log(body)
     let data = {
       code:200,
       message:''
@@ -241,13 +246,16 @@ export class FileController {
       let name  = path.parse(body.url).name
       //文件扩展名，不包含.
       let type = path.parse(body.url).ext.substr(1)
-      console.log('将要删除文件')
-      console.log(name+'.'+type)
       let kind = this.kindUtil.getKind(type)
       //从扩展参数中获取空间名
       let bucket_name= body['ext-param']
       //查找指定空间
       let bucket:Bucket  = await this.bucketRepository.findOne({name:bucket_name})
+      if(!bucket){
+        res.sendStatus(200)
+        res.end()
+        return
+      }
       //验签获取结果
       let pass =  await this.authUtil.notifyVerify(auth,bucket,'POST','/upyun/file/notify',date,contentMd5,body)
       //验签不成功，要返回400,提示云存储继续发送回调请求
@@ -573,19 +581,20 @@ export class FileController {
   async list(@Body() body:FileListBody):Promise<any>{
       let data = {
           code : 200,
-          message:''
+          message:'',
+          info:[]
       }
       let {bucket_name} =body
       let bucket:Bucket = await this.bucketRepository.findOne({name:bucket_name})
       if(!bucket){
         data.code = 401
         data.message = '空间'+bucket_name+'不存在'
-        return
+        return data
       }
       let info = await this.restfulUtil.getFileList(data,bucket)
       if(data.code === 402){
         return data
       }
-      return info
+      return data
     }
 }

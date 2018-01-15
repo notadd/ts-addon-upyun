@@ -1,8 +1,11 @@
+import { Repository,getManager, getConnection ,Connection } from 'typeorm'
 import { Component, Inject } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository,getManager, getConnection ,Connection } from 'typeorm'
 import { RestfulUtil } from '../util/RestfulUtil';
 import { AuthUtil } from '../util/AuthUtil'
+import { ImageConfig } from '../model/ImageConfig';
+import { AudioConfig } from '../model/AudioConfig';
+import { VideoConfig } from '../model/VideoConfig';
 import { Document } from '../model/Document'
 import { Bucket } from '../model/Bucket';
 import { Audio } from '../model/Audio'
@@ -10,12 +13,13 @@ import { Video } from '../model/Video'
 import { Image } from '../model/Image';
 import { File } from '../model/File'
 import { BucketConfig } from '../interface/config/BucketConfig'
-import { FormatConfig } from '../interface/config/FormatConfig'
-import { EnableWatermarkConfig } from '../interface/config/EnableWatermarkConfig'
+import { VideoFormatConfig } from '../interface/config/VideoFormatConfig'
+import { AudioFormatConfig } from '../interface/config/AudioFormatConfig'
+import { ImageFormatConfig } from '../interface/config/ImageFormatConfig'
+import { EnableImageWatermarkConfig } from '../interface/config/EnableImageWatermarkConfig'
 const fs  = require('fs')
 const crypto = require('crypto')
 const request = require('request')
-const connectionOptions = require('../typeormConfig.json')
 
 /* 配置服务组件，包含了保存公有空间、私有空间、格式、水印等配置项的功能
    还可以获取公有、私有配置  
@@ -23,22 +27,14 @@ const connectionOptions = require('../typeormConfig.json')
 @Component()
 export class ConfigService {
 
-  private publicBucket:Bucket
-  
-  private privateBucket:Bucket
-  
-
   constructor(
     private readonly restfulUtil:RestfulUtil,
     @InjectRepository(Image) private readonly imageRepository: Repository<Image>,
-    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>){}
-
-
-
-  //根据属性查找单个配置对象
-  async findOne(bucket:any):Promise<Bucket>{
-      return await this.bucketRepository.findOne(bucket)
-  }
+    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>,
+    @InjectRepository(ImageConfig) private readonly imageConfigRepository: Repository<ImageConfig>,
+    @InjectRepository(AudioConfig) private readonly audioConfigRepository: Repository<AudioConfig>,
+    @InjectRepository(VideoConfig) private readonly videoConfigRepository: Repository<VideoConfig>
+  ){}
 
 
   async saveBucketConfig(data:any,body:BucketConfig):Promise<Bucket>{ 
@@ -49,21 +45,42 @@ export class ConfigService {
     bucket.directory = body.directory
     bucket.base_url = body.base_url
     bucket.request_expire = +body.request_expire
+    let audio_config = new AudioConfig()
+    let video_config = new VideoConfig()
+    let image_config = new ImageConfig()    
     if(body.isPublic){
       bucket.id = 1
       bucket.public_or_private = 'public'
+      audio_config.id = 1
+      video_config.id = 1
+      image_config.id = 1
+      bucket.audio_config = audio_config
+      bucket.video_config = video_config
+      bucket.image_config = image_config
+      
     }else{
       bucket.id = 2
       bucket.public_or_private = 'private'
       bucket.token_expire  = +body.token_expire
       bucket.token_secret_key = body.token_secret_key
+      audio_config.id = 2
+      video_config.id = 2
+      image_config.id = 2
+      bucket.audio_config = audio_config
+      bucket.video_config = video_config
+      bucket.image_config = image_config
     }
     try{
+      //这里级联不起作用，需要另外保存
+      await this.audioConfigRepository.save(audio_config)
+      await this.videoConfigRepository.save(video_config)
+      await this.imageConfigRepository.save(image_config)
       await this.bucketRepository.save(bucket)
       data.code = 200
       data.message = '空间保存成功'
       return bucket
     }catch(err){
+      console.log(err)
       data.code  = 401
       data.message = '空间保存失败'+err.toString()
       return null
@@ -71,7 +88,7 @@ export class ConfigService {
   }
   
 
-  async saveFormatConfig(data:any,body:FormatConfig):Promise<any>{
+  async saveImageFormatConfig(data:any,body:ImageFormatConfig):Promise<any>{
     let {format} = body
     format = format.toLowerCase()
     if(format!='raw'&&format!='webp_damage'&&format!='webp_undamage'){
@@ -80,7 +97,7 @@ export class ConfigService {
       return
     }
 
-    let buckets:Bucket[] = await this.bucketRepository.find()
+    let buckets:Bucket[] = await this.bucketRepository.find({relations: ["image_config"]})
     if(buckets.length!==2){
       data.code = 402
       data.message = '空间配置不存在'
@@ -88,8 +105,9 @@ export class ConfigService {
     }
     try{
       await buckets.forEach(async (bucket)=>{
-        bucket.format = format
-        await this.bucketRepository.save(bucket)
+        bucket.image_config.format = format
+        await this.imageConfigRepository.save(bucket.image_config)
+        //await this.bucketRepository.save(bucket)
       })
       data.code = 200
       data.message = '图片保存格式配置成功'
@@ -103,8 +121,8 @@ export class ConfigService {
 
 
 
-  async saveEnableWatermarkConfig(data:any,body:EnableWatermarkConfig):Promise<void>{
-    let buckets:Bucket[] = await this.bucketRepository.find()
+  async saveEnableImageWatermarkConfig(data:any,body:EnableImageWatermarkConfig):Promise<void>{
+    let buckets:Bucket[] = await this.bucketRepository.find({relations: ["image_config"]})
     if(buckets.length!==2){
       data.code = 401
       data.message = '空间配置不存在'
@@ -118,8 +136,8 @@ export class ConfigService {
     }
     try{
       await buckets.forEach(async (bucket)=>{
-        bucket.watermark_enable = watermark_enable
-        await this.bucketRepository.save(bucket)
+        bucket.image_config.watermark_enable = watermark_enable
+        await this.imageConfigRepository.save(bucket.image_config)
       })
       data.code = 200
       data.message = '水印启用配置成功'
@@ -131,8 +149,8 @@ export class ConfigService {
     }
   }
 
-  async saveWatermarkConfig(data:any,file:any,obj:any):Promise<void>{
-    let buckets:Bucket[] = await this.bucketRepository.find()
+  async saveImageWatermarkConfig(data:any,file:any,obj:any):Promise<void>{
+    let buckets:Bucket[] = await this.bucketRepository.find({relations: ["image_config"]})
     let type = file.name.substr(file.name.lastIndexOf('.')+1).toLowerCase()
     if(buckets.length!==2){
       data.code = 401
@@ -172,14 +190,14 @@ export class ConfigService {
       }
 
       //保存空间配置
-      buckets[i].watermark_save_key = '/'+buckets[i].directory+'/'+image.name+'.'+image.type
-      buckets[i].watermark_gravity = obj.gravity
-      buckets[i].watermark_opacity = obj.opacity
-      buckets[i].watermark_ws = obj.ws
-      buckets[i].watermark_x = obj.x
-      buckets[i].watermark_y = obj.y
+      buckets[i].image_config.watermark_save_key = '/'+buckets[i].directory+'/'+image.name+'.'+image.type
+      buckets[i].image_config.watermark_gravity = obj.gravity
+      buckets[i].image_config.watermark_opacity = obj.opacity
+      buckets[i].image_config.watermark_ws = obj.ws
+      buckets[i].image_config.watermark_x = obj.x
+      buckets[i].image_config.watermark_y = obj.y
       try{
-        await this.bucketRepository.save(buckets[i])
+        await this.imageConfigRepository.save(buckets[i].image_config)
       }catch(err){
         data.code = 403
         data.message = '保存水印配置出现错误'+err.toString()
@@ -190,6 +208,73 @@ export class ConfigService {
     }
     fs.unlinkSync(file.path)
     if(data.code === 402|| data.code === 403){
+      return
+    }
+  }
+
+  async saveAudioFormatConfig(data:any,body:AudioFormatConfig):Promise<any>{
+    let {format} = body
+    format = format.toLowerCase()
+    if(format!='raw'&&format!='mp3'&&format!='aac'){
+      data.code = 401
+      data.message = '保存格式不正确'
+      return
+    }
+
+    let buckets:Bucket[] = await this.bucketRepository.find({relations: ["audio_config"]})
+    if(buckets.length!==2){
+      data.code = 402
+      data.message = '空间配置不存在'
+      return
+    }
+    try{
+      await buckets.forEach(async (bucket)=>{
+        bucket.audio_config.format = format
+        await this.audioConfigRepository.save(bucket.audio_config)
+      })
+      data.code = 200
+      data.message = '图片保存格式配置成功'
+      return
+    }catch(err){
+      data.code = 403
+      data.message  = '图片保存格式配置失败'+err.toString()
+      return
+    }
+  }
+
+  async saveVideoFormatConfig(data:any,body:VideoFormatConfig):Promise<any>{
+    let {format,resolution} = body
+    format = format.toLowerCase()
+    if(format!='raw'&&format!='vp9'&&format!='h264'&&format!='h265'){
+      data.code = 401
+      data.message = '编码格式不正确'
+      return
+    }
+    resolution = resolution.toLowerCase()
+    if(resolution!='raw'&&resolution!='1080p'&&resolution!='720p'&&resolution!='480p'){
+      data.code = 401
+      data.message = '分辨率格式不正确'
+      return
+    }
+
+    let buckets:Bucket[] = await this.bucketRepository.find({relations: ["video_config"]})
+    if(buckets.length!==2){
+      data.code = 402
+      data.message = '空间配置不存在'
+      return
+    }
+    try{
+      await buckets.forEach(async (bucket)=>{
+        bucket.video_config.format = format
+        bucket.video_config.resolution = resolution
+        await this.videoConfigRepository.save(bucket.video_config)
+      })
+      data.code = 200
+      data.message = '图片保存格式配置成功'
+      return
+    }catch(err){
+      data.code = 403
+      data.message  = '图片保存格式配置失败'+err.toString()
       return
     }
   }
