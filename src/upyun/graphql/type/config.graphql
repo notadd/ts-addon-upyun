@@ -1,0 +1,24 @@
+type BucketConfig {
+      isPublic:Boolean
+      name:String
+      operator:String
+      password:String
+      directory:String
+      base_url:String
+      request_expire:Int
+      token_expire:Int
+      token_secret_key:String
+}
+
+type Data {
+    code:Int
+    message:String
+}
+
+type Mutation {
+  bucket(bucketConfig:BucketConfig):Data
+}
+
+type Query {
+    fileList(id:Int):Data
+}
