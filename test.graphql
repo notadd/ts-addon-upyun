@@ -76,8 +76,8 @@ query buckets{
 
 query downloadProcess{
   downloadProcess(
-    bucket_name:"benchu1",
-    name:"",
+    bucket_name:"benchu2",
+    name:"18ba231546b55df87e74c6cdbef0d005_1516096854181",
     type:"jpeg"
   ){
 		code
@@ -94,7 +94,7 @@ query downloadProcess{
 
 mutation uploadProcess{
   uploadProcess(
-    bucket_name:"benchu1",
+    bucket_name:"benchu2",
     md5:"4f58f848b46a2ac6a817c9f5289a0f97",
     contentName:"test.jpeg"
   ){
@@ -111,8 +111,8 @@ mutation uploadProcess{
 
 query oneFile{
   one(
-    bucket_name:"benchu1",
-    name:"18ba231546b55df87e74c6cdbef0d005_1516092168011",
+    bucket_name:"benchu2",
+    name:"18ba231546b55df87e74c6cdbef0d005_1516094480293",
     type:"jpeg",
     imagePostProcessInfo:{
   		resize:{
@@ -123,7 +123,7 @@ query oneFile{
       }
     }
   ){
-	code
+		code
     message
     url
   }
