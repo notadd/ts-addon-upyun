@@ -28,9 +28,8 @@ export class ConfigResolver {
     this.gravity = new Set(['northwest', 'north', 'northeast', 'west', 'center', 'east', 'southwest', 'south', 'southeast'])
   }
 
-  @Mutation()
+  @Mutation('bucket')
   async bucket(req, body) {
-
     let data = {
       code: 200,
       message: ""
