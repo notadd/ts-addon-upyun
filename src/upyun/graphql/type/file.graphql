@@ -58,8 +58,14 @@ input ImagePreProcessInfo{
     rotate:Int
 }
 
+type DeleteFileData{
+    code:Int
+    message:String
+}
+
 type Mutation{
    uploadProcess(bucket_name:String,md5:String,contentName:String,contentSecret:String,imagePreProcessInfo:ImagePreProcessInfo):UploadProcessData
+   deleteFile(bucket_name:String,name:String,type:String):DeleteFileData
 }
 
 

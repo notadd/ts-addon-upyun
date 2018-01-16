@@ -258,4 +258,48 @@ export class FileResolver {
      await this.fileService.getAll(data,bucket)
      return data
   }
+
+  /* 文件删除接口
+     当客户端需要删除某个文件时使用，
+     @Param bucket_name：文件所属空间名
+     @Param type：       文件扩展名，即文件类型
+     @Param name：       文件名
+     @Return data.code：状态码，200为成功，其他为错误
+             data.message：响应信息
+  */
+  @Mutation('deleteFile')
+  async deleteFile(req , body):Promise<any>{
+      let data = {
+          code : 200,
+          message:''
+      }
+      let {bucket_name,type,name} =body
+      if(!bucket_name || !name || !type){
+        data.code = 400
+        data.message = '缺少参数'
+        return data
+      }
+
+      let bucket:Bucket = await this.bucketRepository.findOne({name:bucket_name})
+      if(!bucket){
+        data.code = 401
+        data.message = '空间'+bucket_name+'不存在'
+        return
+      }
+      let kind = this.kindUtil.getKind(type)
+      if(kind==='image'){
+        let image:Image = await this.imageRepository.findOne({name,bucketId:bucket.id})
+        if(!image){
+          data.code = 402
+          data.message = '文件md5='+name+'不存在'
+          return
+        }
+        await this.restfulUtil.deleteFile(data,bucket,image)
+        if(data.code === 403){
+          return data
+        }
+        await this.imageRepository.delete({name,bucketId:bucket.id})
+      }
+      return data
+  }
 }    

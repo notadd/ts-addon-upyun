@@ -152,3 +152,10 @@ query allFile{
     }
   }
 }
+
+mutation deleteFile{
+  deleteFile(bucket_name:"benchu1",name:"18ba231546b55df87e74c6cdbef0d005_1516096188598",type:"jpeg"){
+    code
+    message
+  }
+}
