@@ -20,8 +20,8 @@ import { FilesBody } from '../interface/file/FilesBody'
 import { DeleteFileBody } from '../interface/file/DeleteFileBody'
 import { FileInfoBody } from '../interface/file/FileInfoBody'
 import { FileListBody } from '../interface/file/FileListBody'
-const formidable = require('formidable')
-const path = require('path')
+import * as  formidable from  'formidable'
+import * as  path       from  'path'
 
 /*文件控制器，包含了文件下载预处理、上传预处理、异步回调通知、获取单个文件url、获取多个文件信息以及url、删除文件、从云存储获取单个文件信息、获取指定空间下文件列表等接口
   所有文件接口只接受json类型请求体，post请求方法

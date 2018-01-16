@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { FileResolver } from './graphql/resolver/FileResolver';
 import { ConfigResolver } from './graphql/resolver/ConfigResolver';
 import { FileController } from './controller/FileController';
 import { ConfigController } from './controller/ConfigController';
@@ -23,8 +24,8 @@ const typeormOptions = require('./typeormConfig')
 @Module({
   modules: [TypeOrmModule.forRoot([ImageConfig,AudioConfig,VideoConfig,Bucket,Image,File,Video,Audio,Document],typeormOptions)],  
   controllers: [ConfigController,FileController],
-  components: [ConfigResolver,ConfigService,FileService,RestfulUtil,KindUtil,AuthUtil,ProcessStringUtil],
-  exports:[ConfigService,FileService,RestfulUtil,AuthUtil,ProcessStringUtil]
+  components: [ConfigResolver,FileResolver,ConfigService,FileService,RestfulUtil,KindUtil,AuthUtil,ProcessStringUtil],
+  exports:[ConfigResolver,FileResolver,ConfigService,FileService,RestfulUtil,AuthUtil,ProcessStringUtil]
 })
 
 export class UpyunModule {}

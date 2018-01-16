@@ -1,10 +1,4 @@
-#根类型
-schema{
-    #查询类型
-    query:query
-    #改变类型
-    mutation:Mutation
-}
+
 
 #配置字段返回类型
 type ConfigData {
@@ -56,6 +50,7 @@ enum VideoResolution {
   p720
   p480
 }
+
 
 #改变类型
 type Mutation {
@@ -109,6 +104,25 @@ type Mutation {
     videoFormat(format:VideoFormat,resolution:VideoResolution):ConfigData
 }
 
+#返回的空间配置，包含id，公有/私有字符串，空间名
+type Bucket{
+    id:Int
+    public_or_private:String
+    name:String
+}
+
+#获取空间的字段返回对象
+type BucketData{
+    #错误码
+    code:Int
+    #信息
+    message:String
+    #空间配置数组
+    buckets:[Bucket]
+}
+
+#查询字段
 type Query{
-    fileList(id:Int):ConfigData
+    #获取所有空间信息的字段
+    buckets:BucketData
 }

@@ -19,8 +19,8 @@ import { ImageFormatConfig } from '../interface/config/ImageFormatConfig'
 import { AudioFormatConfig } from '../interface/config/AudioFormatConfig'
 import { ImageWatermarkConfig } from '../interface/config/ImageWatermarkConfig'
 import { EnableImageWatermarkConfig } from '../interface/config/EnableImageWatermarkConfig'
-const formidable = require('formidable')
-const fs = require('fs')
+import * as  formidable from  'formidable'
+import * as  fs from  'fs'
 
 /* 配置控制器，配置公有空间、私有空间、保存格式、启用水印、图片水印 */
 @ApiUseTags('Config')

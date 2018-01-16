@@ -15,8 +15,8 @@ import { File } from '../model/File'
 import { FileBody } from '../interface/file/FileBody'
 import { UploadProcessBody } from '../interface/file/UploadProcessBody'
 import { isArray } from 'util';
-const request = require('request')
-const crypto = require('crypto')
+import * as  request  from   'request'
+import * as  crypto   from   'crypto'
 
 /* 图片服务组件，包含了上传时创建policy对象、预保存图片
    回调通知时，后保存、后删除

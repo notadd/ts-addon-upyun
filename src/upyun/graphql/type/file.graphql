@@ -1,0 +1,21 @@
+type  DownloadProcessData{
+   code:Int
+   message:String
+}
+
+type Mutation{
+    downloadProcess(bucket_name:String,name:String,type:String):DownloadProcessData
+}
+
+
+type OneData{
+    code:Int
+    message:String
+    url:String
+}
+
+
+type Query{
+
+  one:OneData
+}

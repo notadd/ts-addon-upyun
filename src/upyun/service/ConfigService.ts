@@ -17,9 +17,9 @@ import { VideoFormatConfig } from '../interface/config/VideoFormatConfig'
 import { AudioFormatConfig } from '../interface/config/AudioFormatConfig'
 import { ImageFormatConfig } from '../interface/config/ImageFormatConfig'
 import { EnableImageWatermarkConfig } from '../interface/config/EnableImageWatermarkConfig'
-const fs = require('fs')
-const crypto = require('crypto')
-const request = require('request')
+import * as  fs   from 'fs'
+import * as  crypto from  'crypto'
+import * as  request   from  'request'
 
 /* 配置服务组件，包含了保存公有空间、私有空间、格式、水印等配置项的功能
    还可以获取公有、私有配置  

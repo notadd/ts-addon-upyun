@@ -12,8 +12,8 @@ import { Audio } from '../../model/Audio'
 import { Video } from '../../model/Video'
 import { Image } from '../../model/Image';
 import { File } from '../../model/File'
-const formidable = require('formidable')
-const fs = require('fs')
+import * as formidable   from 'formidable'
+import * as fs from 'fs'
 
 @Resolver('Config')
 export class ConfigResolver {
@@ -24,7 +24,7 @@ export class ConfigResolver {
     private readonly kindUtil: KindUtil,
     private readonly restfulUtil: RestfulUtil,
     private readonly configService: ConfigService,
-    @InjectRepository(Image) private readonly imageRepository: Repository<Image>) {
+    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>) {
     this.gravity = new Set(['northwest', 'north', 'northeast', 'west', 'center', 'east', 'southwest', 'south', 'southeast'])
   }
 
@@ -266,6 +266,29 @@ export class ConfigResolver {
       return data
     }
 
+    return data
+  }
+
+  /* 获取所有空间信息字段 */
+  @Query('buckets')
+  async buckets(){
+    let data = {
+      code:200,
+      message:'',
+      buckets:[]
+    }
+
+    let buckets: Bucket[] = await this.bucketRepository.createQueryBuilder('bucket')
+                                                       .select(['bucket.id','bucket.public_or_private','bucket.name'])
+                                                       .getMany()
+    if(buckets.length!==2){
+      data.code = 401
+      data.message = '空间配置不存在'
+      return data
+    }
+    data.code = 200
+    data.message = '获取空间配置成功'
+    data.buckets = buckets
     return data
   }
 }
