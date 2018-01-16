@@ -61,8 +61,7 @@ export class AuthUtil {
      @Param bucket：空间配置
   */
   async getToken(bucket:Bucket,url:string){
-    //生成过期时间戳
-    let expireTime = Math.floor((Date.now()*1)/1000) + bucket.token_expire
+    let expireTime = Math.floor((+new Date())/1000) +bucket.token_expire
     let str = bucket.token_secret_key+'&'+expireTime+'&'+url
     let md5  = crypto.createHash('md5').update(str).digest('hex')
     //获取中间8位

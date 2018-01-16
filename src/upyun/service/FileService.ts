@@ -178,12 +178,7 @@ export class FileService {
   //创建图片完成url
   async makeUrl(data:any,bucket:Bucket,file:File|Image|Video|Audio|Document,body:FileBody,kind:string):Promise<void>{
     data.url += '/'+bucket.directory+'/'+file.name+'.'+file.type
-    //如果是私有空间需要拼接token查询字符串
-    if(bucket.public_or_private=='private'){
-      data.url += '?_upt='
-      data.url += this.authUtil.getToken(bucket,data.url)
-    }
-    data.url = bucket.base_url.concat(data.url)
+    
     data.url+='!'
     if(file.content_secret){
       data.url +=file.content_secret 
@@ -194,6 +189,11 @@ export class FileService {
       data.url += this.processStringUtil.makeImageProcessString(data,bucket,body.imagePostProcessInfo)
       console.log('2:'+data.url)
     }
+    //如果是私有空间需要拼接token查询字符串
+    if(bucket.public_or_private=='private'){
+      data.url += '?_upt='+await this.authUtil.getToken(bucket,data.url)
+    }
+    data.url = bucket.base_url.concat(data.url)
     return 
   }
 
@@ -204,20 +204,20 @@ export class FileService {
     data.videos = await bucket.videos
     data.documents = await bucket.documents
 
-    let addUrl = function (value){
+    let addUrl = async function (value){
       value.url = '/'+bucket.name+'/'+value.name+'.'+value.type
-      if(bucket.public_or_private==='private'){
-        value.url+='?_upt='+this.authUtil.getToken(bucket,value.url)
-      }
       if(value.content_secret){
         value.url+='!'+value.content_secret
       }
+      if(bucket.public_or_private==='private'){
+        value.url+='?_upt='+await this.authUtil.getToken(bucket,value.url)
+      }
     }
-    data.files.forEach(addUrl)
-    data.images.forEach(addUrl)
-    data.audios.forEach(addUrl)
-    data.videos.forEach(addUrl)
-    data.documents.forEach(addUrl)
+    await data.files.forEach(addUrl)
+    await data.images.forEach(addUrl)
+    await data.audios.forEach(addUrl)
+    await data.videos.forEach(addUrl)
+    await data.documents.forEach(addUrl)
     return 
   }
 }
