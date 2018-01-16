@@ -169,7 +169,7 @@ export class ConfigService {
     }
   }
 
-  async saveImageWatermarkConfig(data: any, file: any, obj: any): Promise<void> {
+  async saveImageWatermarkConfig(data:any,file:any,obj:any): Promise<void> {
     let buckets: Bucket[] = await this.bucketRepository.find({ relations: ["image_config"] })
     let type = file.name.substr(file.name.lastIndexOf('.') + 1).toLowerCase()
     if (buckets.length !== 2) {
@@ -194,9 +194,11 @@ export class ConfigService {
       if (data.code === 402) {
         break
       }
+      let {file_size,file_md5} = await this.restfulUtil.getFileInfo(data,buckets[i],image)
       image.width = width
       image.height = height
       image.frames = frames
+      image.size = file_size
       try {
         await this.imageRepository.save(image)
         data.code = 200
