@@ -58,21 +58,6 @@ input ImagePreProcessInfo{
     rotate:Int
 }
 
-
-input ImagePostProcessInfo{
-    resize:Resize
-    tailor:Tailor
-    roundrect:Int
-    watermark:Boolean
-    rotate:Int
-    blur:Blur
-    sharpen:Boolean
-    format:String
-    quality:Int
-    progressive:Boolean
-    strip:Boolean
-}
-
 type Mutation{
    uploadProcess(bucket_name:String,md5:String,contentName:String,contentSecret:String,imagePreProcessInfo:ImagePreProcessInfo):UploadProcessData
 }
@@ -101,6 +86,21 @@ type DownloadProcessData{
    headers:DownloadProcessHeaders
 }
 
+
+input ImagePostProcessInfo{
+    resize:Resize
+    tailor:Tailor
+    roundrect:Int
+    watermark:Boolean
+    rotate:Int
+    blur:Blur
+    sharpen:Boolean
+    format:String
+    quality:Int
+    progressive:Boolean
+    strip:Boolean
+}
+
 type OneData{
     code:Int
     message:String
@@ -109,10 +109,17 @@ type OneData{
 
 #查询字段
 type Query{
+
   #下载预处理字段
   #bucket_name   下载文件所属空间名
   #name          下载文件名，不包括扩展名
   #type          下载文件类型
   downloadProcess(bucket_name:String,name:String,type:String):DownloadProcessData
-  one:OneData
+
+  #获取单个图片访问url的字段
+  #bucket_name   下载文件所属空间名
+  #name          下载文件名，不包括扩展名
+  #type          下载文件类型
+  #imagePostProcessInfo 图片后处理信息
+  one(bucket_name:String,name:String,type:String,imagePostProcessInfo:ImagePostProcessInfo):OneData
 }

@@ -114,7 +114,6 @@ export class FileResolver {
   */
   @Mutation('uploadProcess')
   async uploadProcess(req , body):Promise<any>{
-
     let data = {
       code:200,
       message:'',
@@ -125,9 +124,7 @@ export class FileResolver {
         authorization:''
       }
     }
-
     let {bucket_name,md5,contentName} = body
-
     let policy  = {
       //空间名
       'bucket':'',
@@ -144,19 +141,16 @@ export class FileResolver {
       //扩展参数，包含了空间名
       'ext-param':''
     }  
-
     if(!bucket_name|| !md5|| !contentName){
       data.code = 400
       data.message = '缺少参数'
       return data
     }
-
     if(md5.length!==32){
       data.code = 400
       data.message = 'md5参数不正确'
       return data
     }
-
     let bucket:Bucket = await this.bucketRepository.createQueryBuilder("bucket")
                         .leftJoinAndSelect("bucket.image_config", "image_config")
                         .leftJoinAndSelect("bucket.audio_config", "audio_config")
@@ -168,7 +162,6 @@ export class FileResolver {
       data.message = '指定空间'+bucket_name+'不存在'
       return
     }
-
     //预保存图片,获取保存的图片，图片名为预处理图片名，会设置到policy的apps中去
     let image = await this.fileService.preSaveFile(data,bucket,body)
     //图片保存失败
@@ -178,5 +171,53 @@ export class FileResolver {
     //获取后台配置，创建上传参数，返回文件种类、以及文件所属目录
     await this.fileService.makePolicy(data,policy,bucket,body,image)
     return data
+  }
+
+   /* 获取单个文件url方法 ，从后台获取
+     @Param bucket_name：空间名
+     @Param name：       文件名，不包括扩展名
+     @Param type:        文件类型
+     @Param imagePostProcessInfo 文件后处理信息，获取url做图的字符串
+     @Return data.code：状态码，200为成功，其他为错误
+             data.message：响应信息
+             data.url：访问文件的全部url，包括域名、目录、文件名、扩展名、token、文件密钥、处理字符串
+  */
+  @Query('one')
+  async  getFile(req , body):Promise<any>{
+    let data = {
+      code:200,
+      message:"",
+      url:''
+    }
+    //空间名、目录数组、文件名
+    let {bucket_name,name,type} = body
+
+    if(!bucket_name || !name || !type){
+      data.code = 400
+      data.message = '缺少参数'
+      return data
+    }
+
+    let bucket:Bucket = await this.bucketRepository.findOne({name:bucket_name})
+    if(!bucket){
+      data.code = 401
+      data.message = '空间不存在'
+      return
+    }
+    let kind = this.kindUtil.getKind(type)
+    //处理图片类型
+    if(kind==='image'){
+      let image:Image = await this.imageRepository.findOne({name,bucketId:bucket.id})
+      if(!image){
+        data.code = 402
+        data.message = '指定图片不存在'
+        return data
+      }
+      //所有文件调用统一的拼接Url方法
+      await this.fileService.makeUrl(data,bucket,image,body,kind)
+    }else{
+      //暂不支持
+    }
+    return  data
   }
 }    
