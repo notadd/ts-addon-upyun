@@ -3,23 +3,32 @@ schema{
     mutation:Mutation
 }
 
-type BucketData {
+type ConfigData {
     code:Int
     message:String
 }
 
+enum ImageFormat {
+  raw
+  webp_damage
+  webp_undamage
+}
+
 type Mutation {
-  bucket(isPublic:Boolean
-      name:String
-      operator:String
-      password:String
-      directory:String
-      base_url:String
-      request_expire:Int
-      token_expire:Int
-      token_secret_key:String):BucketData
+
+    bucket(isPublic:Boolean
+        name:String
+        operator:String
+        password:String
+        directory:String
+        base_url:String
+        request_expire:Int
+        token_expire:Int
+        token_secret_key:String):ConfigData
+
+    imageFormat(format:ImageFormat):ConfigData
 }
 
 type Query{
-    fileList(id:Int):BucketData
+    fileList(id:Int):ConfigData
 }

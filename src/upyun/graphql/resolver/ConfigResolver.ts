@@ -28,6 +28,8 @@ export class ConfigResolver {
     this.gravity = new Set(['northwest', 'north', 'northeast', 'west', 'center', 'east', 'southwest', 'south', 'southeast'])
   }
 
+
+  /* 配置空间基本信息 */
   @Mutation('bucket')
   async bucket(req, body) {
     let data = {
@@ -84,7 +86,6 @@ export class ConfigResolver {
         return data
       }
     }
-
     //保存配置，如果已存在就更新它
     let bucket: Bucket = await this.configService.saveBucketConfig(data, body)
     //空间配置保存失败
@@ -92,8 +93,34 @@ export class ConfigResolver {
       return data
     }
     await this.restfulUtil.createDirectory(data, bucket)
-
     return data
   }
 
+  /* 图片保存格式配置，目前公有空间、私有空间采用一个保存格式，会在两个配置信息中各保存一次 */
+  @Mutation('imageFormat')
+  async  imageFormatConfig(req , body):Promise<any>{
+
+    let data = {
+      code:200,
+      message:""
+    }
+
+    let format = body.format
+
+    if(format==undefined||format.length==0){
+      data.code = 400
+      data.message = '缺少参数'
+      return data
+    }
+
+    //保存公有空间格式
+    await this.configService.saveImageFormatConfig(data,body)
+    
+    //格式参数不正确、配置不存在、保存失败
+    if(data.code == 401 || data.code == 402 ||data.code == 403){
+      return data
+    }
+
+    return data
+  }
 }
