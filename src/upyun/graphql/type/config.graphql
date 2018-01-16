@@ -27,6 +27,8 @@ type Mutation {
         token_secret_key:String):ConfigData
 
     imageFormat(format:ImageFormat):ConfigData
+
+    enableImageWatermark(enable:Boolean):ConfigData
 }
 
 type Query{

@@ -20,7 +20,6 @@ import { Image } from './model/Image';
 import { File} from './model/File'
 const typeormOptions = require('./typeormConfig')
 
-
 @Module({
   modules: [TypeOrmModule.forRoot([ImageConfig,AudioConfig,VideoConfig,Bucket,Image,File,Video,Audio,Document],typeormOptions)],  
   controllers: [ConfigController,FileController],

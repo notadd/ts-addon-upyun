@@ -98,29 +98,53 @@ export class ConfigResolver {
 
   /* 图片保存格式配置，目前公有空间、私有空间采用一个保存格式，会在两个配置信息中各保存一次 */
   @Mutation('imageFormat')
-  async  imageFormatConfig(req , body):Promise<any>{
+  async  imageFormat(req , body):Promise<any>{
 
     let data = {
       code:200,
       message:""
     }
-
     let format = body.format
-
+    console.log(typeof format)
     if(format==undefined||format.length==0){
       data.code = 400
       data.message = '缺少参数'
       return data
     }
-
-    //保存公有空间格式
+    //保存格式
     await this.configService.saveImageFormatConfig(data,body)
-    
     //格式参数不正确、配置不存在、保存失败
     if(data.code == 401 || data.code == 402 ||data.code == 403){
       return data
     }
+    return data
+  }
 
+  
+  @Mutation('enableImageWatermark')
+  async  enableImageWatermark(req , body):Promise<any>{
+    let data = {
+      code:200,
+      message:''
+    }
+    //这里在schema中定义为枚举值，接受到参数为string
+    let {enable} = body
+    if(enable===null||enable===undefined){
+      data.code = 400
+      data.message = '缺少参数'
+      return data
+    }
+    //enable参数错误
+    if(enable!==true&&enable!==false){
+      data.code = 400
+      data.message  = '参数错误'
+      return data
+    }
+    await this.configService.saveEnableImageWatermarkConfig(data,body)
+    //保存启用水印到数据库失败，无法模仿这个错误
+    if(data.code === 401 || data.code === 402){
+      return data
+    }
     return data
   }
 }
