@@ -1,22 +1,54 @@
+#根类型
 schema{
+    #查询类型
     query:query
+    #改变类型
     mutation:Mutation
 }
 
+#配置字段返回类型
 type ConfigData {
+    #状态码
     code:Int
+    #消息
     message:String
 }
 
+#图片保存格式枚举
 enum ImageFormat {
   raw
   webp_damage
   webp_undamage
 }
 
+#方位枚举
+enum Gravity {
+  northwest
+  north
+  northeast
+  west
+  center
+  east
+  southwest
+  south
+  southeast
+}
+
+#改变类型
 type Mutation {
 
-    bucket(isPublic:Boolean
+    #空间配置字段
+    #isPublic  是否是公有空间
+    #name      空间名
+    #operator  操作员
+    #password  密码
+    #dirctory  空间下唯一目录名
+    #base_url  又拍云分配给空间的CND节点域名
+    #request_expire 请求超时，单位秒
+    #token_expire token超时，单位秒
+    #token_secret_key  token密钥
+    bucket(
+        isPublic:Boolean #sssss
         name:String
         operator:String
         password:String
@@ -26,9 +58,23 @@ type Mutation {
         token_expire:Int
         token_secret_key:String):ConfigData
 
+    #图片保存格式配置字段
+    #format  图片保存格式，只能为枚举之一
     imageFormat(format:ImageFormat):ConfigData
 
+    #图片水印启用字段
+    #enable 是否启用图片水印
     enableImageWatermark(enable:Boolean):ConfigData
+
+    #图片水印配置字段
+    #name      水印图片名称
+    #base64    水印图片的base64编码
+    #gravity   水印图片方位，只能为枚举值
+    #opacity   水印图片透明度
+    #x         水印图片横轴偏移
+    #y         水印图片纵轴偏移
+    #ws        水印图片短边自适应比例
+    imageWatermark(name:String,base64:String,gravity:Gravity,opacity:Int,x:Int,y:Int,ws:Int):ConfigData
 }
 
 type Query{

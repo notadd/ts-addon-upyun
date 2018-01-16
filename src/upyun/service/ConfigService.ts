@@ -181,7 +181,16 @@ export class ConfigService {
       data.message = '空间配置不存在'
       return
     }
-    let md5 = crypto.createHash('md5').update(fs.readFileSync(file.path)).digest('hex')
+    let md5
+    console.log('到这了')
+    //采用graphql上传图片时
+    if(file.base64){
+      md5 = crypto.createHash('md5').update(Buffer.from(file.base64,'base64')).digest('hex')
+    }
+    //使用表单上传时
+    else{
+      md5 = crypto.createHash('md5').update(fs.readFileSync(file.path)).digest('hex')
+    }
     for (let i = 0; i < buckets.length; i++) {
 
       let image: Image = new Image()
@@ -194,7 +203,7 @@ export class ConfigService {
       image.size = file.size
       image.md5 = md5
       image.status = 'post'
-      let { width, height, frames } = await this.restfulUtil.uploadFile(data, buckets[i], image, file.path)
+      let { width, height, frames } = await this.restfulUtil.uploadFile(data, buckets[i], image, file)
       if (data.code === 402) {
         break
       }
@@ -230,7 +239,11 @@ export class ConfigService {
         break
       }
     }
-    fs.unlinkSync(file.path)
+    if(file.base64){
+      delete file.base64
+    }else{
+      fs.unlinkSync(file.path)
+    }
     if (data.code === 402 || data.code === 403) {
       return
     }

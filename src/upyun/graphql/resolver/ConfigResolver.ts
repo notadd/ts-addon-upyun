@@ -105,7 +105,6 @@ export class ConfigResolver {
       message:""
     }
     let format = body.format
-    console.log(typeof format)
     if(format==undefined||format.length==0){
       data.code = 400
       data.message = '缺少参数'
@@ -143,6 +142,82 @@ export class ConfigResolver {
     await this.configService.saveEnableImageWatermarkConfig(data,body)
     //保存启用水印到数据库失败，无法模仿这个错误
     if(data.code === 401 || data.code === 402){
+      return data
+    }
+    return data
+  }
+
+  /* 保存水印配置，目前两个空间采用同一个图片水印，忽略文字水印、忽略多水印 
+     水印图片必须与被加水印图片在同一个服务名下，所以需要在两个空间下各保存一次
+     为了向前端提供统一接口，这里采用将水印图片上传到服务器，由服务发起restful上传请求的方式
+     如果客户端上传，客户端调用会比较繁杂
+  */
+  @Mutation('imageWatermark')
+  async  imageWatermarkConfig(req , body):Promise<any>{
+    let data = {
+      code:200,
+      message:''
+    }
+    let {name,base64,gravity,opacity,x,y,ws}  =body
+    let obj:any = {}
+    let file:any = {}
+    obj.x = x
+    obj.y = y
+    obj.opacity = opacity
+    obj.ws = ws
+    obj.gravity = gravity
+    file.name = name
+    file.base64 = base64
+    if(!this.gravity.has(obj.gravity)){
+      data.code = 400
+      data.message = '不允许的水印图片位置'
+      return data
+    }
+    if(!Number.isInteger(obj.x)){
+      data.code = 400
+      data.message = 'x偏移不是整数'
+      return data
+    }
+    if(!Number.isInteger(obj.y)){
+      data.code = 400
+      data.message = 'y偏移不是整数'
+      return data
+    }
+    if(!Number.isInteger(obj.opacity)){
+      data.code = 400
+      data.message = '透明度不是整数'
+      return data
+    }else if(obj.opacity<=0){
+      data.code = 400
+      data.message = '透明度不大于0'
+      return data
+    }else if(obj.opacity>100){
+      data.code = 400
+      data.message = '透明度大于100'
+      return data
+    }else{
+      
+    }
+    if(!Number.isInteger(obj.ws)){
+      data.code = 400
+      data.message = '短边自适应比例不是整数'
+      return data
+    }else if(obj.ws<=0){
+      data.code = 400
+      data.message = '短边自适应比例不大于0'
+      return data
+    }else{
+      //暂定短边自适应比例可以大于100
+    }
+    if(!this.kindUtil.isImage(file.name.substr(file.name.lastIndexOf('.')+1))){
+      data.code = 400
+      data.message = '不允许的水印图片类型'
+      return data
+    }
+    //保存后台水印配置
+    await this.configService.saveImageWatermarkConfig(data,file,obj)
+
+    if(data.code === 401 || data.code === 402|| data.code === 403 ){
       return data
     }
     return data

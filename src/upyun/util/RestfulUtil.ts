@@ -23,7 +23,7 @@ export class RestfulUtil{
     private readonly authUtil:AuthUtil){}
 
   //上传文件，其中文件信息来自于formidable解析得到的File对象
-  async uploadFile(data:any,bucket:Bucket,file:File|Image|Video|Audio|Document,path:string):Promise<any>{
+  async uploadFile(data:any,bucket:Bucket,file:File|Image|Video|Audio|Document,uploadFile:any):Promise<any>{
     let contentMd5 = file.md5
     let save_key = '/'+bucket.directory+'/'+file.name+'.'+file.type
     let requestUrl = this.apihost+'/'+bucket.name+save_key
@@ -31,11 +31,20 @@ export class RestfulUtil{
     let date:string = new Date(+new Date()+bucket.request_expire*1000).toUTCString()
     let Authorization = await this.authUtil.getHeaderAuth(bucket,'PUT',url,date,contentMd5)
     let height , width , frames
+    let readStream 
+    //使用graphql上传文件时
+    if(uploadFile.base64){
+      readStream = fs.createReadStream(Buffer.from(uploadFile.base64,'base64'))
+    }
+    //使用表单上传文件时
+    else{
+      readStream = fs.createReadStream(uploadFile.path)
+    }
     await new Promise((resolve,reject)=>{
-      fs.createReadStream(path).pipe(request.put({
+      readStream.pipe(request.put({
         url:requestUrl,
         headers:{
-          'Content-Type':mime.getType(path),
+          'Content-Type':mime.getType(file.name),
           'Content-Length':file.size,
           'Content-MD5':contentMd5,
           Authorization,
