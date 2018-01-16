@@ -34,6 +34,13 @@ enum Gravity {
   southeast
 }
 
+#音频保存格式枚举
+enum AudioFormat {
+  raw
+  mp3
+  aac
+}
+
 #改变类型
 type Mutation {
 
@@ -75,6 +82,10 @@ type Mutation {
     #y         水印图片纵轴偏移
     #ws        水印图片短边自适应比例
     imageWatermark(name:String,base64:String,gravity:Gravity,opacity:Int,x:Int,y:Int,ws:Int):ConfigData
+
+    #音频保存格式配置
+    #format   保存格式，只能为枚举之一
+    audioFormat(format:AudioFormat):ConfigData
 }
 
 type Query{

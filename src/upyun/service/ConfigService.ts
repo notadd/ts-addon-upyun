@@ -249,15 +249,14 @@ export class ConfigService {
     }
     try {
       await buckets.forEach(async (bucket) => {
-        bucket.audio_config.format = format
-        await this.audioConfigRepository.save(bucket.audio_config)
+        await this.audioConfigRepository.updateById(bucket.audio_config.id,{format})
       })
       data.code = 200
-      data.message = '图片保存格式配置成功'
+      data.message = '音频保存格式配置成功'
       return
     } catch (err) {
       data.code = 403
-      data.message = '图片保存格式配置失败' + err.toString()
+      data.message = '音频保存格式配置失败' + err.toString()
       return
     }
   }

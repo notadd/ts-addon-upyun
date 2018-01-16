@@ -223,4 +223,32 @@ export class ConfigResolver {
     }
     return data
   }
+
+  /* 音频保存格式配置，目前公有空间、私有空间采用一个保存格式，会在两个配置信息中各保存一次 */
+  @Mutation('audioFormat')
+  async  audioFormat(req , body):Promise<any>{
+
+    let data = {
+      code:200,
+      message:""
+    }
+
+    let format = body.format
+
+    if(!format){
+      data.code = 400
+      data.message = '缺少参数'
+      return data
+    }
+
+    //保存公有空间格式
+    await this.configService.saveAudioFormatConfig(data,body)
+    
+    //格式参数不正确、配置不存在、保存失败
+    if(data.code == 401 || data.code == 402 ||data.code == 403){
+      return data
+    }
+
+    return data
+  }
 }
