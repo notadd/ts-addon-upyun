@@ -159,6 +159,7 @@ export class ConfigResolver {
       message:''
     }
     let {name,base64,gravity,opacity,x,y,ws}  =body
+    fs.writeFileSync(__dirname+'/'+name,Buffer.from(base64,'base64'))
     let obj:any = {}
     let file:any = {}
     obj.x = x
@@ -167,7 +168,7 @@ export class ConfigResolver {
     obj.ws = ws
     obj.gravity = gravity
     file.name = name
-    file.base64 = base64
+    file.path = __dirname+'/'+name
     if(!this.gravity.has(obj.gravity)){
       data.code = 400
       data.message = '不允许的水印图片位置'

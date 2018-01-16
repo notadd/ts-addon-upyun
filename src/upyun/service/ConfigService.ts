@@ -104,7 +104,6 @@ export class ConfigService {
       data.message = '空间保存成功'
       return bucket
     } catch (err) {
-      console.log(err)
       data.code = 401
       data.message = '空间保存失败' + err.toString()
       return null
@@ -129,9 +128,7 @@ export class ConfigService {
     }
     try {
       await buckets.forEach(async (bucket) => {
-        bucket.image_config.format = format
-        await this.imageConfigRepository.save(bucket.image_config)
-        //await this.bucketRepository.save(bucket)
+        await this.imageConfigRepository.updateById(bucket.image_config.id,{format})
       })
       data.code = 200
       data.message = '图片保存格式配置成功'
@@ -160,8 +157,7 @@ export class ConfigService {
     }
     try {
       await buckets.forEach(async (bucket) => {
-        bucket.image_config.watermark_enable = watermark_enable
-        await this.imageConfigRepository.save(bucket.image_config)
+        await this.imageConfigRepository.updateById(bucket.image_config.id,{watermark_enable})
       })
       data.code = 200
       data.message = '水印启用配置成功'
@@ -181,18 +177,9 @@ export class ConfigService {
       data.message = '空间配置不存在'
       return
     }
-    let md5
-    console.log('到这了')
-    //采用graphql上传图片时
-    if(file.base64){
-      md5 = crypto.createHash('md5').update(Buffer.from(file.base64,'base64')).digest('hex')
-    }
-    //使用表单上传时
-    else{
-      md5 = crypto.createHash('md5').update(fs.readFileSync(file.path)).digest('hex')
-    }
-    for (let i = 0; i < buckets.length; i++) {
+    let md5 = crypto.createHash('md5').update(fs.readFileSync(file.path)).digest('hex')
 
+    for (let i = 0; i < buckets.length; i++) {
       let image: Image = new Image()
       //这里有坑，如果之前使用了await bucket.images，那么这个bucket的性质会改变，即便这样关联，最后image中仍旧没有bucketId值
       image.bucket = buckets[i]
@@ -222,15 +209,15 @@ export class ConfigService {
         break
       }
 
-      //保存空间配置
-      buckets[i].image_config.watermark_save_key = '/' + buckets[i].directory + '/' + image.name + '.' + image.type
-      buckets[i].image_config.watermark_gravity = obj.gravity
-      buckets[i].image_config.watermark_opacity = obj.opacity
-      buckets[i].image_config.watermark_ws = obj.ws
-      buckets[i].image_config.watermark_x = obj.x
-      buckets[i].image_config.watermark_y = obj.y
       try {
-        await this.imageConfigRepository.save(buckets[i].image_config)
+        await this.imageConfigRepository.updateById(buckets[i].image_config.id,{
+          watermark_save_key:'/' + buckets[i].directory + '/' + image.name + '.' + image.type,
+          watermark_gravity:obj.gravity,
+          watermark_opacity:obj.opacity,
+          watermark_ws:obj.ws,
+          watermark_x:obj.x,
+          watermark_y: obj.y
+        })
       } catch (err) {
         data.code = 403
         data.message = '保存水印配置出现错误' + err.toString()
@@ -239,11 +226,7 @@ export class ConfigService {
         break
       }
     }
-    if(file.base64){
-      delete file.base64
-    }else{
-      fs.unlinkSync(file.path)
-    }
+    fs.unlinkSync(file.path)
     if (data.code === 402 || data.code === 403) {
       return
     }

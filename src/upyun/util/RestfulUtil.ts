@@ -31,17 +31,8 @@ export class RestfulUtil{
     let date:string = new Date(+new Date()+bucket.request_expire*1000).toUTCString()
     let Authorization = await this.authUtil.getHeaderAuth(bucket,'PUT',url,date,contentMd5)
     let height , width , frames
-    let readStream 
-    //使用graphql上传文件时
-    if(uploadFile.base64){
-      readStream = fs.createReadStream(Buffer.from(uploadFile.base64,'base64'))
-    }
-    //使用表单上传文件时
-    else{
-      readStream = fs.createReadStream(uploadFile.path)
-    }
     await new Promise((resolve,reject)=>{
-      readStream.pipe(request.put({
+      fs.createReadStream(uploadFile.path).pipe(request.put({
         url:requestUrl,
         headers:{
           'Content-Type':mime.getType(file.name),
