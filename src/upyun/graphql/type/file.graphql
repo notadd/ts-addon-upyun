@@ -1,12 +1,33 @@
-type  DownloadProcessData{
+type  UploadProcessData{
    code:Int
    message:String
 }
 
 type Mutation{
-    downloadProcess(bucket_name:String,name:String,type:String):DownloadProcessData
+   uploadProcess():UploadProcessData
 }
 
+
+
+
+#文件下载预处理返回数据类型
+type  DownloadProcessData{
+   #错误码
+   code:Int
+   #信息
+   message:String
+   #发起下载请求的方法
+   method:String
+   #发起下载请求的url
+   url:String
+   #发起下载请求的头信息
+   headers:{
+        #签名信息
+        authorization:String
+        #日期信息
+        date:String
+   }
+}
 
 type OneData{
     code:Int
@@ -14,8 +35,12 @@ type OneData{
     url:String
 }
 
-
+#查询字段
 type Query{
-
+  #下载预处理字段
+  #bucket_name   下载文件所属空间名
+  #name          下载文件名，不包括扩展名
+  #type          下载文件类型
+  downloadProcess(bucket_name:String,name:String,type:String):DownloadProcessData
   one:OneData
 }
