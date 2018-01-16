@@ -1,5 +1,15 @@
-type BucketConfig {
-      isPublic:Boolean
+schema{
+    query:query
+    mutation:Mutation
+}
+
+type BucketData {
+    code:Int
+    message:String
+}
+
+type Mutation {
+  bucket(isPublic:Boolean
       name:String
       operator:String
       password:String
@@ -7,18 +17,9 @@ type BucketConfig {
       base_url:String
       request_expire:Int
       token_expire:Int
-      token_secret_key:String
+      token_secret_key:String):BucketData
 }
 
-type Data {
-    code:Int
-    message:String
-}
-
-type Mutation {
-  bucket(bucketConfig:BucketConfig):Data
-}
-
-type Query {
-    fileList(id:Int):Data
+type Query{
+    fileList(id:Int):BucketData
 }

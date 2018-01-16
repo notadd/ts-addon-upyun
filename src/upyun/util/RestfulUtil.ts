@@ -87,10 +87,14 @@ export class RestfulUtil{
       @Param bucket：目录所属空间
   */
   async createDirectory(data:any,bucket:Bucket):Promise<void>{
+    console.log(bucket)
     let requestUrl = this.apihost+'/'+bucket.name+'/'+bucket.directory
+    console.log(requestUrl)
     let url = '/'+bucket.name+'/'+bucket.directory
+    console.log(url)
     let date:string = new Date(+new Date()+bucket.request_expire*1000).toUTCString()
     let Authorization = await this.authUtil.getHeaderAuth(bucket,'POST',url,date,null)
+    console.log(Authorization)
     await new Promise((resolve,reject)=>{
       request.post({
         url:requestUrl,

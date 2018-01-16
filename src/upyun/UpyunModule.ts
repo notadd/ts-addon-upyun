@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigResolver } from './graphql/resolver/ConfigResolver';
 import { FileController } from './controller/FileController';
 import { ConfigController } from './controller/ConfigController';
 import { ConfigService } from './service/ConfigService';
@@ -23,7 +24,7 @@ const typeormOptions = require('./typeormConfig')
 @Module({
   modules: [TypeOrmModule.forRoot([ImageConfig,AudioConfig,VideoConfig,Bucket,Image,File,Video,Audio,Document],typeormOptions)],  
   controllers: [ConfigController,FileController],
-  components: [ConfigService,FileService,RestfulUtil,KindUtil,AuthUtil,ProcessStringUtil],
+  components: [ConfigResolver,ConfigService,FileService,RestfulUtil,KindUtil,AuthUtil,ProcessStringUtil],
   exports:[ConfigService,FileService,RestfulUtil,AuthUtil,ProcessStringUtil]
 })
 
