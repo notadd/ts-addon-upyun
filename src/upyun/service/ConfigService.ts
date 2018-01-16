@@ -270,7 +270,7 @@ export class ConfigService {
       return
     }
     resolution = resolution.toLowerCase()
-    if (resolution != 'raw' && resolution != '1080p' && resolution != '720p' && resolution != '480p') {
+    if (resolution != 'raw' && resolution != 'p1080' && resolution != 'p720' && resolution != 'p480') {
       data.code = 401
       data.message = '分辨率格式不正确'
       return
@@ -284,16 +284,14 @@ export class ConfigService {
     }
     try {
       await buckets.forEach(async (bucket) => {
-        bucket.video_config.format = format
-        bucket.video_config.resolution = resolution
-        await this.videoConfigRepository.save(bucket.video_config)
+        await this.videoConfigRepository.updateById(bucket.video_config.id,{format,resolution})
       })
       data.code = 200
-      data.message = '图片保存格式配置成功'
+      data.message = '视频保存格式配置成功'
       return
     } catch (err) {
       data.code = 403
-      data.message = '图片保存格式配置失败' + err.toString()
+      data.message = '视频保存格式配置失败' + err.toString()
       return
     }
   }

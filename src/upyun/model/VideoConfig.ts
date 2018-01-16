@@ -28,7 +28,7 @@ export class VideoConfig{
   @Column({
     name: 'resolution',
     type: 'enum',
-    enum: ['raw', '1080p', '720p','480p'],
+    enum: ['raw', 'p1080', 'p720','p480'],
     nullable: true
   })
   resolution:string;
