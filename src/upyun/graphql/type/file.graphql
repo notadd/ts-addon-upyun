@@ -1,6 +1,14 @@
+type UploadProcessForm{
+    policy:String
+    authorization:String
+}
+
 type  UploadProcessData{
-   code:Int
-   message:String
+    code:Int,
+    message:String,
+    url:String,
+    method:String,
+    form:UploadProcessForm
 }
 
 type Mutation{

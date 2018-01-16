@@ -153,7 +153,7 @@ export class FileController {
     let data = {
       code:200,
       message:'',
-      baseUrl:'http://v0.api.upyun.com',
+      url:'http://v0.api.upyun.com',
       method:'post',
       form:{
         policy:'',

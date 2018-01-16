@@ -53,7 +53,7 @@ export class FileService {
     }
     policy['bucket'] = bucket.name
     policy['ext-param']+=bucket.name
-    data['baseUrl'] +='/'+bucket.name
+    data['url'] +='/'+bucket.name
     //文件类型以文件扩展名确定，如果不存在扩展名为file
     let type:string = file.type || ''
     let kind = this.kindUtil.getKind(type)
@@ -146,6 +146,9 @@ export class FileService {
   async postSaveTask(data:any,bucket:Bucket,name:string,body:any,kind:string):Promise<void>{
     if(kind==='image'){
       let image:Image = await this.imageRepository.findOne({name,bucketId:bucket.id,status:'pre'})
+      if(!image){
+        return 
+      }
       image.width = body.imginfo['width'],
       image.height = body.imginfo['height'],
       image.type = body.imginfo['type'].toLowerCase(),
