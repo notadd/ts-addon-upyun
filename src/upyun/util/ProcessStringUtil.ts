@@ -34,44 +34,44 @@ export class ProcessStringUtil {
         if(data.code !== 200){
             return ''
         }
-        console.log('1:'+processString)
+        //console.log('1:'+processString)
 
         if(imageProcessInfo.tailor) processString += this.resizeString(data,imageProcessInfo.tailor)
         if(data.code !== 200){
             return ''
         }
-        console.log('2:'+processString)
+        //console.log('2:'+processString)
 
         if(imageProcessInfo.roundrect) processString += this.roundrectString(data,imageProcessInfo.roundrect)
         if(data.code !== 200){
             return ''
         }
-        console.log('3:'+processString)
+        //console.log('3:'+processString)
 
         if(imageProcessInfo.watermark) processString += this.watermarkString(data,imageProcessInfo.watermark,bucket)
         if(data.code !== 200){
             return ''
         }
-        console.log('4:'+processString)
+        //console.log('4:'+processString)
 
         if(imageProcessInfo.rotate) processString += this.rotateString(data,imageProcessInfo.rotate)
         if(data.code !== 200){
             return ''
         }
-        console.log('5:'+processString)
+        //console.log('5:'+processString)
 
         if(imageProcessInfo.blur) processString += this.blurString(data,imageProcessInfo.blur)
         if(data.code !== 200){
             return ''
         }
-        console.log('6:'+processString)
+        //console.log('6:'+processString)
 
         if(imageProcessInfo.sharpen||imageProcessInfo.format||imageProcessInfo.quality||imageProcessInfo.progressive||imageProcessInfo.strip)
         processString += this.outputString(data,imageProcessInfo.sharpen,imageProcessInfo.format,imageProcessInfo.quality,imageProcessInfo.progressive,imageProcessInfo.strip)
         if(data.code !== 200){
             return ''
         }
-        console.log('7:'+processString)
+        //console.log('7:'+processString)
         return processString
     }
 

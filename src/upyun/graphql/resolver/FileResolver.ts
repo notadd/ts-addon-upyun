@@ -191,13 +191,11 @@ export class FileResolver {
     }
     //空间名、目录数组、文件名
     let {bucket_name,name,type} = body
-
     if(!bucket_name || !name || !type){
       data.code = 400
       data.message = '缺少参数'
       return data
     }
-
     let bucket:Bucket = await this.bucketRepository.findOne({name:bucket_name})
     if(!bucket){
       data.code = 401
@@ -219,5 +217,45 @@ export class FileResolver {
       //暂不支持
     }
     return  data
+  }
+
+  /* 获取指定空间下文件，从后台数据库中获取
+     @Param bucket_name：文件所属空间
+     @Return data.code： 状态码，200为成功，其他为错误
+            data.message：响应信息
+            data.baseUrl：访问文件的基本url
+            data.files    分页后的文件信息数组，里面添加了访问文件url信息，url不包含域名，包含了文件密钥、token
+            data.imges：   图片信息数组
+            data.audios:  音频信息数组
+            data.videos:  视频信息数组
+            data.documents: 文档信息数组
+  */
+  @Query('all')
+  async  files(req , body):Promise<any>{
+     let data  = {
+       code:200,
+       message:'',
+       baseUrl:'',
+       files:[],
+       images:[],
+       audios:[],
+       videos:[],
+       documents:[]
+     }
+     let {bucket_name} = body
+     if(!bucket_name){
+       data.code = 400
+       data.message = '缺少参数'
+       return data
+     }
+     let bucket:Bucket = await this.bucketRepository.findOne({name:bucket_name})
+     if(!bucket){
+       data.code = 401
+       data.message = '空间'+bucket_name+'不存在'
+       return
+     }
+     data.baseUrl = bucket.base_url
+     await this.fileService.getAll(data,bucket)
+     return data
   }
 }    

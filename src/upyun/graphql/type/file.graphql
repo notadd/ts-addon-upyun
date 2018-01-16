@@ -107,6 +107,92 @@ type OneData{
     url:String
 }
 
+
+type File{
+    id:Int
+    raw_name:String
+    name:String
+    tags:[String]
+    md5:String
+    type:String
+    size:Int
+    content_secret:String
+    status:String
+    create_date:String
+    update_date:String
+}
+
+type Image{
+    id:Int
+    raw_name:String
+    name:String
+    tags:[String]
+    md5:String
+    type:String
+    size:Int
+    content_secret:String
+    status:String
+    create_date:String
+    update_date:String
+    width:Int
+    height:Int
+    frames:Int
+}
+
+type Audio{
+    id:Int
+    raw_name:String
+    name:String
+    tags:[String]
+    md5:String
+    type:String
+    size:Int
+    content_secret:String
+    status:String
+    create_date:String
+    update_date:String
+}
+
+type Video{
+    id:Int
+    raw_name:String
+    name:String
+    tags:[String]
+    md5:String
+    type:String
+    size:Int
+    content_secret:String
+    status:String
+    create_date:String
+    update_date:String
+}
+
+type Document{
+    id:Int
+    raw_name:String
+    name:String
+    tags:[String]
+    md5:String
+    type:String
+    size:Int
+    content_secret:String
+    status:String
+    create_date:String
+    update_date:String
+}
+
+
+type AllData{
+    code:Int
+    message:String
+    baseUrl:String
+    files:[File]
+    images:[Image]
+    audios:[Audio]
+    videos:[Video]
+    documents:[Document]
+}
+
 #查询字段
 type Query{
 
@@ -122,4 +208,6 @@ type Query{
   #type          下载文件类型
   #imagePostProcessInfo 图片后处理信息
   one(bucket_name:String,name:String,type:String,imagePostProcessInfo:ImagePostProcessInfo):OneData
+
+  all(bucket_name:String):AllData
 }

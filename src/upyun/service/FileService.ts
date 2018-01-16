@@ -178,16 +178,13 @@ export class FileService {
   //创建图片完成url
   async makeUrl(data:any,bucket:Bucket,file:File|Image|Video|Audio|Document,body:FileBody,kind:string):Promise<void>{
     data.url += '/'+bucket.directory+'/'+file.name+'.'+file.type
-    
     data.url+='!'
     if(file.content_secret){
       data.url +=file.content_secret 
     }
-    console.log('1:'+data.url)
     if(kind==='image'){
       //拼接处理字符串，使用请求体参数
       data.url += this.processStringUtil.makeImageProcessString(data,bucket,body.imagePostProcessInfo)
-      console.log('2:'+data.url)
     }
     //如果是私有空间需要拼接token查询字符串
     if(bucket.public_or_private=='private'){

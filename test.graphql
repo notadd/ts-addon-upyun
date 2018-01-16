@@ -128,3 +128,27 @@ query oneFile{
     url
   }
 }
+
+query allFile{
+  all(bucket_name:"benchu1"){
+    code
+    message
+    baseUrl
+    files{
+      id
+      name
+    }
+    images{
+      id
+      raw_name
+      name
+      md5
+      type
+      create_date
+      update_date
+      width
+      height
+      frames
+    }
+  }
+}
