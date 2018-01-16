@@ -59,7 +59,7 @@ export class FileResolver {
         message:'',
         //下载文件使用get方法
         method:'get',
-        baseUrl:'http://v0.api.upyun.com',
+        url:'http://v0.api.upyun.com',
         headers:{
           //头信息中签名
           authorization:'',
@@ -93,9 +93,10 @@ export class FileResolver {
         data.message  = '指定文件'+name+'不存在'
         return data
       }
-      data.baseUrl += '/'+bucket.name+'/'+bucket.directory+'/'+file.name+'.'+file.type
+      data.url += '/'+bucket.name+'/'+bucket.directory+'/'+file.name+'.'+file.type
       data.headers.date = new Date(+new Date()+bucket.request_expire*1000).toUTCString()
-      data.headers.authorization = await this.authUtil.getHeaderAuth(bucket,'GET',data.baseUrl.replace('http://v0.api.upyun.com',''),data.headers.date,'')
+      data.headers.authorization = await this.authUtil.getHeaderAuth(bucket,'GET',data.url.replace('http://v0.api.upyun.com',''),data.headers.date,'')
+      data.message = '获取下载预处理信息成功'
       return data
     }
 

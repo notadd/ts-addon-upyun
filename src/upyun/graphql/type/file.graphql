@@ -4,14 +4,21 @@ type  UploadProcessData{
 }
 
 type Mutation{
-   uploadProcess():UploadProcessData
+   uploadProcess(bucket_name:String,md5:String,contentName:String,contentSecret:String):UploadProcessData
 }
 
 
 
+#下载预处理返回头信息类型
+type DownloadProcessHeaders{
+    #签名信息
+    authorization:String
+    #日期信息
+    date:String
+}
 
 #文件下载预处理返回数据类型
-type  DownloadProcessData{
+type DownloadProcessData{
    #错误码
    code:Int
    #信息
@@ -21,12 +28,7 @@ type  DownloadProcessData{
    #发起下载请求的url
    url:String
    #发起下载请求的头信息
-   headers:{
-        #签名信息
-        authorization:String
-        #日期信息
-        date:String
-   }
+   headers:DownloadProcessHeaders
 }
 
 type OneData{
