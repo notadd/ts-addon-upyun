@@ -42,7 +42,7 @@ input Tailor{
     height:Int
     x:Int
     y:Int
-    gravity:String
+    gravity:Gravity
 }
 
 input Blur{

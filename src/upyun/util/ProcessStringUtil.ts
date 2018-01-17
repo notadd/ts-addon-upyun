@@ -36,7 +36,7 @@ export class ProcessStringUtil {
         }
         //console.log('1:'+processString)
 
-        if(imageProcessInfo.tailor) processString += this.resizeString(data,imageProcessInfo.tailor)
+        if(imageProcessInfo.tailor) processString += this.tailorString(data,imageProcessInfo.tailor)
         if(data.code !== 200){
             return ''
         }
@@ -90,7 +90,6 @@ export class ProcessStringUtil {
       如果需要限定最大值功能，后面再加，因为七牛云大部分都是指定值
     */
     resizeString(data:any,resize:any){
-    
         //不存在直接返回，不抛出错误，进行下一步
         if(!resize){
             return ''

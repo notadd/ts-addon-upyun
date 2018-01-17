@@ -15,15 +15,21 @@ import { File } from '../../model/File'
 import * as formidable   from 'formidable'
 import * as fs from 'fs'
 
+/* 空间基本配置的resolver */
 @Resolver('Config')
 export class ConfigResolver {
 
+  //有效gravity参数集合，在水印配置中使用
   private readonly gravity: Set<string>
 
   constructor(
+    //文件种类工具
     private readonly kindUtil: KindUtil,
+    //restful请求工具
     private readonly restfulUtil: RestfulUtil,
+    //业务逻辑service
     private readonly configService: ConfigService,
+    //空间配置仓库
     @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>) {
     this.gravity = new Set(['northwest', 'north', 'northeast', 'west', 'center', 'east', 'southwest', 'south', 'southeast'])
   }
@@ -36,6 +42,7 @@ export class ConfigResolver {
       code: 200,
       message: ""
     }
+    //获取参数
     let { isPublic, name, operator, password, directory, base_url, request_expire } = body;
 
     if (isPublic === undefined || !name || !operator || !password || !directory || !base_url || !request_expire) {
