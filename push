@@ -1,10 +1,4 @@
-if [  $1!='' ]  
-then  
-   msg=$1;  
-else  
-   msg='bug';  
-fi  
-  
+
 git add .  
-git commit -m '$msg'    
+git commit -m $1   
 git push origin master    
