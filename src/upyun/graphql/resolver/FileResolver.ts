@@ -196,7 +196,12 @@ export class FileResolver {
       data.message = '缺少参数'
       return data
     }
-    let bucket:Bucket = await this.bucketRepository.findOne({name:bucket_name})
+    let bucket:Bucket = await this.bucketRepository.createQueryBuilder("bucket")
+                                                   .leftJoinAndSelect("bucket.image_config", "image_config")
+                                                   .leftJoinAndSelect("bucket.audio_config", "audio_config")
+                                                   .leftJoinAndSelect("bucket.video_config", "video_config")
+                                                   .where("bucket.name = :name", { name: bucket_name })
+                                                   .getOne()
     if(!bucket){
       data.code = 401
       data.message = '空间不存在'

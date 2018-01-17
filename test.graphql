@@ -111,16 +111,27 @@ mutation uploadProcess{
 
 query oneFile{
   one(
-    bucket_name:"benchu2",
-    name:"18ba231546b55df87e74c6cdbef0d005_1516094480293",
+    bucket_name:"benchu1",
+    name:"18ba231546b55df87e74c6cdbef0d005_1516162002285",
     type:"jpeg",
     imagePostProcessInfo:{
   		resize:{
         mode:"scale"
         data:{
-          scale:40
+          scale:200
         }
       }
+      tailor:{
+        isBefore:true
+        width:200
+        height:100
+        x:10
+        y:10
+        gravity:northeast
+      }
+      roundrect:20
+      watermark:true
+      rotate:30
     }
   ){
 		code

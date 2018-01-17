@@ -48,7 +48,7 @@ export class ProcessStringUtil {
         }
         //console.log('3:'+processString)
 
-        if(imageProcessInfo.watermark) processString += this.watermarkString(data,imageProcessInfo.watermark,bucket)
+        processString += this.watermarkString(data,imageProcessInfo.watermark,bucket)
         if(data.code !== 200){
             return ''
         }
@@ -204,16 +204,6 @@ export class ProcessStringUtil {
             return ''
         }
 
-        if(gravity&&this.gravity.has(gravity)){
-            str += '/gravity/'+gravity
-        }else if(!gravity){
-            //默认为西北角
-            str += '/gravity/northwest'
-        }else{
-            data.code = 412
-            data.message = '裁剪重心参数不正确'
-            return ''
-        }
         if(width&&Number.isInteger(width)&&height&&Number.isInteger(height)&&x&&Number.isInteger(x)&&y&&Number.isInteger(y)){
             str += '/'+width+'x'+height
         }else{
@@ -237,6 +227,17 @@ export class ProcessStringUtil {
         }else{
             data.code = 415
             data.message = 'y参数不正确'
+            return ''
+        }
+
+        if(gravity&&this.gravity.has(gravity)){
+            str += '/gravity/'+gravity
+        }else if(!gravity){
+            //默认为西北角
+            str += '/gravity/northwest'
+        }else{
+            data.code = 412
+            data.message = '裁剪重心参数不正确'
             return ''
         }
         return str 
