@@ -126,6 +126,7 @@ type File{
     status:String
     create_date:String
     update_date:String
+    url:String
 }
 
 type Image{
@@ -143,6 +144,7 @@ type Image{
     width:Int
     height:Int
     frames:Int
+    url:String
 }
 
 type Audio{
@@ -157,6 +159,7 @@ type Audio{
     status:String
     create_date:String
     update_date:String
+    url:String
 }
 
 type Video{
@@ -171,6 +174,7 @@ type Video{
     status:String
     create_date:String
     update_date:String
+    url:String
 }
 
 type Document{
@@ -185,6 +189,7 @@ type Document{
     status:String
     create_date:String
     update_date:String
+    url:String
 }
 
 

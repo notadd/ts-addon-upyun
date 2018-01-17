@@ -200,14 +200,15 @@ export class FileService {
     data.audios  = await bucket.audios
     data.videos = await bucket.videos
     data.documents = await bucket.documents
-
+   
+    let authUtil = this.authUtil
     let addUrl = async function (value){
-      value.url = '/'+bucket.name+'/'+value.name+'.'+value.type
+      value.url = '/'+bucket.directory+'/'+value.name+'.'+value.type
       if(value.content_secret){
         value.url+='!'+value.content_secret
       }
       if(bucket.public_or_private==='private'){
-        value.url+='?_upt='+await this.authUtil.getToken(bucket,value.url)
+        value.url+='?_upt='+await authUtil.getToken(bucket,value.url)
       }
     }
     await data.files.forEach(addUrl)
