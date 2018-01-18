@@ -37,7 +37,7 @@ export class ConfigService {
     let exist: Bucket, newBucket:any = {
       name: body.name,
       operator: body.operator,
-      password: body.password,
+      password: crypto.createHash('md5').update(body.password).digest('hex'),
       directory: body.directory,
       base_url: body.base_url,
       request_expire: +body.request_expire
@@ -178,7 +178,7 @@ export class ConfigService {
       image.md5 = md5
       image.status = 'post'
       let { width, height, frames } = await this.restfulUtil.uploadFile(data, buckets[i], image, file)
-      if (data.code === 402) {
+      if (data.code !== 200) {
         break
       }
       let {file_size,file_md5} = await this.restfulUtil.getFileInfo(data,buckets[i],image)
