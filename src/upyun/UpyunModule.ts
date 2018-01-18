@@ -19,7 +19,7 @@ import { Audio } from './model/Audio'
 import { Video } from './model/Video'
 import { Image } from './model/Image';
 import { File} from './model/File'
-const typeormOptions = require('./typeormConfig')
+const typeormOptions = require('./typeorm')
 
 @Module({
   modules: [TypeOrmModule.forRoot([ImageConfig,AudioConfig,VideoConfig,Bucket,Image,File,Video,Audio,Document],typeormOptions)],  

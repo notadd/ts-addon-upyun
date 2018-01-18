@@ -1,5 +1,6 @@
 
 
+
 #配置字段返回类型
 type ConfigData {
     #状态码
