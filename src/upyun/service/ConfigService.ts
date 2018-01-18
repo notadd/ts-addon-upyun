@@ -75,30 +75,22 @@ export class ConfigService {
     if (body.isPublic) {
       bucket.id = 1
       bucket.public_or_private = 'public'
-      audio_config.id = 1
-      video_config.id = 1
-      image_config.id = 1
-      bucket.audio_config = audio_config
-      bucket.video_config = video_config
-      bucket.image_config = image_config
-
     } else {
       bucket.id = 2
       bucket.public_or_private = 'private'
       bucket.token_expire = +body.token_expire
       bucket.token_secret_key = body.token_secret_key
-      audio_config.id = 2
-      video_config.id = 2
-      image_config.id = 2
-      bucket.audio_config = audio_config
-      bucket.video_config = video_config
-      bucket.image_config = image_config
     }
+    bucket.audio_config = audio_config
+    bucket.video_config = video_config
+    bucket.image_config = image_config
     try {
-      //这里级联不起作用，需要另外保存
-      await this.audioConfigRepository.save(audio_config)
-      await this.videoConfigRepository.save(video_config)
-      await this.imageConfigRepository.save(image_config)
+      /* 
+      这里如果id上装饰器为PrimaryGeneratedColumn或者PrimaryColumn，
+      只要设置image_config的id值，那么级联不起作用，需要分别保存，直接保存bucket会报错
+      如果让image_config的id自动生成而且不设置id的值，那么可以级联保存 
+      整个生命周期，只有第一次保存空间配置时会生成这三个配置对象，所以它们的id还是1与2
+      */
       await this.bucketRepository.save(bucket)
       data.code = 200
       data.message = '空间保存成功'

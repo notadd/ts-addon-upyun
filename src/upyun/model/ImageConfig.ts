@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn, Index, OneToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryColumn, Index, OneToOne, JoinColumn, OneToMany ,PrimaryGeneratedColumn} from 'typeorm';
 import { Bucket } from './Bucket'
 /* 图片配置实体类 */
 @Entity({
@@ -7,10 +7,7 @@ import { Bucket } from './Bucket'
 export class ImageConfig{
 
   //主键，需要设置插入，1默认为公有空间配置，2默认为私有空间配置
-  @PrimaryColumn({
-    name: 'id',
-    type: 'int'
-  })
+  @PrimaryGeneratedColumn()
   id: number;
     //保存格式，raw、webp_damage、webp_undamage
   @Column({

@@ -102,6 +102,10 @@ export class Bucket {
   })
   token_expire: number;
 
+  /* 
+  这里lazy:false的意思不是每个Bucket查询出来的时候就会包含image_config
+  它的意思只是在于获取的属性是否是Promise，而要查询出来的Bucket包含image_config，必须使用find({relation:xxxx})
+  */
   @OneToOne(type => ImageConfig,{
     cascadeInsert: true,
     cascadeUpdate: true,
