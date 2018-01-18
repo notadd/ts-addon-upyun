@@ -7,7 +7,7 @@ import { Bucket } from './Bucket'
 export class AudioConfig{
 
   //主键，需要设置插入，1默认为公有空间配置，2默认为私有空间配置
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id: number;
 
   //保存格式，raw、mp3、aac
@@ -20,5 +20,6 @@ export class AudioConfig{
   format: string;
 
   @OneToOne(type => Bucket,bucket=>bucket.audio_config)
+  @JoinColumn()
   bucket: Bucket;
 }

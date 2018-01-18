@@ -8,7 +8,7 @@ import { Bucket } from './Bucket'
 export class VideoConfig{
 
   //主键，需要设置插入，1默认为公有空间配置，2默认为私有空间配置
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id: number;
 
   //保存格式，raw、vp9、h264、h265
@@ -31,5 +31,6 @@ export class VideoConfig{
   resolution:string;
 
   @OneToOne(type => Bucket,bucket=>bucket.video_config)
+  @JoinColumn()
   bucket: Bucket;
 }

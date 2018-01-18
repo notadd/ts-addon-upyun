@@ -106,13 +106,12 @@ export class Bucket {
   这里lazy:false的意思不是每个Bucket查询出来的时候就会包含image_config
   它的意思只是在于获取的属性是否是Promise，而要查询出来的Bucket包含image_config，必须使用find({relation:xxxx})
   */
-  @OneToOne(type => ImageConfig,{
+  @OneToOne(type => ImageConfig,imageConfig=>imageConfig.bucket,{
     cascadeInsert: true,
     cascadeUpdate: true,
     cascadeRemove: true,
     lazy: false
   })
-  @JoinColumn()
   image_config: ImageConfig;
 
   @OneToOne(type =>AudioConfig,audioConfig=>audioConfig.bucket,{
@@ -121,16 +120,14 @@ export class Bucket {
     cascadeRemove: true,
     lazy: false
   })
-  @JoinColumn()
   audio_config: AudioConfig;
 
-  @OneToOne(type => VideoConfig,{
+  @OneToOne(type => VideoConfig,videoConfig=>videoConfig.bucket,{
     cascadeInsert: true,
     cascadeUpdate: true,
     cascadeRemove: true,
     lazy: false
   })
-  @JoinColumn()
   video_config: VideoConfig;
 
 

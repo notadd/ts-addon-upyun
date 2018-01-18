@@ -81,12 +81,15 @@ export class ConfigService {
       bucket.token_expire = +body.token_expire
       bucket.token_secret_key = body.token_secret_key
     }
+    audio_config.id = bucket.id
+    video_config.id = bucket.id
+    image_config.id = bucket.id
     bucket.audio_config = audio_config
     bucket.video_config = video_config
     bucket.image_config = image_config
     try {
       /* 
-      这里如果id上装饰器为PrimaryGeneratedColumn或者PrimaryColumn，
+      这里不管id上装饰器为PrimaryGeneratedColumn或者PrimaryColumn，
       只要设置image_config的id值，那么级联不起作用，需要分别保存，直接保存bucket会报错
       如果让image_config的id自动生成而且不设置id的值，那么可以级联保存 
       整个生命周期，只有第一次保存空间配置时会生成这三个配置对象，所以它们的id还是1与2
@@ -96,6 +99,7 @@ export class ConfigService {
       data.message = '空间保存成功'
       return bucket
     } catch (err) {
+      console.log(err)
       data.code = 401
       data.message = '空间保存失败' + err.toString()
       return null
