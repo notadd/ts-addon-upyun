@@ -6,12 +6,8 @@ import { AuthUtil } from '../util/AuthUtil'
 import { ImageConfig } from '../model/ImageConfig';
 import { AudioConfig } from '../model/AudioConfig';
 import { VideoConfig } from '../model/VideoConfig';
-import { Document } from '../model/Document'
 import { Bucket } from '../model/Bucket';
-import { Audio } from '../model/Audio'
-import { Video } from '../model/Video'
 import { Image } from '../model/Image';
-import { File } from '../model/File'
 import { BucketConfig } from '../interface/config/BucketConfig'
 import { VideoFormatConfig } from '../interface/config/VideoFormatConfig'
 import { AudioFormatConfig } from '../interface/config/AudioFormatConfig'
@@ -38,22 +34,23 @@ export class ConfigService {
 
 
   async saveBucketConfig(data: any, body: BucketConfig): Promise<Bucket> {
-    let exist: Bucket
+    let exist: Bucket, newBucket:any = {
+      name: body.name,
+      operator: body.operator,
+      password: body.password,
+      directory: body.directory,
+      base_url: body.base_url,
+      request_expire: +body.request_expire
+    }
     if (body.isPublic) {
       exist = await this.bucketRepository.findOneById(1)
     } else {
       exist = await this.bucketRepository.findOneById(2)
-    }
+      newBucket.token_expire = +body.token_expire
+      newBucket.token_secret_key = body.token_secret_key    }
     if (exist) {
       try {
-        await this.bucketRepository.updateById(exist.id, {
-          name: body.name,
-          operator: body.operator,
-          password: body.password,
-          directory: body.directory,
-          base_url: body.base_url,
-          request_expire: +body.request_expire
-        })
+        await this.bucketRepository.updateById(exist.id,newBucket)
         data.code = 200
         data.message = '空间配置更新成功'
       } catch (err) {
@@ -88,12 +85,6 @@ export class ConfigService {
     bucket.video_config = video_config
     bucket.image_config = image_config
     try {
-      /* 
-      这里不管id上装饰器为PrimaryGeneratedColumn或者PrimaryColumn，
-      只要设置image_config的id值，那么级联不起作用，需要分别保存，直接保存bucket会报错
-      如果让image_config的id自动生成而且不设置id的值，那么可以级联保存 
-      整个生命周期，只有第一次保存空间配置时会生成这三个配置对象，所以它们的id还是1与2
-      */
       await this.bucketRepository.save(bucket)
       data.code = 200
       data.message = '空间保存成功'
