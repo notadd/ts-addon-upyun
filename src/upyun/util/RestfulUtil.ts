@@ -30,6 +30,16 @@ export class RestfulUtil{
     let url = '/'+bucket.name+save_key
     let date:string = new Date(+new Date()+bucket.request_expire*1000).toUTCString()
     let Authorization = await this.authUtil.getHeaderAuth(bucket,'PUT',url,date,contentMd5)
+    let format = bucket.image_config.format||'raw'
+    let x_gmkerl_thumb 
+    if(format==='raw'){
+      x_gmkerl_thumb = '/scale/100'
+    }else if(format==='webp_damage'){
+      x_gmkerl_thumb = '/format/webp/strip/true'
+    }else{
+      x_gmkerl_thumb = '/format/webp/lossless/true/strip/true'
+    }
+    console.log(format+':'+x_gmkerl_thumb)
     let height , width , frames
     await new Promise((resolve,reject)=>{
       fs.createReadStream(uploadFile.path).pipe(request.put({
@@ -40,7 +50,7 @@ export class RestfulUtil{
           'Content-MD5':contentMd5,
           Authorization,
           Date:date,
-          'x-gmkerl-thumb':'/scale/100'
+          'x-gmkerl-thumb':x_gmkerl_thumb
         }
       },(err, res, body)=>{
         if (err) {

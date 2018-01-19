@@ -167,15 +167,16 @@ export class ConfigService {
     let md5 = crypto.createHash('md5').update(fs.readFileSync(file.path)).digest('hex')
 
     for (let i = 0; i < buckets.length; i++) {
+      if(buckets[i].image_config.format==='webp_damage'||buckets[i].image_config.format==='webp_undamage'){
+        type = 'webp'
+      }
       let image: Image = new Image()
       //这里有坑，如果之前使用了await bucket.images，那么这个bucket的性质会改变，即便这样关联，最后image中仍旧没有bucketId值
       image.bucket = buckets[i]
       image.raw_name = file.name
       //图片文件名为md5_时间戳
       image.name = md5 + '_' + (+new Date())
-      image.type = file.name.substr(file.name.lastIndexOf('.') + 1).toLowerCase()
-      image.size = file.size
-      image.md5 = md5
+      image.type = type
       image.status = 'post'
       let { width, height, frames } = await this.restfulUtil.uploadFile(data, buckets[i], image, file)
       if (data.code !== 200) {
@@ -186,6 +187,7 @@ export class ConfigService {
       image.height = height
       image.frames = frames
       image.size = file_size
+      image.md5 = file_md5
       try {
         await this.imageRepository.save(image)
         data.code = 200
