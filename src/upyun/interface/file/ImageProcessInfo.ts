@@ -74,6 +74,8 @@ export class ImagePostProcessInfo{
     sharpen?:boolean
     @ApiModelProperty({description:'格式参数',required:false})
     format?:string
+    @ApiModelProperty({description:'是否为无损压缩',required:false})
+    lossless?:boolean
     @ApiModelProperty({description:'图片质量参数',required:false})
     quality?:number
     @ApiModelProperty({description:'渐进显示参数',required:false})

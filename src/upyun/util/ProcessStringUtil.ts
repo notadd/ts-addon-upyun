@@ -66,8 +66,8 @@ export class ProcessStringUtil {
         }
         //console.log('6:'+processString)
 
-        if(imageProcessInfo.sharpen||imageProcessInfo.format||imageProcessInfo.quality||imageProcessInfo.progressive||imageProcessInfo.strip)
-        processString += this.outputString(data,imageProcessInfo.sharpen,imageProcessInfo.format,imageProcessInfo.quality,imageProcessInfo.progressive,imageProcessInfo.strip)
+        if(imageProcessInfo.sharpen||imageProcessInfo.format||imageProcessInfo.lossless||imageProcessInfo.quality||imageProcessInfo.progressive||imageProcessInfo.strip)
+        processString += this.outputString(data,imageProcessInfo.sharpen,imageProcessInfo.format,imageProcessInfo.lossless,imageProcessInfo.quality,imageProcessInfo.progressive,imageProcessInfo.strip)
         if(data.code !== 200){
             return ''
         }
@@ -557,7 +557,7 @@ export class ProcessStringUtil {
         return '/gaussblur/'+redius+'x'+sigma 
     }
 
-    outputString(data:any,sharpen:boolean,format:string,quality:number,progressive:boolean,strip:boolean){
+    outputString(data:any,sharpen:boolean,format:string,lossless:boolean,quality:number,progressive:boolean,strip:boolean){
         let str = ''
 
         if(sharpen===true){
@@ -578,6 +578,16 @@ export class ProcessStringUtil {
             return ''
         }else{
 
+        }
+
+        if(lossless===true){
+            str+='/lossless/true'
+        }else if(sharpen){
+            data.code = 427
+            data.message = '无损参数不正确'
+            return ''
+        }else{
+            //false或者不存在都不管
         }
 
         if(quality&&Number.isInteger(quality)&&quality>=1&&quality<=99){

@@ -102,6 +102,7 @@ input ImagePostProcessInfo{
     blur:Blur
     sharpen:Boolean
     format:String
+    lossless:Boolean
     quality:Int
     progressive:Boolean
     strip:Boolean
