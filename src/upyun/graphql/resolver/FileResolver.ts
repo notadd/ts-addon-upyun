@@ -205,7 +205,7 @@ export class FileResolver {
     if(!bucket){
       data.code = 401
       data.message = '空间不存在'
-      return
+      return data
     }
     let kind = this.kindUtil.getKind(type)
     //处理图片类型

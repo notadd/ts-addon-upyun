@@ -64,7 +64,9 @@ type DeleteFileData{
 }
 
 type Mutation{
+   #上传预处理字段
    uploadProcess(bucket_name:String,md5:String,contentName:String,contentSecret:String,imagePreProcessInfo:ImagePreProcessInfo):UploadProcessData
+   #删除文件字段
    deleteFile(bucket_name:String,name:String,type:String):DeleteFileData
 }
 
@@ -214,12 +216,13 @@ type Query{
   #type          下载文件类型
   downloadProcess(bucket_name:String,name:String,type:String):DownloadProcessData
 
-  #获取单个图片访问url的字段
+  #获取单个文件访问url的字段
   #bucket_name   下载文件所属空间名
   #name          下载文件名，不包括扩展名
   #type          下载文件类型
   #imagePostProcessInfo 图片后处理信息
   one(bucket_name:String,name:String,type:String,imagePostProcessInfo:ImagePostProcessInfo):OneData
 
+  #获取空间下所有文件信息以及访问url的字段
   all(bucket_name:String):AllData
 }

@@ -39,7 +39,6 @@ export class RestfulUtil{
     }else{
       x_gmkerl_thumb = '/format/webp/lossless/true/strip/true'
     }
-    console.log(format+':'+x_gmkerl_thumb)
     let height , width , frames
     await new Promise((resolve,reject)=>{
       fs.createReadStream(uploadFile.path).pipe(request.put({
