@@ -20,5 +20,5 @@ export class UploadProcessBody{
     tags?:string[]
 
     @ApiModelProperty({description:'文件预处理信息，包含了缩放、裁剪、旋转、水印四种',required:false})
-    imagePreProcessInfo:ImagePreProcessInfo
+    imagePreProcessInfo?:ImagePreProcessInfo
 }

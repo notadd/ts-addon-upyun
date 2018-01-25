@@ -176,7 +176,7 @@ export class FileService {
 
   
   //创建图片完成url
-  async makeUrl(data:any,bucket:Bucket,file:File|Image|Video|Audio|Document,body:FileBody,kind:string):Promise<void>{
+  async makeUrl(data:any,bucket:Bucket,file:File|Image|Video|Audio|Document,body:any,kind:string):Promise<void>{
     data.url += '/'+bucket.directory+'/'+file.name+'.'+file.type
     data.url+='!'
     if(file.content_secret){

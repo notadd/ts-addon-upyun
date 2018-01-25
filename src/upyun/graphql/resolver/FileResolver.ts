@@ -7,6 +7,8 @@ import { DeleteFileBody } from '../../interface/file/DeleteFileBody';
 import { ConfigService } from '../../service/ConfigService';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { FileService } from '../../service/FileService';
+import { OneBody } from '../../interface/file/OneBody';
+import { OneData } from '../../interface/file/OneData';
 import { RestfulUtil } from '../../util/RestfulUtil';
 import { Policy } from '../../interface/file/Policy';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,12 +20,11 @@ import { Audio } from '../../model/Audio';
 import { Video } from '../../model/Video';
 import { Image } from '../../model/Image';
 import { File } from '../../model/File';
-import { FileBody } from '../../interface/file/FileBody';
 import { FilesBody } from '../../interface/file/FilesBody';
 import { FileListBody } from '../../interface/file/FileListBody';
 import * as  formidable from 'formidable'
 import * as  path from 'path'
-import { DownloadProcessBody } from '../../interface/file/DownloadProcessBody';
+
 
 /*文件控制器，包含了文件下载预处理、上传预处理、异步回调通知、获取单个文件url、获取多个文件信息以及url、删除文件、从云存储获取单个文件信息、获取指定空间下文件列表等接口
   所有文件接口只接受json类型请求体，post请求方法
@@ -191,13 +192,13 @@ export class FileResolver {
             data.url：访问文件的全部url，包括域名、目录、文件名、扩展名、token、文件密钥、处理字符串
  */
   @Query('one')
-  async  getFile(req, body): Promise<any> {
-    let data = {
+  async  getFile(req: any, body: OneBody): Promise<OneData> {
+    let data: OneData = {
       code: 200,
       message: "",
       url: ''
     }
-    //空间名、目录数组、文件名
+    //验证参数存在
     let { bucket_name, name, type } = body
     if (!bucket_name || !name || !type) {
       data.code = 400
@@ -215,20 +216,22 @@ export class FileResolver {
       data.message = '空间不存在'
       return data
     }
+    //根据种类获取不同url
     let kind = this.kindUtil.getKind(type)
+    let file: File | Audio | Video | Image | Document
     //处理图片类型
     if (kind === 'image') {
-      let image: Image = await this.imageRepository.findOne({ name, bucketId: bucket.id })
-      if (!image) {
+      file = await this.imageRepository.findOne({ name, bucketId: bucket.id })
+      if (!file) {
         data.code = 402
         data.message = '指定图片不存在'
         return data
       }
-      //所有文件调用统一的拼接Url方法
-      await this.fileService.makeUrl(data, bucket, image, body, kind)
     } else {
       //暂不支持
     }
+    //所有文件调用统一的拼接Url方法
+    await this.fileService.makeUrl(data, bucket, file, body, kind)
     return data
   }
 
