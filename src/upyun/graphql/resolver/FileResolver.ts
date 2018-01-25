@@ -1,12 +1,14 @@
 import { DownloadProcessData } from '../../interface/file/DownloadProcessData';
 import { Query, Resolver, ResolveProperty, Mutation } from '@nestjs/graphql';
 import { UploadProcessBody } from '../../interface/file/UploadProcessBody';
+import { UploadProcessData } from '../../interface/file/UploadProcessData';
 import { FileLocationBody } from '../../interface/file/FileLocationBody';
 import { DeleteFileBody } from '../../interface/file/DeleteFileBody';
 import { ConfigService } from '../../service/ConfigService';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { FileService } from '../../service/FileService';
 import { RestfulUtil } from '../../util/RestfulUtil';
+import { Policy } from '../../interface/file/Policy';
 import { InjectRepository } from '@nestjs/typeorm';
 import { KindUtil } from '../../util/KindUtil';
 import { AuthUtil } from '../../util/AuthUtil';
@@ -54,8 +56,8 @@ export class FileResolver {
           data.headers：下载文件时的头信息，包含了日期、签名
 */
   @Query('downloadProcess')
-  async downloadProcess(req: any, body:FileLocationBody): Promise<DownloadProcessData> {
-    let data:DownloadProcessData = {
+  async downloadProcess(req: any, body: FileLocationBody): Promise<DownloadProcessData> {
+    let data: DownloadProcessData = {
       code: 200,
       message: '下载预处理成功',
       method: 'get',
@@ -102,19 +104,21 @@ export class FileResolver {
 
 
   /*文件表单上传预处理接口
+  @Param tags:文件标签数组
+  @Param contentName：文件名
   @Param bucket_name：上传空间名
-  @Param md5：        上传文件的md5值
-  @Param contentName：文件名，必选，从其中获取文件类型
-  @Param contentSecret：文件访问密钥，可选
+  @Param md5：文件md5,在本地存储中可以用于校验文件
+  @Param contentSecret：文件密钥，暂时不支持这个功能
+  @Param imagePreProcessInfo：图片预处理信息
   @Return data.code：状态码，200为成功，其他为错误
           data.message：响应信息
-          data.baseUrl：上传时的基本url
+          data.url：上传时的基本url
           data.method： 上传方法
           data.form：   表单上传的字段对象，包含了policy、authorization字段，上传时需要加上file字段
 */
   @Mutation('uploadProcess')
-  async uploadProcess(req, body): Promise<any> {
-    let data = {
+  async uploadProcess(req: any, body: UploadProcessBody): Promise<UploadProcessData> {
+    let data: UploadProcessData = {
       code: 200,
       message: '',
       url: 'http://v0.api.upyun.com',
@@ -124,33 +128,20 @@ export class FileResolver {
         authorization: ''
       }
     }
+    //验证参数存在
     let { bucket_name, md5, contentName } = body
-    let policy = {
-      //空间名
-      'bucket': '',
-      //文件保存路径，包括目录、文件名、扩展名
-      'save-key': '',
-      //请求过期事件
-      'expiration': null,
-      'date': '',
-      'content-md5': md5,
-      //异步回调通知路径，图片异步预处理回调也是这个接口
-      'notify-url': 'http://upyuns.frp2.chuantou.org/upyun/file/notify',
-      //图片生存期限默认为180天
-      'x-upyun-meta-ttl': 180,
-      //扩展参数，包含了空间名
-      'ext-param': ''
-    }
     if (!bucket_name || !md5 || !contentName) {
       data.code = 400
       data.message = '缺少参数'
       return data
     }
+    //验证参数正确
     if (md5.length !== 32) {
       data.code = 400
       data.message = 'md5参数不正确'
       return data
     }
+    //查询空间配置，关联查询图片、音频、视频配置，处理文件需要这些信息
     let bucket: Bucket = await this.bucketRepository.createQueryBuilder("bucket")
       .leftJoinAndSelect("bucket.image_config", "image_config")
       .leftJoinAndSelect("bucket.audio_config", "audio_config")
@@ -167,6 +158,23 @@ export class FileResolver {
     //图片保存失败
     if (data.code == 402) {
       return data
+    }
+    //上传policy字段
+    let policy: Policy = {
+      //空间名
+      'bucket': '',
+      //文件保存路径，包括目录、文件名、扩展名
+      'save-key': '',
+      //请求过期事件
+      'expiration': null,
+      'date': '',
+      'content-md5': md5,
+      //异步回调通知路径，图片异步预处理回调也是这个接口
+      'notify-url': 'http://upyuns.frp2.chuantou.org/upyun/file/notify',
+      //图片生存期限默认为180天
+      'x-upyun-meta-ttl': 180,
+      //扩展参数，包含了空间名
+      'ext-param': ''
     }
     //获取后台配置，创建上传参数，返回文件种类、以及文件所属目录
     await this.fileService.makePolicy(data, policy, bucket, body, image)
