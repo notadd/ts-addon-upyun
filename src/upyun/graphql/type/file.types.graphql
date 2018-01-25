@@ -65,7 +65,7 @@ type DeleteFileData{
 
 type Mutation{
    #上传预处理字段
-   uploadProcess(bucket_name:String,md5:String,contentName:String,contentSecret:String,imagePreProcessInfo:ImagePreProcessInfo):UploadProcessData
+   uploadProcess(bucket_name:String,md5:String,contentName:String,tags:[String],contentSecret:String,imagePreProcessInfo:ImagePreProcessInfo):UploadProcessData
    #删除文件字段
    deleteFile(bucket_name:String,name:String,type:String):DeleteFileData
 }

@@ -7,6 +7,8 @@ import { DeleteFileBody } from '../../interface/file/DeleteFileBody';
 import { ConfigService } from '../../service/ConfigService';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { FileService } from '../../service/FileService';
+import { AllBody } from '../../interface/file/AllBody';
+import { AllData } from '../../interface/file/AllData';
 import { OneBody } from '../../interface/file/OneBody';
 import { OneData } from '../../interface/file/OneData';
 import { RestfulUtil } from '../../util/RestfulUtil';
@@ -247,8 +249,8 @@ export class FileResolver {
             data.documents: 文档信息数组
   */
   @Query('all')
-  async  files(req, body): Promise<any> {
-    let data = {
+  async  files(req: any, body: AllBody): Promise<AllData> {
+    let data: AllData = {
       code: 200,
       message: '',
       baseUrl: '',
