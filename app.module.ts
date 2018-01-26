@@ -14,7 +14,7 @@ export class ApplicationModule implements NestModule{
   constructor(private readonly graphQLFactory: GraphQLFactory){}
 
   configure(consumer: MiddlewaresConsumer) {
-    const typeDefs = this.graphQLFactory.mergeTypesByPaths('./src/upyun/graphql/type/*.types.graphql');
+    const typeDefs = this.graphQLFactory.mergeTypesByPaths('./src/upyun/graphql/type/**/*.types.graphql');
     const schema = this.graphQLFactory.createSchema({ typeDefs });
     consumer
       .apply(graphiqlExpress({ endpointURL: '/graphql' }))

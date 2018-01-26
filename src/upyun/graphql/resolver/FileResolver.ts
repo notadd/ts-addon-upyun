@@ -13,6 +13,7 @@ import { OneBody } from '../../interface/file/OneBody';
 import { OneData } from '../../interface/file/OneData';
 import { RestfulUtil } from '../../util/RestfulUtil';
 import { Policy } from '../../interface/file/Policy';
+import { CommonData } from '../../interface/Common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { KindUtil } from '../../util/KindUtil';
 import { AuthUtil } from '../../util/AuthUtil';
@@ -286,8 +287,8 @@ export class FileResolver {
              data.message：响应信息
   */
   @Mutation('deleteFile')
-  async deleteFile(req, body): Promise<any> {
-    let data = {
+  async deleteFile(req: any, body: FileLocationBody): Promise<CommonData> {
+    let data:CommonData = {
       code: 200,
       message: ''
     }
