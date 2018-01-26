@@ -18,14 +18,14 @@ import { Bucket } from './model/Bucket';
 import { Audio } from './model/Audio'
 import { Video } from './model/Video'
 import { Image } from './model/Image';
-import { File} from './model/File'
+import { File } from './model/File'
 const typeormOptions = require('./typeorm')
 
 @Module({
-  modules: [TypeOrmModule.forRoot([ImageConfig,AudioConfig,VideoConfig,Bucket,Image,File,Video,Audio,Document],typeormOptions)],  
-  controllers: [ConfigController,FileController],
-  components: [ConfigResolver,FileResolver,ConfigService,FileService,RestfulUtil,KindUtil,AuthUtil,ProcessStringUtil],
-  exports:[ConfigResolver,FileResolver,ConfigService,FileService,RestfulUtil,AuthUtil,ProcessStringUtil]
+  modules: [TypeOrmModule.forRoot([ImageConfig, AudioConfig, VideoConfig, Bucket, Image, File, Video, Audio, Document], typeormOptions)],
+  controllers: [ConfigController, FileController],
+  components: [ConfigResolver, FileResolver, ConfigService, FileService, RestfulUtil, KindUtil, AuthUtil, ProcessStringUtil],
+  exports: [ConfigResolver, FileResolver, ConfigService, FileService, RestfulUtil, AuthUtil, ProcessStringUtil]
 })
 
-export class UpyunModule {}
+export class UpyunModule { }

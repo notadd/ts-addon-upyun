@@ -1,11 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, Index, OneToOne, JoinColumn, ManyToOne ,CreateDateColumn,UpdateDateColumn} from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, Index, OneToOne, JoinColumn, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { AbstractFile } from './AbstractFile'
 import { Bucket } from './Bucket'
 
 @Entity({
   name: 'image'
 })
-export class Image extends AbstractFile{
+export class Image extends AbstractFile {
 
   @Column({
     name: 'width',
@@ -29,15 +29,15 @@ export class Image extends AbstractFile{
   frames: number;
 
 
-  @Column({nullable:true})
-  bucketId:number
+  @Column({ nullable: true })
+  bucketId: number
 
   @ManyToOne(type => Bucket, bucket => bucket.images, {
-    cascadeInsert:false,
+    cascadeInsert: false,
     cascadeRemove: false,
-    cascadeUpdate:false,
+    cascadeUpdate: false,
     nullable: false,
-    lazy:false
+    lazy: false
   })
   @JoinColumn()
   bucket: Bucket

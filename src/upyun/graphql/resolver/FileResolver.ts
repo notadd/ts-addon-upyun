@@ -288,7 +288,7 @@ export class FileResolver {
   */
   @Mutation('deleteFile')
   async deleteFile(req: any, body: FileLocationBody): Promise<CommonData> {
-    let data:CommonData = {
+    let data: CommonData = {
       code: 200,
       message: ''
     }

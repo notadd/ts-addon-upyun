@@ -1,74 +1,74 @@
 import { Component, Inject } from '@nestjs/common';
 import { isArray } from 'util';
 import { Bucket } from '../model/Bucket'
-import { ImagePostProcessInfo,ImagePreProcessInfo } from '../interface/file/ImageProcessInfo'
+import { ImagePostProcessInfo, ImagePreProcessInfo } from '../interface/file/ImageProcessInfo'
 
 
 /* URL做图处理字符串服务，可以根据请求体参数，拼接URL处理字符串 */
 @Component()
 export class ProcessStringUtil {
-    private readonly gravity:Set<string>
-    private readonly font:Map<string,string>
-    private readonly colorRegex:RegExp
-    private readonly borderRegex:RegExp
-    private readonly format:Set<string>
-    constructor(){
+    private readonly gravity: Set<string>
+    private readonly font: Map<string, string>
+    private readonly colorRegex: RegExp
+    private readonly borderRegex: RegExp
+    private readonly format: Set<string>
+    constructor() {
         //重心集合，在裁剪与水印中使用
-       this.gravity = new Set(['northwest','north','northeast','west','center','east','southwest','south','southeast'])
-       //字体集合，在文字水印中使用
-       this.font = new Map([['宋体','simsun'],['黑体','simhei'],['楷体','simkai'],['隶书','simli'],['幼圆','simyou'],['仿宋','simfang'],['简体中文','sc'],['繁体中文','tc'],['Arial','arial'],['Georgia','georgia'],['Helvetica','helvetica'],['Times-New-Roman','roman']]) 
-       //验证RGB颜色的正则表达式
-       this.colorRegex = new RegExp('^[0-9A-F]{6}$','g') 
-       //验证文字描边的正则表达式
-       this.borderRegex = new RegExp('^[0-9A-F]{8}$','g') 
-       //图片后处理保存格式集合
-       this.format = new Set(['jpeg','png','webp'])
+        this.gravity = new Set(['northwest', 'north', 'northeast', 'west', 'center', 'east', 'southwest', 'south', 'southeast'])
+        //字体集合，在文字水印中使用
+        this.font = new Map([['宋体', 'simsun'], ['黑体', 'simhei'], ['楷体', 'simkai'], ['隶书', 'simli'], ['幼圆', 'simyou'], ['仿宋', 'simfang'], ['简体中文', 'sc'], ['繁体中文', 'tc'], ['Arial', 'arial'], ['Georgia', 'georgia'], ['Helvetica', 'helvetica'], ['Times-New-Roman', 'roman']])
+        //验证RGB颜色的正则表达式
+        this.colorRegex = new RegExp('^[0-9A-F]{6}$', 'g')
+        //验证文字描边的正则表达式
+        this.borderRegex = new RegExp('^[0-9A-F]{8}$', 'g')
+        //图片后处理保存格式集合
+        this.format = new Set(['jpeg', 'png', 'webp'])
     }
 
     //根据请求体参数生成处理字符串
-    makeImageProcessString(data:any,bucket:Bucket,imageProcessInfo:ImagePostProcessInfo&ImagePreProcessInfo={}):string{
+    makeImageProcessString(data: any, bucket: Bucket, imageProcessInfo: ImagePostProcessInfo & ImagePreProcessInfo = {}): string {
         //分别获取缩放、裁剪、水印、旋转、圆角、高斯模糊、锐化、输出格式、图片质量、是否渐进显示、是否去除元信息等参数
         let processString = ''
 
-        if(imageProcessInfo.resize) processString += this.resizeString(data,imageProcessInfo.resize)
-        if(data.code !== 200){
+        if (imageProcessInfo.resize) processString += this.resizeString(data, imageProcessInfo.resize)
+        if (data.code !== 200) {
             return ''
         }
         //console.log('1:'+processString)
 
-        if(imageProcessInfo.tailor) processString += this.tailorString(data,imageProcessInfo.tailor)
-        if(data.code !== 200){
+        if (imageProcessInfo.tailor) processString += this.tailorString(data, imageProcessInfo.tailor)
+        if (data.code !== 200) {
             return ''
         }
         //console.log('2:'+processString)
-
+        /*停止圆角功能
         if(imageProcessInfo.roundrect) processString += this.roundrectString(data,imageProcessInfo.roundrect)
         if(data.code !== 200){
             return ''
-        }
+        } */
         //console.log('3:'+processString)
 
-        processString += this.watermarkString(data,imageProcessInfo.watermark,bucket)
-        if(data.code !== 200){
+        processString += this.watermarkString(data, imageProcessInfo.watermark, bucket)
+        if (data.code !== 200) {
             return ''
         }
         //console.log('4:'+processString)
 
-        if(imageProcessInfo.rotate) processString += this.rotateString(data,imageProcessInfo.rotate)
-        if(data.code !== 200){
+        if (imageProcessInfo.rotate) processString += this.rotateString(data, imageProcessInfo.rotate)
+        if (data.code !== 200) {
             return ''
         }
         //console.log('5:'+processString)
 
-        if(imageProcessInfo.blur) processString += this.blurString(data,imageProcessInfo.blur)
-        if(data.code !== 200){
+        if (imageProcessInfo.blur) processString += this.blurString(data, imageProcessInfo.blur)
+        if (data.code !== 200) {
             return ''
         }
         //console.log('6:'+processString)
 
-        if(imageProcessInfo.sharpen||imageProcessInfo.format||imageProcessInfo.lossless||imageProcessInfo.quality||imageProcessInfo.progressive||imageProcessInfo.strip)
-        processString += this.outputString(data,imageProcessInfo.sharpen,imageProcessInfo.format,imageProcessInfo.lossless,imageProcessInfo.quality,imageProcessInfo.progressive,imageProcessInfo.strip)
-        if(data.code !== 200){
+        if (imageProcessInfo.sharpen || imageProcessInfo.format || imageProcessInfo.lossless || imageProcessInfo.quality || imageProcessInfo.progressive || imageProcessInfo.strip)
+            processString += this.outputString(data, imageProcessInfo.sharpen, imageProcessInfo.format, imageProcessInfo.lossless, imageProcessInfo.quality, imageProcessInfo.progressive, imageProcessInfo.strip)
+        if (data.code !== 200) {
             return ''
         }
         //console.log('7:'+processString)
@@ -89,93 +89,93 @@ export class ProcessStringUtil {
       其中fw、fh、fp等，在有拍云中原意是限定宽度最大值，即只缩小不放大，加上/force/true的意思应该是指定而不是限定，需要验证
       如果需要限定最大值功能，后面再加，因为七牛云大部分都是指定值
     */
-    resizeString(data:any,resize:any){
+    resizeString(data: any, resize: any) {
         //不存在直接返回，不抛出错误，进行下一步
-        if(!resize){
+        if (!resize) {
             return ''
         }
         //缩放模式
         let mode = resize.mode
         //缩放数据
         let info = resize.data
-        if(mode == 'scale'){
-            if(info.scale&&Number.isInteger(info.scale)&&info.scale>=1&&info.scale<=1000){
+        if (mode == 'scale') {
+            if (info.scale && Number.isInteger(info.scale) && info.scale >= 1 && info.scale <= 1000) {
                 //这里的/force是为了保险
-                return '/scale/'+info.scale+'/force/true'
+                return '/scale/' + info.scale + '/force/true'
             }
             data.code = 403
             data.message = '比例参数不正确'
             return ''
-        }else if(mode == 'wscale'){
-            if(info.wscale&&Number.isInteger(info.wscale)&&info.wscale>=1&&info.wscale<=1000){
+        } else if (mode == 'wscale') {
+            if (info.wscale && Number.isInteger(info.wscale) && info.wscale >= 1 && info.wscale <= 1000) {
                 //为了保险，经验证这里可以不加/force/true
-                return '/wscale/'+info.wscale+'/force/true'
+                return '/wscale/' + info.wscale + '/force/true'
             }
             data.code = 404
             data.message = '宽度比例参数不正确'
             return ''
-        }else if(mode == 'hscale'){
-            if(info.hscale&&Number.isInteger(info.hscale)&&info.hscale>=1&&info.hscale<=1000){
+        } else if (mode == 'hscale') {
+            if (info.hscale && Number.isInteger(info.hscale) && info.hscale >= 1 && info.hscale <= 1000) {
                 //为了保险，经验证这里可以不加/force/true
-                return '/hscale/'+info.hscale+'/force/true'
+                return '/hscale/' + info.hscale + '/force/true'
             }
             data.code = 405
             data.message = '高度比例参数不正确'
             return ''
-        }else if(mode == 'both'){
-            if(info.width&&Number.isInteger(info.width)&&info.height&&Number.isInteger(info.height)){
+        } else if (mode == 'both') {
+            if (info.width && Number.isInteger(info.width) && info.height && Number.isInteger(info.height)) {
                 //指定force强制缩放，否则宽高不足时会居中裁剪后缩放
                 //经验证不加/force/true图片边缘处有变化，这个居中裁剪后缩放不是字面意思
-                return '/both/'+info.width+'x'+info.height+'/force/true'
+                return '/both/' + info.width + 'x' + info.height + '/force/true'
             }
             data.code = 406
             data.message = '宽高参数不正确'
             return ''
         }
-        else if(mode == 'fw'){
-            if(info.width&&Number.isInteger(info.width)){
+        else if (mode == 'fw') {
+            if (info.width && Number.isInteger(info.width)) {
                 //强制指定可以放大，经验证这个必须加上/force/true才能放大
-                return '/fw/'+info.width+'/force/true'
+                return '/fw/' + info.width + '/force/true'
             }
             data.code = 407
             data.message = '宽度参数不正确'
             return ''
-        }else if(mode == 'fh'){
-            if(info.height&&Number.isInteger(info.height)){
+        } else if (mode == 'fh') {
+            if (info.height && Number.isInteger(info.height)) {
                 //强制指定可以放大，经验证这个必须加上/force/true才能放大
-                return '/fh/'+info.height+'/force/true'
+                return '/fh/' + info.height + '/force/true'
             }
             data.code = 408
             data.message = '高度参数不正确'
             return ''
-        }else if(mode == 'fp'){
-            if(info.pixel&&Number.isInteger(info.pixel)&&info.pixel>=1&&info.pixel<=25000000){
+        } else if (mode == 'fp') {
+            if (info.pixel && Number.isInteger(info.pixel) && info.pixel >= 1 && info.pixel <= 25000000) {
                 //强制指定可以放大，经验证这个必须加上/force/true才能放大
-                return '/fp/'+info.pixel+'/force/true'
+                return '/fp/' + info.pixel + '/force/true'
             }
             data.code = 409
             data.message = '像素参数不正确'
             return ''
-        }else if(mode == 'fwfh'){
-            if(info.width&&Number.isInteger(info.width)&&info.height&&Number.isInteger(info.height)){
+        } else if (mode == 'fwfh') {
+            if (info.width && Number.isInteger(info.width) && info.height && Number.isInteger(info.height)) {
                 //加上force，代表可以放大缩小，但是缩放后必须可以被指定矩形完全包含
-                return '/fwfh/'+info.width+'x'+info.height+'/force/true'
+                return '/fwfh/' + info.width + 'x' + info.height + '/force/true'
             }
             data.code = 406
             data.message = '宽高参数不正确'
             return ''
-        }else if(mode == 'fwfh2'){
-            if(info.width&&Number.isInteger(info.width)&&info.height&&Number.isInteger(info.height)){
+        } else if (mode == 'fwfh2') {
+            if (info.width && Number.isInteger(info.width) && info.height && Number.isInteger(info.height)) {
                 //加上force，代表可以放大缩小，但是缩放后必须可以完全包含指定矩形
-                return '/fwfh2/'+info.width+'x'+info.height+'/force/true'
+                return '/fwfh2/' + info.width + 'x' + info.height + '/force/true'
             }
             data.code = 406
             data.message = '宽高参数不正确'
             return ''
-        }else{
+        } else {
             data.code = 410
             data.message = '缩放模式不正确'
-            return  ''
+            return ''
         }
     }
 
@@ -183,77 +183,77 @@ export class ProcessStringUtil {
        暂定坐标都只能为整数，a为正向(即向东南/右下偏移)，s为负向(即向西北/左上偏移)
        但是在七牛云中，可以使用-x来代表为指定宽度减去指定值，这里有歧义，七牛云的坐标不知道可不可以为负值，反正七牛云中没有a、s之说
      */
-    tailorString(data:any,tailor:any){
-        if(!tailor){
+    tailorString(data: any, tailor: any) {
+        if (!tailor) {
             return ''
         }
 
-        let {isBefore,width,height,x,y,gravity} = tailor
+        let { isBefore, width, height, x, y, gravity } = tailor
         let str = ''
 
-        if(isBefore!==null&&isBefore!==undefined&&isBefore===true){
+        if (isBefore !== null && isBefore !== undefined && isBefore === true) {
             str += '/crop'
-        }else if(isBefore!==null&&isBefore!==undefined&&isBefore===false){
+        } else if (isBefore !== null && isBefore !== undefined && isBefore === false) {
             str += '/clip'
-        }else if(isBefore===null&&isBefore===undefined){
+        } else if (isBefore === null && isBefore === undefined) {
             //默认为缩放之后裁剪
             str += '/clip'
-        }else{
+        } else {
             data.code = 411
             data.message = '裁剪顺序指定错误'
             return ''
         }
 
-        if(width&&Number.isInteger(width)&&height&&Number.isInteger(height)&&x&&Number.isInteger(x)&&y&&Number.isInteger(y)){
-            str += '/'+width+'x'+height
-        }else{
+        if (width && Number.isInteger(width) && height && Number.isInteger(height) && x && Number.isInteger(x) && y && Number.isInteger(y)) {
+            str += '/' + width + 'x' + height
+        } else {
             data.code = 413
             data.message = '裁剪宽高参数不正确'
             return ''
         }
-        if(x&&Number.isInteger(x)&&x>=0){
-            str += 'a'+x
-        }else if(x&&Number.isInteger(x)&&x<0){
-            str += 's'+x
-        }else{
+        if (x && Number.isInteger(x) && x >= 0) {
+            str += 'a' + x
+        } else if (x && Number.isInteger(x) && x < 0) {
+            str += 's' + x
+        } else {
             data.code = 414
             data.message = 'x参数不正确'
             return ''
         }
-        if(y&&Number.isInteger(y)&&y>=0){
-            str += 'a'+y
-        }else if(y&&Number.isInteger(y)&&y<0){
-            str += 's'+y
-        }else{
+        if (y && Number.isInteger(y) && y >= 0) {
+            str += 'a' + y
+        } else if (y && Number.isInteger(y) && y < 0) {
+            str += 's' + y
+        } else {
             data.code = 415
             data.message = 'y参数不正确'
             return ''
         }
 
-        if(gravity&&this.gravity.has(gravity)){
-            str += '/gravity/'+gravity
-        }else if(!gravity){
+        if (gravity && this.gravity.has(gravity)) {
+            str += '/gravity/' + gravity
+        } else if (!gravity) {
             //默认为西北角
             str += '/gravity/northwest'
-        }else{
+        } else {
             data.code = 412
             data.message = '裁剪重心参数不正确'
             return ''
         }
-        return str 
+        return str
     }
 
 
     /* 圆角字符串 */
-    roundrectString(data:any,roundrect:number){
-        if(!roundrect){
+    roundrectString(data: any, roundrect: number) {
+        if (!roundrect) {
             return ''
-        }else if(roundrect&&Number.isInteger(roundrect)){
-            return '/roundrect/'+roundrect            
-        }else{
+        } else if (roundrect && Number.isInteger(roundrect)) {
+            return '/roundrect/' + roundrect
+        } else {
             data.code = 416
             data.message = '圆角参数不正确'
-            return '' 
+            return ''
         }
     }
 
@@ -262,80 +262,80 @@ export class ProcessStringUtil {
        默认情况下全局启用水印，所有图片都打水印
        可以通过参数覆盖全局启用配置
     */
-    watermarkString(data:any,watermark:boolean,bucket:Bucket){
-        let enable:boolean
-        if(watermark===true){
+    watermarkString(data: any, watermark: boolean, bucket: Bucket) {
+        let enable: boolean
+        if (watermark === true) {
             enable = true
-        }else if(watermark === false){
+        } else if (watermark === false) {
             enable = false
-        }else if(watermark === null || watermark === undefined){
-           if(bucket.image_config.watermark_enable===1){
-               enable = true
-           }else if(bucket.image_config.watermark_enable === 0){
-               enable = false
-           }else{
-               enable = false
-           }
-        }else{
+        } else if (watermark === null || watermark === undefined) {
+            if (bucket.image_config.watermark_enable === 1) {
+                enable = true
+            } else if (bucket.image_config.watermark_enable === 0) {
+                enable = false
+            } else {
+                enable = false
+            }
+        } else {
             data.code = 417
             data.message = '水印参数不正确'
             return ''
         }
-        let str:string = ''
-        if(enable){
-            if(bucket.image_config.watermark_save_key){
-                str += 't.js'+Buffer.from(bucket.image_config.watermark_save_key).toString('base64')
-            }else{
+        let str: string = ''
+        if (enable) {
+            if (bucket.image_config.watermark_save_key) {
+                str += 't.js' + Buffer.from(bucket.image_config.watermark_save_key).toString('base64')
+            } else {
                 data.code = 418
                 data.message = '水印图片url不存在'
                 return ''
             }
 
-            if(bucket.image_config.watermark_gravity&&!this.gravity.has(bucket.image_config.watermark_gravity)){
+            if (bucket.image_config.watermark_gravity && !this.gravity.has(bucket.image_config.watermark_gravity)) {
                 data.code = 419
                 data.message = '水印重心参数不正确'
                 return ''
-            }else{
-                str+= '/align/'+bucket.image_config.watermark_gravity
+            } else {
+                str += '/align/' + bucket.image_config.watermark_gravity
             }
 
-            if((bucket.image_config.watermark_x&&!Number.isInteger(bucket.image_config.watermark_x))||(bucket.image_config.watermark_y&&!Number.isInteger(bucket.image_config.watermark_y))){
+            if ((bucket.image_config.watermark_x && !Number.isInteger(bucket.image_config.watermark_x)) || (bucket.image_config.watermark_y && !Number.isInteger(bucket.image_config.watermark_y))) {
                 data.code = 420
                 data.message = '偏移参数不正确'
                 return ''
-            }else if(!bucket.image_config.watermark_x&&!bucket.image_config.watermark_y){
-                str+='/margin/20x20'
-            }else if(!bucket.image_config.watermark_x&&bucket.image_config.watermark_y){
-                str+='/margin/20x'+bucket.image_config.watermark_y
-            }else if(bucket.image_config.watermark_x&&!bucket.image_config.watermark_y){
-                str+='/margin/'+bucket.image_config.watermark_x+'x20'
-            }else{
-                str+='/margin/'+bucket.image_config.watermark_x+'x'+bucket.image_config.watermark_y
+            } else if (!bucket.image_config.watermark_x && !bucket.image_config.watermark_y) {
+                str += '/margin/20x20'
+            } else if (!bucket.image_config.watermark_x && bucket.image_config.watermark_y) {
+                str += '/margin/20x' + bucket.image_config.watermark_y
+            } else if (bucket.image_config.watermark_x && !bucket.image_config.watermark_y) {
+                str += '/margin/' + bucket.image_config.watermark_x + 'x20'
+            } else {
+                str += '/margin/' + bucket.image_config.watermark_x + 'x' + bucket.image_config.watermark_y
             }
 
-            if(bucket.image_config.watermark_opacity&&!Number.isInteger(bucket.image_config.watermark_opacity)){
+            if (bucket.image_config.watermark_opacity && !Number.isInteger(bucket.image_config.watermark_opacity)) {
                 data.code = 421
                 data.message = '透明度参数不正确'
                 return ''
-            }else if(!bucket.image_config.watermark_opacity){
+            } else if (!bucket.image_config.watermark_opacity) {
                 //默认为100，不用管
-            }else{
-                str+='/opacity/'+bucket.image_config.watermark_opacity
+            } else {
+                str += '/opacity/' + bucket.image_config.watermark_opacity
             }
 
-            if(bucket.image_config.watermark_ws&&Number.isInteger(bucket.image_config.watermark_ws)&&bucket.image_config.watermark_ws>=1&&bucket.image_config.watermark_ws<=100){
-                str+='/percent/'+bucket.image_config.watermark_ws
-            }else if(!bucket.image_config.watermark_ws){
+            if (bucket.image_config.watermark_ws && Number.isInteger(bucket.image_config.watermark_ws) && bucket.image_config.watermark_ws >= 1 && bucket.image_config.watermark_ws <= 100) {
+                str += '/percent/' + bucket.image_config.watermark_ws
+            } else if (!bucket.image_config.watermark_ws) {
                 //默认为0，不用管
-            }else{
+            } else {
                 data.code = 422
                 data.message = '短边自适应参数不正确'
                 return ''
             }
-            
+
         }
         return str
-            
+
         /*这段代码当使用自定义水印时用
         if(!watermark){
             return ''
@@ -526,101 +526,101 @@ export class ProcessStringUtil {
     */
     }
 
-    rotateString(data:any,rotate:number){
-        if(!rotate){
+    rotateString(data: any, rotate: number) {
+        if (!rotate) {
             return ''
         }
-        if(Number.isInteger(rotate)){
-            return '/rotate/'+rotate
-        }else{
+        if (Number.isInteger(rotate)) {
+            return '/rotate/' + rotate
+        } else {
             data.code = 423
             data.message = '旋转角度不正确'
             return ''
         }
     }
 
-    blurString(data:any,blur:any){
-        if(!blur){
+    blurString(data: any, blur: any) {
+        if (!blur) {
             return ''
         }
-        let {redius,sigma} = blur
-        if( !redius|| !Number.isInteger(redius) || redius<0 || redius>50){
+        let { redius, sigma } = blur
+        if (!redius || !Number.isInteger(redius) || redius < 0 || redius > 50) {
             data.code = 424
             data.message = '模糊半径不正确'
             return ''
         }
-        if(!sigma || !Number.isInteger(sigma)){
+        if (!sigma || !Number.isInteger(sigma)) {
             data.code = 425
             data.message = '标准差不正确'
             return ''
         }
-        return '/gaussblur/'+redius+'x'+sigma 
+        return '/gaussblur/' + redius + 'x' + sigma
     }
 
-    outputString(data:any,sharpen:boolean,format:string,lossless:boolean,quality:number,progressive:boolean,strip:boolean){
+    outputString(data: any, sharpen: boolean, format: string, lossless: boolean, quality: number, progressive: boolean, strip: boolean) {
         let str = ''
 
-        if(sharpen===true){
-            str+='/unsharp/true'
-        }else if(sharpen){
+        if (sharpen === true) {
+            str += '/unsharp/true'
+        } else if (sharpen) {
             data.code = 426
             data.message = '锐化参数不正确'
             return ''
-        }else{
+        } else {
             //false或者不存在都不管
         }
 
-        if(format&&this.format.has(format)){
-            str+='/format/'+format
-        }else if(format&&!this.format.has(format)){
+        if (format && this.format.has(format)) {
+            str += '/format/' + format
+        } else if (format && !this.format.has(format)) {
             data.code = 427
             data.message = '格式参数不正确'
             return ''
-        }else{
+        } else {
 
         }
 
-        if(lossless===true){
-            str+='/lossless/true'
-        }else if(sharpen){
+        if (lossless === true) {
+            str += '/lossless/true'
+        } else if (sharpen) {
             data.code = 427
             data.message = '无损参数不正确'
             return ''
-        }else{
+        } else {
             //false或者不存在都不管
         }
 
-        if(quality&&Number.isInteger(quality)&&quality>=1&&quality<=99){
-            str+='/quality/'+quality
-        }else if(!quality){
+        if (quality && Number.isInteger(quality) && quality >= 1 && quality <= 99) {
+            str += '/quality/' + quality
+        } else if (!quality) {
 
-        }else{
+        } else {
             data.code = 428
             data.message = '图片质量参数不正确'
             return ''
         }
 
-        if(progressive===true){
-            str+='/progressive/true'
-        }else if(progressive){
+        if (progressive === true) {
+            str += '/progressive/true'
+        } else if (progressive) {
             data.code = 429
             data.message = '渐进参数不正确'
             return ''
-        }else{
+        } else {
             //false或者不存在都不管
         }
 
-        if(strip===true){
-            str+='/strip/true'
-        }else if(strip){
+        if (strip === true) {
+            str += '/strip/true'
+        } else if (strip) {
             data.code = 430
             data.message = '去除元信息参数不正确'
             return ''
-        }else{
+        } else {
             //false或者不存在都不管
         }
         return str
- 
+
     }
 
 }

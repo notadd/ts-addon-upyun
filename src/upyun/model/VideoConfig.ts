@@ -1,11 +1,11 @@
-import { Entity, Column, PrimaryColumn, Index, OneToOne, JoinColumn, OneToMany ,PrimaryGeneratedColumn} from 'typeorm';
+import { Entity, Column, PrimaryColumn, Index, OneToOne, JoinColumn, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Bucket } from './Bucket'
 
 /* 视频配置实体类 */
 @Entity({
   name: 'video_config'
 })
-export class VideoConfig{
+export class VideoConfig {
 
   //主键，需要设置插入，1默认为公有空间配置，2默认为私有空间配置
   @PrimaryColumn()
@@ -15,7 +15,7 @@ export class VideoConfig{
   @Column({
     name: 'format',
     type: 'enum',
-    enum: ['raw', 'vp9', 'h264','h265'],
+    enum: ['raw', 'vp9', 'h264', 'h265'],
     nullable: true
   })
   format: string;
@@ -25,12 +25,12 @@ export class VideoConfig{
   @Column({
     name: 'resolution',
     type: 'enum',
-    enum: ['raw', 'p1080', 'p720','p480'],
+    enum: ['raw', 'p1080', 'p720', 'p480'],
     nullable: true
   })
-  resolution:string;
+  resolution: string;
 
-  @OneToOne(type => Bucket,bucket=>bucket.video_config)
+  @OneToOne(type => Bucket, bucket => bucket.video_config)
   @JoinColumn()
   bucket: Bucket;
 }

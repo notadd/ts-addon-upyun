@@ -1,15 +1,15 @@
-import { Entity, Column, PrimaryColumn, Index, OneToOne, JoinColumn, OneToMany ,PrimaryGeneratedColumn} from 'typeorm';
+import { Entity, Column, PrimaryColumn, Index, OneToOne, JoinColumn, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Bucket } from './Bucket'
 /* 图片配置实体类 */
 @Entity({
-    name: 'image_config'
+  name: 'image_config'
 })
-export class ImageConfig{
+export class ImageConfig {
 
   //主键，需要设置插入，1默认为公有空间配置，2默认为私有空间配置
   @PrimaryColumn()
   id: number;
-    //保存格式，raw、webp_damage、webp_undamage
+  //保存格式，raw、webp_damage、webp_undamage
   @Column({
     name: 'format',
     type: 'enum',
@@ -76,7 +76,7 @@ export class ImageConfig{
   })
   watermark_ws: number;
 
-  @OneToOne(type => Bucket,bucket=>bucket.image_config)
+  @OneToOne(type => Bucket, bucket => bucket.image_config)
   @JoinColumn()
   bucket: Bucket;
 }

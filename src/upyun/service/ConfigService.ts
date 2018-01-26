@@ -13,9 +13,9 @@ import { VideoFormatConfig } from '../interface/config/VideoFormatConfig'
 import { AudioFormatConfig } from '../interface/config/AudioFormatConfig'
 import { ImageFormatConfig } from '../interface/config/ImageFormatConfig'
 import { EnableImageWatermarkConfig } from '../interface/config/EnableImageWatermarkConfig'
-import * as  fs   from 'fs'
-import * as  crypto from  'crypto'
-import * as  request   from  'request'
+import * as  fs from 'fs'
+import * as  crypto from 'crypto'
+import * as  request from 'request'
 
 /* 配置服务组件，包含了保存公有空间、私有空间、格式、水印等配置项的功能
    还可以获取公有、私有配置  
@@ -34,7 +34,7 @@ export class ConfigService {
 
 
   async saveBucketConfig(data: any, body: BucketConfig): Promise<Bucket> {
-    let exist: Bucket, newBucket:any = {
+    let exist: Bucket, newBucket: any = {
       name: body.name,
       operator: body.operator,
       password: crypto.createHash('md5').update(body.password).digest('hex'),
@@ -47,10 +47,11 @@ export class ConfigService {
     } else {
       exist = await this.bucketRepository.findOneById(2)
       newBucket.token_expire = +body.token_expire
-      newBucket.token_secret_key = body.token_secret_key    }
+      newBucket.token_secret_key = body.token_secret_key
+    }
     if (exist) {
       try {
-        await this.bucketRepository.updateById(exist.id,newBucket)
+        await this.bucketRepository.updateById(exist.id, newBucket)
         data.code = 200
         data.message = '空间配置更新成功'
       } catch (err) {
@@ -115,7 +116,7 @@ export class ConfigService {
     }
     try {
       await buckets.forEach(async (bucket) => {
-        await this.imageConfigRepository.updateById(bucket.image_config.id,{format})
+        await this.imageConfigRepository.updateById(bucket.image_config.id, { format })
       })
       data.code = 200
       data.message = '图片保存格式配置成功'
@@ -144,7 +145,7 @@ export class ConfigService {
     }
     try {
       await buckets.forEach(async (bucket) => {
-        await this.imageConfigRepository.updateById(bucket.image_config.id,{watermark_enable})
+        await this.imageConfigRepository.updateById(bucket.image_config.id, { watermark_enable })
       })
       data.code = 200
       data.message = '水印启用配置成功'
@@ -156,7 +157,7 @@ export class ConfigService {
     }
   }
 
-  async saveImageWatermarkConfig(data:any,file:any,obj:any): Promise<void> {
+  async saveImageWatermarkConfig(data: any, file: any, obj: any): Promise<void> {
     let buckets: Bucket[] = await this.bucketRepository.find({ relations: ["image_config"] })
     let type = file.name.substr(file.name.lastIndexOf('.') + 1).toLowerCase()
     if (buckets.length !== 2) {
@@ -167,7 +168,7 @@ export class ConfigService {
     let md5 = crypto.createHash('md5').update(fs.readFileSync(file.path)).digest('hex')
 
     for (let i = 0; i < buckets.length; i++) {
-      if(buckets[i].image_config.format==='webp_damage'||buckets[i].image_config.format==='webp_undamage'){
+      if (buckets[i].image_config.format === 'webp_damage' || buckets[i].image_config.format === 'webp_undamage') {
         type = 'webp'
       }
       let image: Image = new Image()
@@ -182,7 +183,7 @@ export class ConfigService {
       if (data.code !== 200) {
         break
       }
-      let {file_size,file_md5} = await this.restfulUtil.getFileInfo(data,buckets[i],image)
+      let { file_size, file_md5 } = await this.restfulUtil.getFileInfo(data, buckets[i], image)
       image.width = width
       image.height = height
       image.frames = frames
@@ -201,12 +202,12 @@ export class ConfigService {
       }
 
       try {
-        await this.imageConfigRepository.updateById(buckets[i].image_config.id,{
-          watermark_save_key:'/' + buckets[i].directory + '/' + image.name + '.' + image.type,
-          watermark_gravity:obj.gravity,
-          watermark_opacity:obj.opacity,
-          watermark_ws:obj.ws,
-          watermark_x:obj.x,
+        await this.imageConfigRepository.updateById(buckets[i].image_config.id, {
+          watermark_save_key: '/' + buckets[i].directory + '/' + image.name + '.' + image.type,
+          watermark_gravity: obj.gravity,
+          watermark_opacity: obj.opacity,
+          watermark_ws: obj.ws,
+          watermark_x: obj.x,
           watermark_y: obj.y
         })
       } catch (err) {
@@ -240,7 +241,7 @@ export class ConfigService {
     }
     try {
       await buckets.forEach(async (bucket) => {
-        await this.audioConfigRepository.updateById(bucket.audio_config.id,{format})
+        await this.audioConfigRepository.updateById(bucket.audio_config.id, { format })
       })
       data.code = 200
       data.message = '音频保存格式配置成功'
@@ -275,7 +276,7 @@ export class ConfigService {
     }
     try {
       await buckets.forEach(async (bucket) => {
-        await this.videoConfigRepository.updateById(bucket.video_config.id,{format,resolution})
+        await this.videoConfigRepository.updateById(bucket.video_config.id, { format, resolution })
       })
       data.code = 200
       data.message = '视频保存格式配置成功'

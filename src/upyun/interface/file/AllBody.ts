@@ -1,3 +1,3 @@
-export interface AllBody{
-    bucket_name:string
+export interface AllBody {
+    bucket_name: string
 }

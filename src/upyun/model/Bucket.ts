@@ -106,7 +106,7 @@ export class Bucket {
   这里lazy:false的意思不是每个Bucket查询出来的时候就会包含image_config
   它的意思只是在于获取的属性是否是Promise，而要查询出来的Bucket包含image_config，必须使用find({relation:xxxx})
   */
-  @OneToOne(type => ImageConfig,imageConfig=>imageConfig.bucket,{
+  @OneToOne(type => ImageConfig, imageConfig => imageConfig.bucket, {
     cascadeInsert: true,
     cascadeUpdate: true,
     cascadeRemove: true,
@@ -114,7 +114,7 @@ export class Bucket {
   })
   image_config: ImageConfig;
 
-  @OneToOne(type =>AudioConfig,audioConfig=>audioConfig.bucket,{
+  @OneToOne(type => AudioConfig, audioConfig => audioConfig.bucket, {
     cascadeInsert: true,
     cascadeUpdate: true,
     cascadeRemove: true,
@@ -122,7 +122,7 @@ export class Bucket {
   })
   audio_config: AudioConfig;
 
-  @OneToOne(type => VideoConfig,videoConfig=>videoConfig.bucket,{
+  @OneToOne(type => VideoConfig, videoConfig => videoConfig.bucket, {
     cascadeInsert: true,
     cascadeUpdate: true,
     cascadeRemove: true,
@@ -145,7 +145,7 @@ export class Bucket {
   })
   images: Promise<Image[]>;
 
-  @OneToMany(type => Audio, audio=> audio.bucket, {
+  @OneToMany(type => Audio, audio => audio.bucket, {
     cascadeInsert: true,
     cascadeUpdate: true,
     lazy: true
@@ -157,12 +157,12 @@ export class Bucket {
     cascadeUpdate: true,
     lazy: true
   })
-  videos:Promise<Video[]>;
+  videos: Promise<Video[]>;
 
   @OneToMany(type => Document, document => document.bucket, {
     cascadeInsert: true,
     cascadeUpdate: true,
     lazy: true
   })
-  documents:Promise<Document[]>;
+  documents: Promise<Document[]>;
 }

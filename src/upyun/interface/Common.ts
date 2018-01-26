@@ -1,4 +1,4 @@
-export interface CommonData{
-    code:number
-    message:string
+export interface CommonData {
+    code: number
+    message: string
 }
