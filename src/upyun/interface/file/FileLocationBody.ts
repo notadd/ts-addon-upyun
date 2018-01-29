@@ -1,5 +1,5 @@
 export interface FileLocationBody {
-    bucket_name: string
+    bucketName: string
     name: string
     type: string
 }

@@ -1,6 +1,6 @@
 type Mutation{
     #delete specified file 
-    deleteFile(bucket_name:String,name:String,type:String):DeleteFileData
+    deleteFile(bucketName:String,name:String,type:String):DeleteFileData
 }
 
 #return data

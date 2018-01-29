@@ -44,7 +44,7 @@ export class FileController {
   /* 文件下载预处理接口
    当客户端需要下载某个文件时使用，文件不经过服务器，直接由客户端从云存储下载
    返回下载文件的方法、url、参数、头信息(包含了签名)
-   @Param bucket_name：文件所属空间名
+   @Param bucketName：文件所属空间名
    @Param type：       上传文件扩展名，即文件类型
    @Param name：       文件名
    @Return data.code：状态码，200为成功，其他为错误
@@ -75,17 +75,17 @@ export class FileController {
         date: ''
       }
     }
-    let { bucket_name, name, type } = body
-    if (!bucket_name || !name) {
+    let { bucketName, name, type } = body
+    if (!bucketName || !name) {
       data.message = '缺少参数'
       return data
     }
     //一般查询方法不加try...catch
-    let bucket: Bucket = await this.bucketRepository.findOne({ name: bucket_name })
+    let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
     //指定空间不存在
     if (!bucket) {
       data.code = 401
-      data.message = '指定空间' + bucket_name + '不存在'
+      data.message = '指定空间' + bucketName + '不存在'
       return
     }
     let kind
@@ -109,7 +109,7 @@ export class FileController {
 
 
   /*文件表单上传预处理接口
-    @Param bucket_name：上传空间名
+    @Param bucketName：上传空间名
     @Param md5：        上传文件的md5值
     @Param contentName：文件名，必选，从其中获取文件类型
     @Param contentSecret：文件访问密钥，可选
@@ -161,7 +161,7 @@ export class FileController {
       }
     }
 
-    let { bucket_name, md5, contentName } = body
+    let { bucketName, md5, contentName } = body
 
     let policy = {
       //空间名
@@ -180,7 +180,7 @@ export class FileController {
       'ext-param': ''
     }
 
-    if (!bucket_name || !md5 || !contentName) {
+    if (!bucketName || !md5 || !contentName) {
       data.code = 400
       data.message = '缺少参数'
       return data
@@ -196,11 +196,11 @@ export class FileController {
       .leftJoinAndSelect("bucket.image_config", "image_config")
       .leftJoinAndSelect("bucket.audio_config", "audio_config")
       .leftJoinAndSelect("bucket.video_config", "video_config")
-      .where("bucket.name = :name", { name: bucket_name })
+      .where("bucket.name = :name", { name: bucketName })
       .getOne()
     if (!bucket) {
       data.code = 401
-      data.message = '指定空间' + bucket_name + '不存在'
+      data.message = '指定空间' + bucketName + '不存在'
       return
     }
 
@@ -248,9 +248,9 @@ export class FileController {
       let type = path.parse(body.url).ext.substr(1)
       let kind = this.kindUtil.getKind(type)
       //从扩展参数中获取空间名
-      let bucket_name = body['ext-param']
+      let bucketName = body['ext-param']
       //查找指定空间
-      let bucket: Bucket = await this.bucketRepository.findOne({ name: bucket_name })
+      let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
       if (!bucket) {
         res.sendStatus(200)
         res.end()
@@ -291,14 +291,14 @@ export class FileController {
         return
       }
       //响应体中空间名
-      let bucket_name = body.bucket_name
+      let bucketName = body.bucket_name
       //解析出文件名，根据它查找数据库保存文件
       let name = path.parse(body.imginfo.path).name
       //文件扩展名，不包含.，不是原图时为webp
       let type = path.parse(body.imginfo.path).ext.substr(1)
       let kind = this.kindUtil.getKind(type)
       //查找指定空间
-      let bucket: Bucket = await this.bucketRepository.findOne({ name: bucket_name })
+      let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
       //验签获取结果
       let pass = await this.authUtil.taskNotifyVerify(auth, bucket, 'POST', '/upyun/file/notify', date, contentMd5, body)
       //验签不成功，要返回400,提示云存储继续发送回调请求
@@ -321,7 +321,7 @@ export class FileController {
 
 
   /* 获取单个文件url方法 ，从后台获取
-     @Param bucket_name：空间名
+     @Param bucketName：空间名
      @Param md5：        文件的md5值
      @Return data.code：状态码，200为成功，其他为错误
              data.message：响应信息
@@ -370,15 +370,15 @@ export class FileController {
       url: ''
     }
     //空间名、目录数组、文件名
-    let { bucket_name, name, type } = body
+    let { bucketName, name, type } = body
 
-    if (!bucket_name || !name || !type) {
+    if (!bucketName || !name || !type) {
       data.code = 400
       data.message = '缺少参数'
       return data
     }
 
-    let bucket: Bucket = await this.bucketRepository.findOne({ name: bucket_name })
+    let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
     if (!bucket) {
       data.code = 401
       data.message = '空间不存在'
@@ -407,7 +407,7 @@ export class FileController {
 
 
   /* 获取指定空间下文件，从后台数据库中获取
-     @Param bucket_name：文件所属空间
+     @Param bucketName：文件所属空间
      @Return data.code： 状态码，200为成功，其他为错误
             data.message：响应信息
             data.baseUrl：访问文件的基本url
@@ -437,17 +437,17 @@ export class FileController {
       documents: []
     }
     //当前页数、每页条目数
-    let { bucket_name } = body
-    if (!bucket_name) {
+    let { bucketName } = body
+    if (!bucketName) {
       data.code = 400
       data.message = '缺少参数'
       return data
     }
 
-    let bucket: Bucket = await this.bucketRepository.findOne({ name: bucket_name })
+    let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
     if (!bucket) {
       data.code = 401
-      data.message = '空间' + bucket_name + '不存在'
+      data.message = '空间' + bucketName + '不存在'
       return
     }
 
@@ -459,7 +459,7 @@ export class FileController {
 
   /* 文件删除接口
      当客户端需要删除某个文件时使用，
-     @Param bucket_name：文件所属空间名
+     @Param bucketName：文件所属空间名
      @Param type：       文件扩展名，即文件类型
      @Param name：       文件名
      @Return data.code：状态码，200为成功，其他为错误
@@ -479,17 +479,17 @@ export class FileController {
       code: 200,
       message: ''
     }
-    let { bucket_name, type, name } = body
-    if (!bucket_name || !name || !type) {
+    let { bucketName, type, name } = body
+    if (!bucketName || !name || !type) {
       data.code = 400
       data.message = '缺少参数'
       return data
     }
 
-    let bucket: Bucket = await this.bucketRepository.findOne({ name: bucket_name })
+    let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
     if (!bucket) {
       data.code = 401
-      data.message = '空间' + bucket_name + '不存在'
+      data.message = '空间' + bucketName + '不存在'
       return
     }
     let kind = this.kindUtil.getKind(type)
@@ -511,7 +511,7 @@ export class FileController {
   }
 
   /* 获取文件信息接口,从有拍云获取
-     @Param bucket_name：文件所属空间名
+     @Param bucketName：文件所属空间名
      @Param type：       文件扩展名，即文件类型
      @Param name：       文件的名
      @Return data.code：状态码，200为成功，其他为错误
@@ -539,11 +539,11 @@ export class FileController {
         date: ''
       }
     }
-    let { bucket_name, type, name } = body
-    let bucket: Bucket = await this.bucketRepository.findOne({ name: bucket_name })
+    let { bucketName, type, name } = body
+    let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
     if (!bucket) {
       data.code = 401
-      data.message = '空间' + bucket_name + '不存在'
+      data.message = '空间' + bucketName + '不存在'
       return
     }
     let kind = this.kindUtil.getKind(type)
@@ -566,7 +566,7 @@ export class FileController {
   }
 
   /* 获取文目录文件列表,只能获取指定下的目录、文件的名称、大小、最后修改日期
-     @Param bucket_name：文件所属空间名，由于每个空间使用一个目录，所以这里不需要目录名
+     @Param bucketName：文件所属空间名，由于每个空间使用一个目录，所以这里不需要目录名
      @Return data.code：状态码，200为成功，其他为错误
              data.message：响应信息
   */
@@ -584,11 +584,11 @@ export class FileController {
       message: '',
       info: []
     }
-    let { bucket_name } = body
-    let bucket: Bucket = await this.bucketRepository.findOne({ name: bucket_name })
+    let { bucketName } = body
+    let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
     if (!bucket) {
       data.code = 401
-      data.message = '空间' + bucket_name + '不存在'
+      data.message = '空间' + bucketName + '不存在'
       return data
     }
     let info = await this.restfulUtil.getFileList(data, bucket)

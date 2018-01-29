@@ -1,7 +1,7 @@
 import { ImagePostProcessInfo } from './ImageProcessInfo'
 
 export interface OneBody {
-    bucket_name: string
+    bucketName: string
     name: string
     type: string
     imagePostProcessInfo?: ImagePostProcessInfo

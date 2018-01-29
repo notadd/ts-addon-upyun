@@ -5,7 +5,7 @@ import { ImagePreProcessInfo } from './ImageProcessInfo'
 export class UploadProcessBody {
 
     @ApiModelProperty({ description: '所属空间名', required: true })
-    bucket_name: string
+    bucketName: string
 
     @ApiModelProperty({ description: '上传文件的md5', required: true })
     md5: string

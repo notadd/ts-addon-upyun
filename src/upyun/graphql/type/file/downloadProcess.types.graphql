@@ -1,7 +1,7 @@
 
 type Query{
   #download pretreatment 
-  downloadProcess(bucket_name:String,name:String,type:String):DownloadProcessData
+  downloadProcess(bucketName:String,name:String,type:String):DownloadProcessData
 }
 
 #return data 

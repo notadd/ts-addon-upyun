@@ -4,7 +4,7 @@ import { ImagePostProcessInfo } from './ImageProcessInfo'
 
 export class FileBody {
     @ApiModelProperty({ description: '所属空间名', required: true })
-    bucket_name: string
+    bucketName: string
     @ApiModelProperty({ description: '文件名', required: true })
     name: string
     @ApiModelProperty({ description: '文件类型', required: true })

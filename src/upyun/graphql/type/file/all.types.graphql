@@ -1,6 +1,6 @@
 type Query{
     #get all kinds of file and it's url in specified bucket
-    all(bucket_name:String):AllData
+    all(bucketName:String):AllData
 }
 
 #file info

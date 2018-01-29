@@ -1,7 +1,7 @@
 
 type Query{
     #get url to visit file , you can specify the postprocessing info of image
-    one(bucket_name:String,name:String,type:String,imagePostProcessInfo:ImagePostProcessInfo):OneData
+    one(bucketName:String,name:String,type:String,imagePostProcessInfo:ImagePostProcessInfo):OneData
 }
 
 #return data

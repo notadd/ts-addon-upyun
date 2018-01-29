@@ -3,7 +3,7 @@ import { ApiModelProperty } from '@nestjs/swagger';
 export class FileInfoBody {
 
     @ApiModelProperty({ description: '所属空间名', required: true })
-    bucket_name: string
+    bucketName: string
 
     @ApiModelProperty({ description: '文件名', required: true })
     name: string
