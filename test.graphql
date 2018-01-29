@@ -76,7 +76,7 @@ query buckets{
 
 query downloadProcess{
   downloadProcess(
-    bucket_name:"benchu2",
+    bucketName:"benchu2",
     name:"18ba231546b55df87e74c6cdbef0d005_1516096854181",
     type:"jpeg"
   ){
@@ -94,7 +94,7 @@ query downloadProcess{
 
 mutation uploadProcess{
   uploadProcess(
-    bucket_name:"benchu2",
+    bucketName:"benchu2",
     md5:"4f58f848b46a2ac6a817c9f5289a0f97",
     contentName:"test.jpeg"
   ){
@@ -111,7 +111,7 @@ mutation uploadProcess{
 
 query oneFile{
   one(
-    bucket_name:"benchu1",
+    bucketName:"benchu1",
     name:"18ba231546b55df87e74c6cdbef0d005_1516162002285",
     type:"jpeg",
     imagePostProcessInfo:{
@@ -141,7 +141,7 @@ query oneFile{
 }
 
 query allFile{
-  all(bucket_name:"benchu1"){
+  all(bucketName:"benchu1"){
     code
     message
     baseUrl
@@ -165,7 +165,7 @@ query allFile{
 }
 
 mutation deleteFile{
-  deleteFile(bucket_name:"benchu1",name:"18ba231546b55df87e74c6cdbef0d005_1516096188598",type:"jpeg"){
+  deleteFile(bucketName:"benchu1",name:"18ba231546b55df87e74c6cdbef0d005_1516096188598",type:"jpeg"){
     code
     message
   }
