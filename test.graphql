@@ -116,7 +116,7 @@ query oneFile{
     type:"jpeg",
     imagePostProcessInfo:{
   		resize:{
-        mode:"scale"
+        mode:scale
         data:{
           scale:200
         }
@@ -129,7 +129,6 @@ query oneFile{
         y:10
         gravity:northeast
       }
-      roundrect:20
       watermark:true
       rotate:30
     }
@@ -153,13 +152,11 @@ query allFile{
       id
       raw_name
       name
-      md5
       type
       create_date
       update_date
       width
       height
-      frames
     }
   }
 }
