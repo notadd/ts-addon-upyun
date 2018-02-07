@@ -1,5 +1,5 @@
 
-export class VideoFormatConfig {
+export interface VideoFormatConfig {
     format: string
     resolution: string
 }

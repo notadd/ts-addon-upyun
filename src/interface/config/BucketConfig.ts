@@ -1,5 +1,5 @@
 
-export class BucketConfig {
+export interface BucketConfig {
   isPublic: boolean | string;
   name: string;
   operator: string;

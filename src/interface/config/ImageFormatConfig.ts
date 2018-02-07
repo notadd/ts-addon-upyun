@@ -1,4 +1,4 @@
 
-export class ImageFormatConfig {
+export interface ImageFormatConfig {
     format: string
 }

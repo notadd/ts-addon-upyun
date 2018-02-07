@@ -1,4 +1,4 @@
 
-export class AudioFormatConfig {
+export interface AudioFormatConfig {
     format: string
 }
