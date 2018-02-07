@@ -83,6 +83,14 @@ class StoreComponent {
         let kind: string = this.kindUtil.getKind(type)
         try {
             if (kind === 'image') {
+                file = this.imageRepository.create({
+                    bucket,
+                    raw_name: rawName,
+                    name,
+                    type,
+                    md5,
+                    status: 'post'
+                })
                 let { width, height, frames } = await this.resufulUtil.uploadFile(bucket, file, uploadFile, imagePreProcessInfo)
                 let { file_size, file_md5 } = await this.resufulUtil.getFileInfo(bucket, file)
                 file = this.imageRepository.create({
