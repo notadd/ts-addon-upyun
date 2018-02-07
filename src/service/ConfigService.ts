@@ -1,21 +1,21 @@
-import { Repository, getManager, getConnection, Connection } from 'typeorm'
-import { Component, Inject } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { RestfulUtil } from '../util/RestfulUtil';
-import { AuthUtil } from '../util/AuthUtil'
+import { EnableImageWatermarkConfig } from '../interface/config/EnableImageWatermarkConfig';
+import { Repository, getManager, getConnection, Connection } from 'typeorm';
+import { VideoFormatConfig } from '../interface/config/VideoFormatConfig';
+import { AudioFormatConfig } from '../interface/config/AudioFormatConfig';
+import { ImageFormatConfig } from '../interface/config/ImageFormatConfig';
+import { BucketConfig } from '../interface/config/BucketConfig';
 import { ImageConfig } from '../model/ImageConfig';
 import { AudioConfig } from '../model/AudioConfig';
 import { VideoConfig } from '../model/VideoConfig';
+import { Component, Inject } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { RestfulUtil } from '../util/RestfulUtil';
+import { AuthUtil } from '../util/AuthUtil';
 import { Bucket } from '../model/Bucket';
 import { Image } from '../model/Image';
-import { BucketConfig } from '../interface/config/BucketConfig'
-import { VideoFormatConfig } from '../interface/config/VideoFormatConfig'
-import { AudioFormatConfig } from '../interface/config/AudioFormatConfig'
-import { ImageFormatConfig } from '../interface/config/ImageFormatConfig'
-import { EnableImageWatermarkConfig } from '../interface/config/EnableImageWatermarkConfig'
-import * as  fs from 'fs'
-import * as  crypto from 'crypto'
-import * as  request from 'request'
+import * as  crypto from 'crypto';
+import * as  fs from 'fs';
+
 
 /* 配置服务组件，包含了保存公有空间、私有空间、格式、水印等配置项的功能
    还可以获取公有、私有配置  
@@ -24,12 +24,12 @@ import * as  request from 'request'
 export class ConfigService {
 
   constructor(
-    private readonly restfulUtil: RestfulUtil,
-    @InjectRepository(Image) private readonly imageRepository: Repository<Image>,
-    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>,
-    @InjectRepository(ImageConfig) private readonly imageConfigRepository: Repository<ImageConfig>,
-    @InjectRepository(AudioConfig) private readonly audioConfigRepository: Repository<AudioConfig>,
-    @InjectRepository(VideoConfig) private readonly videoConfigRepository: Repository<VideoConfig>
+    @Inject(RestfulUtil) private readonly restfulUtil: RestfulUtil,
+    @Inject('UpyunModule.ImageRepository') private readonly imageRepository: Repository<Image>,
+    @Inject('UpyunModule.BucketRepository') private readonly bucketRepository: Repository<Bucket>,
+    @Inject('UpyunModule.ImageConfigRepository') private readonly imageConfigRepository: Repository<ImageConfig>,
+    @Inject('UpyunModule.AudioConfigRepository') private readonly audioConfigRepository: Repository<AudioConfig>,
+    @Inject('UpyunModule.VideoConfigRepository') private readonly videoConfigRepository: Repository<VideoConfig>
   ) { }
 
 

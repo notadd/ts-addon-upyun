@@ -1,22 +1,21 @@
+import { UploadProcessBody } from '../interface/file/UploadProcessBody';
 import { Component, Inject, forwardRef } from '@nestjs/common';
+import { ProcessStringUtil } from '../util/ProcessStringUtil';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { ConfigService } from './ConfigService'
-import { ProcessStringUtil } from '../util/ProcessStringUtil'
 import { RestfulUtil } from '../util/RestfulUtil';
-import { KindUtil } from '../util/KindUtil'
-import { AuthUtil } from '../util/AuthUtil'
-import { Document } from '../model/Document'
+import { ConfigService } from './ConfigService';
+import { Document } from '../model/Document';
+import { KindUtil } from '../util/KindUtil';
+import { AuthUtil } from '../util/AuthUtil';
 import { Bucket } from '../model/Bucket';
-import { Audio } from '../model/Audio'
-import { Video } from '../model/Video'
+import { Audio } from '../model/Audio';
+import { Video } from '../model/Video';
 import { Image } from '../model/Image';
-import { File } from '../model/File'
-import { FileBody } from '../interface/file/FileBody'
-import { UploadProcessBody } from '../interface/file/UploadProcessBody'
+import { File } from '../model/File';
+import { Repository } from 'typeorm';
+import * as crypto from 'crypto';
 import { isArray } from 'util';
-import * as  request from 'request'
-import * as  crypto from 'crypto'
+
 
 /* 图片服务组件，包含了上传时创建policy对象、预保存图片
    回调通知时，后保存、后删除
@@ -25,26 +24,18 @@ import * as  crypto from 'crypto'
 @Component()
 export class FileService {
 
-
   constructor(
-    private readonly authUtil: AuthUtil,
-    private readonly kindUtil: KindUtil,
-    private readonly restfulUtil: RestfulUtil,
-    private readonly processStringUtil: ProcessStringUtil,
-    @InjectRepository(File) private readonly fileRepository: Repository<File>,
-    @InjectRepository(Image) private readonly imageRepository: Repository<Image>,
-    @InjectRepository(Audio) private readonly audioRepository: Repository<Audio>,
-    @InjectRepository(Video) private readonly videoRepository: Repository<Video>,
-    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>) { }
+    @Inject(AuthUtil) private readonly authUtil: AuthUtil,
+    @Inject(KindUtil) private readonly kindUtil: KindUtil,
+    @Inject(RestfulUtil) private readonly restfulUtil: RestfulUtil,
+    @Inject(ProcessStringUtil) private readonly processStringUtil: ProcessStringUtil,
+    @Inject('UpyunModule.FileRepository') private readonly fileRepository: Repository<File>,
+    @Inject('UpyunModule.ImageRepository') private readonly imageRepository: Repository<Image>,
+    @Inject('UpyunModule.AudioRepository') private readonly audioRepository: Repository<Audio>,
+    @Inject('UpyunModule.VideoRepository') private readonly videoRepository: Repository<Video>,
+    @Inject('UpyunModule.BucketRepository') private readonly bucketRepository: Repository<Bucket>) { }
 
 
-  /* 创建上传参数
-     @Param data：返回信息，用来设置状态码
-     @Param policy：policy对象
-     @Param bucket：空间配置
-     @Param body: 请求体
-     @Return null
-   */
   async makePolicy(data: any, policy: any, bucket: Bucket, body: UploadProcessBody, file: File | Image | Video | Audio | Document): Promise<void> {
     let { md5, contentSecret, contentName } = body
     //设置各种上传参数
@@ -105,12 +96,6 @@ export class FileService {
     return
   }
 
-  /* 预保存文件，只保存预处理结果，在回调中对其进行更新，原图在回调中直接删除
-     @Param data：返回信息，用来设置状态码
-     @Param bucket：空间配置
-     @Param contentName：文件名
-     @Return null
-   */
   async preSaveFile(data: any, bucket: Bucket, body: UploadProcessBody): Promise<File | Image | Video | Audio | Document> {
     let { md5, contentName, contentSecret, tags } = body
     let type = contentName.substr(contentName.lastIndexOf('.') + 1).toLowerCase()
@@ -140,7 +125,6 @@ export class FileService {
       //还不支持
     }
   }
-
 
   /* 预处理回调通知验签成功，且响应码为200时，后保存图片 */
   async postSaveTask(data: any, bucket: Bucket, name: string, body: any, kind: string): Promise<void> {
@@ -174,8 +158,7 @@ export class FileService {
     return
   }
 
-
-  //创建图片完成url
+  //创建url
   async makeUrl(data: any, bucket: Bucket, file: File | Image | Video | Audio | Document, body: any, kind: string): Promise<void> {
     data.url += '/' + bucket.directory + '/' + file.name + '.' + file.type
     data.url += '!'
@@ -200,22 +183,20 @@ export class FileService {
     data.audios = await bucket.audios
     data.videos = await bucket.videos
     data.documents = await bucket.documents
-
-    let authUtil = this.authUtil
     let addUrl = async function (value) {
       value.url = '/' + bucket.directory + '/' + value.name + '.' + value.type
       if (value.content_secret) {
         value.url += '!' + value.content_secret
       }
       if (bucket.public_or_private === 'private') {
-        value.url += '?_upt=' + await authUtil.getToken(bucket, value.url)
+        value.url += '?_upt=' + await this.authUtil.getToken(bucket, value.url)
       }
     }
-    await data.files.forEach(addUrl)
-    await data.images.forEach(addUrl)
-    await data.audios.forEach(addUrl)
-    await data.videos.forEach(addUrl)
-    await data.documents.forEach(addUrl)
+    await data.files.forEach(addUrl,this)
+    await data.images.forEach(addUrl,this)
+    await data.audios.forEach(addUrl,this)
+    await data.videos.forEach(addUrl,this)
+    await data.documents.forEach(addUrl,this)
     return
   }
 }
