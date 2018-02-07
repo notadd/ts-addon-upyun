@@ -1,5 +1,6 @@
-import { Component, Inject } from '@nestjs/common';
+import { Component, Inject, HttpException } from '@nestjs/common';
 import { Document } from '../model/Document';
+import { PromiseUtil } from './PromiseUtil';
 import { AuthUtil } from '../util/AuthUtil';
 import { Bucket } from '../model/Bucket';
 import { Audio } from '../model/Audio';
@@ -17,12 +18,11 @@ import * as fs from 'fs';
 */
 @Component()
 export class RestfulUtil {
-
   private readonly apihost = 'http://v0.api.upyun.com'
-
   constructor(
-    @Inject(AuthUtil) private readonly authUtil: AuthUtil
-  ) { }
+    @Inject(AuthUtil) private readonly authUtil: AuthUtil,
+    @Inject(PromiseUtil) private readonly promiseUtil: PromiseUtil
+  ) {}
 
   //上传文件，其中文件信息来自于formidable解析得到的File对象
   async uploadFile(data: any, bucket: Bucket, file: File | Image | Video | Audio | Document, uploadFile: any): Promise<any> {
@@ -94,15 +94,14 @@ export class RestfulUtil {
 
 
   /*创建指定空间里的指定目录，空间下唯一目录在配置中指定 
-      @Param data：状态码
       @Param bucket：目录所属空间
   */
-  async createDirectory(data: any, bucket: Bucket): Promise<void> {
+  async createDirectory(bucket: Bucket): Promise<void> {
     let requestUrl = this.apihost + '/' + bucket.name + '/' + bucket.directory
     let url = '/' + bucket.name + '/' + bucket.directory
     let date: string = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
     let Authorization = await this.authUtil.getHeaderAuth(bucket, 'POST', url, date, null)
-    await new Promise((resolve, reject) => {
+    await this.promiseUtil.do((resolve, reject) => {
       request.post({
         url: requestUrl,
         headers: {
@@ -113,31 +112,23 @@ export class RestfulUtil {
       },
         (err, res, body) => {
           if (err) {
-            data.code = 402
-            data.message = '目录创建失败，网络错误'
-            resolve()
-            return
+            reject(new HttpException('目录创建失败，网络错误',402))
+            return 
           }
           if (res.statusCode === 200) {
-            data.code = 200
-            data.message = '目录创建成功'
             resolve()
             return
           }
           if (body) {
             try {
               let { msg, code, id } = JSON.parse(body)
-              data.code = code
-              data.message = msg
+              reject(new HttpException(msg,code))
             } catch (err) {
-              data.code = 402
-              data.message = '响应体解析错误'
+              reject(new HttpException('响应体解析错误',402))
             }
           } else {
-            data.code = 402
-            data.message = '响应体不存在'
+            reject(new HttpException('响应体不存在',402))
           }
-          resolve()
           return
         })
     })

@@ -10,6 +10,7 @@ import { ImageConfig } from './model/ImageConfig';
 import { AudioConfig } from './model/AudioConfig';
 import { VideoConfig } from './model/VideoConfig';
 import { RestfulUtil } from './util/RestfulUtil';
+import { PromiseUtil } from './util/PromiseUtil';
 import { Document } from './model/Document';
 import { KindUtil } from './util/KindUtil';
 import { AuthUtil } from './util/AuthUtil';
@@ -24,7 +25,7 @@ import { File } from './model/File';
 @Module({
   modules: [],
   controllers: [FileController],
-  components: [ConnectionProvider,...RepositorysProvider,ConfigResolver, FileResolver, ConfigService, FileService, RestfulUtil, KindUtil, AuthUtil, ProcessStringUtil],
+  components: [ConnectionProvider,...RepositorysProvider,ConfigResolver, FileResolver, ConfigService, FileService, PromiseUtil,RestfulUtil, KindUtil, AuthUtil, ProcessStringUtil],
   exports: []
 })
 
