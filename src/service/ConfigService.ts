@@ -7,7 +7,7 @@ import { BucketConfig } from '../interface/config/BucketConfig';
 import { ImageConfig } from '../model/ImageConfig';
 import { AudioConfig } from '../model/AudioConfig';
 import { VideoConfig } from '../model/VideoConfig';
-import { Component, Inject } from '@nestjs/common';
+import { Component, Inject, HttpException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RestfulUtil } from '../util/RestfulUtil';
 import { AuthUtil } from '../util/AuthUtil';
@@ -33,69 +33,53 @@ export class ConfigService {
   ) { }
 
 
-  async saveBucketConfig(data: any, body: BucketConfig): Promise<Bucket> {
-    let exist: Bucket, newBucket: any = {
+  async saveBucketConfig(body: BucketConfig): Promise<Bucket> {
+    let exist: Bucket
+    let newBucket: Bucket = this.bucketRepository.create({
       name: body.name,
       operator: body.operator,
       password: crypto.createHash('md5').update(body.password).digest('hex'),
       directory: body.directory,
       base_url: body.base_url,
-      request_expire: +body.request_expire
-    }
+      request_expire: body.request_expire
+    })
     if (body.isPublic) {
       exist = await this.bucketRepository.findOneById(1)
     } else {
       exist = await this.bucketRepository.findOneById(2)
-      newBucket.token_expire = +body.token_expire
+      newBucket.token_expire = body.token_expire
       newBucket.token_secret_key = body.token_secret_key
     }
     if (exist) {
       try {
         await this.bucketRepository.updateById(exist.id, newBucket)
-        data.code = 200
-        data.message = '空间配置更新成功'
       } catch (err) {
-        data.code = 401
-        data.message = '空间配置更新失败' + err.toString()
+        throw new HttpException('空间配置更新失败' + err.toString(),401)
       }
-      return exist
+      return newBucket
     }
-    let bucket: Bucket = new Bucket()
-    bucket.name = body.name
-    bucket.operator = body.operator
-    bucket.password = crypto.createHash('md5').update(body.password).digest('hex')
-    bucket.directory = body.directory
-    bucket.base_url = body.base_url
-    bucket.request_expire = +body.request_expire
     let audio_config = new AudioConfig()
     let video_config = new VideoConfig()
     let image_config = new ImageConfig()
     if (body.isPublic) {
-      bucket.id = 1
-      bucket.public_or_private = 'public'
+      newBucket.id = 1
+      newBucket.public_or_private = 'public'
     } else {
-      bucket.id = 2
-      bucket.public_or_private = 'private'
-      bucket.token_expire = +body.token_expire
-      bucket.token_secret_key = body.token_secret_key
+      newBucket.id = 2
+      newBucket.public_or_private = 'private'
     }
-    audio_config.id = bucket.id
-    video_config.id = bucket.id
-    image_config.id = bucket.id
-    bucket.audio_config = audio_config
-    bucket.video_config = video_config
-    bucket.image_config = image_config
+    audio_config.id = newBucket.id
+    video_config.id = newBucket.id
+    image_config.id = newBucket.id
+    newBucket.audio_config = audio_config
+    newBucket.video_config = video_config
+    newBucket.image_config = image_config
     try {
-      await this.bucketRepository.save(bucket)
-      data.code = 200
-      data.message = '空间保存成功'
-      return bucket
+      await this.bucketRepository.save(newBucket)
     } catch (err) {
-      console.log(err)
-      data.code = 401
-      data.message = '空间保存失败' + err.toString()
-      return null
+      throw new HttpException('空间保存失败' + err.toString(),401)
     }
+    return newBucket
   }
 
 
