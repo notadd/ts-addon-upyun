@@ -1,6 +1,7 @@
 
 export interface ImageWatermarkConfig {
-    file: string
+    name:string
+    base64: string
     gravity: string
     x: number
     y: number
