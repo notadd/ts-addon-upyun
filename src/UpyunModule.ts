@@ -25,7 +25,7 @@ const typeormOptions = require('./typeorm')
   modules: [TypeOrmModule.forRoot([ImageConfig, AudioConfig, VideoConfig, Bucket, Image, File, Video, Audio, Document], typeormOptions)],
   controllers: [ConfigController, FileController],
   components: [ConfigResolver, FileResolver, ConfigService, FileService, RestfulUtil, KindUtil, AuthUtil, ProcessStringUtil],
-  exports: [ConfigResolver, FileResolver, ConfigService, FileService, RestfulUtil, AuthUtil, ProcessStringUtil]
+  exports: []
 })
 
 export class UpyunModule { }

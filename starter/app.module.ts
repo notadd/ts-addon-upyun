@@ -1,7 +1,7 @@
 import { Module,MiddlewaresConsumer,NestModule,RequestMethod, } from '@nestjs/common';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 import { GraphQLModule , GraphQLFactory} from '@nestjs/graphql';
-import { UpyunModule } from './src/upyun/UpyunModule'
+import { UpyunModule } from '../src/UpyunModule';
 @Module({
   modules: [UpyunModule,GraphQLModule],
   controllers: [],
@@ -14,7 +14,7 @@ export class ApplicationModule implements NestModule{
   constructor(private readonly graphQLFactory: GraphQLFactory){}
 
   configure(consumer: MiddlewaresConsumer) {
-    const typeDefs = this.graphQLFactory.mergeTypesByPaths('./src/upyun/graphql/type/**/*.types.graphql');
+    const typeDefs = this.graphQLFactory.mergeTypesByPaths('./src/graphql/type/**/*.types.graphql');
     const schema = this.graphQLFactory.createSchema({ typeDefs });
     consumer
       .apply(graphiqlExpress({ endpointURL: '/graphql' }))

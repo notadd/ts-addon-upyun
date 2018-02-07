@@ -4,7 +4,7 @@
   "description": "基于nestjs又拍云存储插件",
   "scripts": {
     "start": "node index.js",
-    "start:watch": "/usr/local/node-v8.9.0-linux-x64/node_global/bin/nodemon",
+    "start:watch": "nodemon",
     "prestart:prod": "tsc",
     "start:prod": "node dist/server.js"
   },
@@ -15,13 +15,13 @@
   "author": "czy12345",
   "license": "ISC",
   "dependencies": {
-    "@nestjs/common": "^4.4.0",
-    "@nestjs/core": "^4.4.0",
+    "@nestjs/common": "^4.5.9",
+    "@nestjs/core": "^4.5.10",
     "@nestjs/graphql": "^2.0.0",
     "@nestjs/microservices": "^4.4.0",
     "@nestjs/swagger": "^1.1.3",
     "@nestjs/testing": "^4.4.0",
-    "@nestjs/typeorm": "^1.0.1",
+    "@nestjs/typeorm": "^2.0.0",
     "@nestjs/websockets": "^4.4.0",
     "@types/sharp": "^0.17.6",
     "apollo-server-core": "^1.3.2",
