@@ -1,15 +1,16 @@
 import { Component, Inject } from '@nestjs/common';
-import { AuthUtil } from '../util/AuthUtil'
-import { Document } from '../model/Document'
+import { Document } from '../model/Document';
+import { AuthUtil } from '../util/AuthUtil';
 import { Bucket } from '../model/Bucket';
-import { Audio } from '../model/Audio'
-import { Video } from '../model/Video'
+import { Audio } from '../model/Audio';
+import { Video } from '../model/Video';
 import { Image } from '../model/Image';
-import { File } from '../model/File'
-const fs = require('fs')
-const crypto = require('crypto')
-const request = require('request')
-const mime = require('mime')
+import { File } from '../model/File';
+import * as request from 'request';
+import * as crypto from 'crypto';
+import * as mime from 'mime';
+import * as fs from 'fs';
+
 
 /* 包含了restfulAPI的各种功能 
    删除文件、创建目录、删除目录、获取文件信息、获取目录文件列表、获取服务使用量
@@ -20,7 +21,8 @@ export class RestfulUtil {
   private readonly apihost = 'http://v0.api.upyun.com'
 
   constructor(
-    private readonly authUtil: AuthUtil) { }
+    @Inject(AuthUtil) private readonly authUtil: AuthUtil
+  ) { }
 
   //上传文件，其中文件信息来自于formidable解析得到的File对象
   async uploadFile(data: any, bucket: Bucket, file: File | Image | Video | Audio | Document, uploadFile: any): Promise<any> {
