@@ -1,5 +1,5 @@
 import { UploadProcessBody } from '../interface/file/UploadProcessBody';
-import { Component, Inject, forwardRef } from '@nestjs/common';
+import { Component, Inject, forwardRef, HttpException } from '@nestjs/common';
 import { ProcessStringUtil } from '../util/ProcessStringUtil';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RestfulUtil } from '../util/RestfulUtil';
@@ -91,12 +91,10 @@ export class FileService {
     //生成签名，上传签名需要policy参数
     let method = data.method
     data.form.authorization = await this.authUtil.getBodyAuth(bucket, method, policy)
-    data.code = 200
-    data.message = 'policy创建成功'
     return
   }
 
-  async preSaveFile(data: any, bucket: Bucket, body: UploadProcessBody): Promise<File | Image | Video | Audio | Document> {
+  async preSaveFile(bucket: Bucket, body: UploadProcessBody): Promise<File | Image | Video | Audio | Document> {
     let { md5, contentName, contentSecret, tags } = body
     let type = contentName.substr(contentName.lastIndexOf('.') + 1).toLowerCase()
     let kind = this.kindUtil.getKind(type)
@@ -114,11 +112,8 @@ export class FileService {
       image.bucket = bucket
       try {
         await this.imageRepository.save(image)
-        data.code = 200
-        data.message = '图片保存成功'
       } catch (err) {
-        data.code = 402
-        data.message = '图片保存失败' + err.toString()
+        throw new HttpException('图片预保存失败', 403)
       }
       return image
     } else {
@@ -127,9 +122,10 @@ export class FileService {
   }
 
   /* 预处理回调通知验签成功，且响应码为200时，后保存图片 */
-  async postSaveTask(data: any, bucket: Bucket, name: string, body: any, kind: string): Promise<void> {
+  async postSaveTask(bucket: Bucket, name: string, body: any, kind: string): Promise<void> {
     if (kind === 'image') {
       let image: Image = await this.imageRepository.findOne({ name, bucketId: bucket.id, status: 'pre' })
+      //预保存图片不存在时，正常返回，服务器错误
       if (!image) {
         return
       }
@@ -139,19 +135,14 @@ export class FileService {
         image.frames = body.imginfo['frames'],
         image.status = 'post'
       //从云存储获取预处理文件的md5与处理后大小
-      let { file_size, file_md5 } = await this.restfulUtil.getFileInfo(data, bucket, image)
+      let { file_size, file_md5 } = await this.restfulUtil.getFileInfo(bucket, image)
       image.size = file_size
       image.md5 = file_md5
       try {
-        await this.imageRepository.save(image)
+        await this.imageRepository.updateById(image.id, image)
       } catch (err) {
-        data.code = 401
-        data.message = '更新预处理图片失败'
+        throw new HttpException('更新预保存图片失败', 403)
       }
-    } else if (kind === 'audio') {
-      console.log('audio暂时未实现')
-    } else if (kind === 'video') {
-      console.log('video暂时未实现')
     } else {
       throw new Error('kind不正确')
     }
@@ -159,22 +150,22 @@ export class FileService {
   }
 
   //创建url
-  async makeUrl(data: any, bucket: Bucket, file: File | Image | Video | Audio | Document, body: any, kind: string): Promise<void> {
-    data.url += '/' + bucket.directory + '/' + file.name + '.' + file.type
-    data.url += '!'
+  async makeUrl(bucket: Bucket, file: File | Image | Video | Audio | Document, body: any, kind: string): Promise<string> {
+    let url: string = '/' + bucket.directory + '/' + file.name + '.' + file.type
+    url += '!'
     if (file.content_secret) {
-      data.url += file.content_secret
+      url += file.content_secret
     }
     if (kind === 'image') {
       //拼接处理字符串，使用请求体参数
-      data.url += this.processStringUtil.makeImageProcessString(data, bucket, body.imagePostProcessInfo)
+      url += this.processStringUtil.makeImageProcessString(bucket, body.imagePostProcessInfo)
     }
     //如果是私有空间需要拼接token查询字符串
     if (bucket.public_or_private == 'private') {
-      data.url += '?_upt=' + await this.authUtil.getToken(bucket, data.url)
+      url += '?_upt=' + await this.authUtil.getToken(bucket, url)
     }
-    data.url = bucket.base_url.concat(data.url)
-    return
+    url = bucket.base_url.concat(url)
+    return url
   }
 
   async getAll(data: any, bucket: Bucket) {
@@ -192,11 +183,11 @@ export class FileService {
         value.url += '?_upt=' + await this.authUtil.getToken(bucket, value.url)
       }
     }
-    await data.files.forEach(addUrl,this)
-    await data.images.forEach(addUrl,this)
-    await data.audios.forEach(addUrl,this)
-    await data.videos.forEach(addUrl,this)
-    await data.documents.forEach(addUrl,this)
+    await data.files.forEach(addUrl, this)
+    await data.images.forEach(addUrl, this)
+    await data.audios.forEach(addUrl, this)
+    await data.videos.forEach(addUrl, this)
+    await data.documents.forEach(addUrl, this)
     return
   }
 }

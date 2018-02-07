@@ -71,7 +71,7 @@ export class FileResolver {
         //其他类型暂不支持
       }
       if (!file) {
-        throw new HttpException('指定文件' + name + '不存在', 402)
+        throw new HttpException('指定文件' + name + '不存在', 404)
       }
       data.url += '/' + bucket.name + '/' + bucket.directory + '/' + file.name + '.' + file.type
       data.headers.date = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
@@ -192,7 +192,7 @@ export class FileResolver {
       if (kind === 'image') {
         file = await this.imageRepository.findOne({ name, bucketId: bucket.id })
         if (!file) {
-          throw new HttpException('指定图片不存在', 402)
+          throw new HttpException('指定图片不存在', 404)
         }
       } else {
         //暂不支持
@@ -287,7 +287,7 @@ export class FileResolver {
       if (kind === 'image') {
         let image: Image = await this.imageRepository.findOne({ name, bucketId: bucket.id })
         if (!image) {
-          throw new HttpException('文件md5=' + name + '不存在', 402)
+          throw new HttpException('文件md5=' + name + '不存在', 404)
         }
         await this.restfulUtil.deleteFile(bucket, image)
         await this.imageRepository.delete({ name, bucketId: bucket.id })

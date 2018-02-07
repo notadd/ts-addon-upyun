@@ -55,7 +55,7 @@ export class RestfulUtil {
         }
       }, (err, res, body) => {
         if (err) {
-          reject(new HttpException('文件上传失败,网络错误', 403))
+          reject(new HttpException('文件上传失败,网络错误', 402))
           return
         }
         if (res.statusCode === 200) {
@@ -70,10 +70,10 @@ export class RestfulUtil {
             let { msg, code, id } = JSON.parse(body)
             reject(new HttpException(msg, code))
           } catch (err) {
-            reject(new HttpException('响应体解析错误', 403))
+            reject(new HttpException('响应体解析错误', 402))
           }
         } else {
-          reject(new HttpException('响应体不存在', 403))
+          reject(new HttpException('响应体不存在', 402))
         }
         return
       }))
@@ -101,7 +101,7 @@ export class RestfulUtil {
       },
         (err, res, body) => {
           if (err) {
-            reject(new HttpException('目录创建失败，网络错误', 403))
+            reject(new HttpException('目录创建失败，网络错误', 402))
             return
           }
           if (res.statusCode === 200) {
@@ -113,10 +113,10 @@ export class RestfulUtil {
               let { msg, code, id } = JSON.parse(body)
               reject(new HttpException(msg, code))
             } catch (err) {
-              reject(new HttpException('响应体解析错误', 403))
+              reject(new HttpException('响应体解析错误', 402))
             }
           } else {
-            reject(new HttpException('响应体不存在', 403))
+            reject(new HttpException('响应体不存在', 402))
           }
           return
         })
@@ -143,7 +143,7 @@ export class RestfulUtil {
         }
       }, (err, res, body) => {
         if (err) {
-          reject(new HttpException('删除文件失败', 403))
+          reject(new HttpException('删除文件失败', 402))
           return
         }
         if (res.statusCode == 200) {
@@ -155,10 +155,10 @@ export class RestfulUtil {
             let { msg, code, id } = JSON.parse(body)
             reject(new HttpException(msg, code))
           } catch (err) {
-            reject(new HttpException('响应体解析错误', 403))
+            reject(new HttpException('响应体解析错误', 402))
           }
         } else {
-          reject(new HttpException('响应体不存在', 403))
+          reject(new HttpException('响应体不存在', 402))
         }
         return
       });
@@ -185,7 +185,7 @@ export class RestfulUtil {
         }
       }, (err, res, body) => {
         if (err) {
-          reject(new HttpException('获取文件信息失败', 403))
+          reject(new HttpException('获取文件信息失败', 402))
           return
         }
         if (res.statusCode == 200) {
@@ -200,10 +200,10 @@ export class RestfulUtil {
             let { msg, code, id } = JSON.parse(body)
             reject(new HttpException(msg, code))
           } catch (err) {
-            reject(new HttpException('响应体解析错误', 403))
+            reject(new HttpException('响应体解析错误', 402))
           }
         } else {
-          reject(new HttpException('响应体不存在', 403))
+          reject(new HttpException('响应体不存在', 402))
         }
         return
       });
@@ -233,7 +233,7 @@ export class RestfulUtil {
         }
       }, (err, res, body) => {
         if (err) {
-          reject(new HttpException('获取文件信息失败',403))
+          reject(new HttpException('获取文件信息失败',402))
           return
         }
         if (res.statusCode == 200) {
@@ -249,7 +249,7 @@ export class RestfulUtil {
           resolve()
           return
         }
-        reject(new HttpException('获取文件列表失败',403))
+        reject(new HttpException('获取文件列表失败',402))
         return
       });
     })

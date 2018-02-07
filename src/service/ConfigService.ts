@@ -53,7 +53,7 @@ export class ConfigService {
       try {
         await this.bucketRepository.updateById(exist.id, newBucket)
       } catch (err) {
-        throw new HttpException('空间配置更新失败' + err.toString(), 401)
+        throw new HttpException('空间配置更新失败' + err.toString(), 403)
       }
       return newBucket
     }
@@ -76,7 +76,7 @@ export class ConfigService {
     try {
       await this.bucketRepository.save(newBucket)
     } catch (err) {
-      throw new HttpException('空间保存失败' + err.toString(), 401)
+      throw new HttpException('空间保存失败' + err.toString(), 403)
     }
     return newBucket
   }
