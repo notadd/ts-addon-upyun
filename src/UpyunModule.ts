@@ -1,3 +1,4 @@
+import { RepositorysProvider } from './database/RepositorysProvider';
 import { ConfigResolver } from './graphql/resolver/ConfigResolver';
 import { ConnectionProvider } from './database/ConnectionProvider';
 import { ConfigController } from './controller/ConfigController';
@@ -24,7 +25,7 @@ import { File } from './model/File';
 @Module({
   modules: [],
   controllers: [ConfigController, FileController],
-  components: [ConnectionProvider,ConfigResolver, FileResolver, ConfigService, FileService, RestfulUtil, KindUtil, AuthUtil, ProcessStringUtil],
+  components: [ConnectionProvider,...RepositorysProvider,ConfigResolver, FileResolver, ConfigService, FileService, RestfulUtil, KindUtil, AuthUtil, ProcessStringUtil],
   exports: []
 })
 
