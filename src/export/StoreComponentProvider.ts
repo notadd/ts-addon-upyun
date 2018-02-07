@@ -15,6 +15,7 @@ import { File } from '../model/File';
 import * as crypto from 'crypto';
 import * as path from 'path';
 import * as os from 'os';
+import { FileService } from '../service/FileService';
 
 
 class StoreComponent {
@@ -24,6 +25,7 @@ class StoreComponent {
         @Inject(FileUtil) private readonly fileUtil: FileUtil,
         @Inject(AuthUtil) private readonly authUtil: AuthUtil,
         @Inject(RestfulUtil) private readonly resufulUtil: RestfulUtil,
+        @Inject(FileService) private readonly fileService: FileService,
         @Inject(ProcessStringUtil) private readonly processStringUtil: ProcessStringUtil,
         @Inject('UpyunModule.ImageRepository') private readonly imageRepository: Repository<Image>,
         @Inject('UpyunModule.BucketRepository') private readonly bucketRepository: Repository<Bucket>
@@ -67,7 +69,6 @@ class StoreComponent {
         if (!bucket) {
             throw new HttpException('指定空间' + bucketName + '不存在', 401)
         }
-
         let buffer: Buffer = Buffer.from(base64, 'base64')
         let md5 = crypto.createHash('md5').update(buffer).digest('hex')
         let name = md5 + '_' + (+new Date())
@@ -118,41 +119,28 @@ class StoreComponent {
         if (!bucket) {
             throw new HttpException('指定空间' + bucketName + '不存在', 401)
         }
-        let url: string = req.protocol + '://' + req.get('host') + '/local/file/visit'
+        let url: string
         //根据文件种类，查找、删除数据库
+        let file: Image | Audio | Video | Document | File
         let kind = this.kindUtil.getKind(type)
         if (kind === 'image') {
-            let image: Image = await this.imageRepository.findOne({ name, bucketId: bucket.id })
-            if (!image) {
+            file = await this.imageRepository.findOne({ name, bucketId: bucket.id })
+            if (!file) {
                 throw new HttpException('指定图片' + name + '.' + type + '不存在', 404)
-            }
-            //所有文件调用统一的拼接Url方法 
-            url += '/' + bucketName + '/' + name + '.' + type
-            //存储图片处理信息时
-            if (imagePostProcessInfo) {
-                //拼接图片处理的查询字符串
-                url += '?imagePostProcessString=' + JSON.stringify(imagePostProcessInfo)
-                //私有空间要拼接token，token使用它之前的完整路径计算
-                if (bucket.public_or_private === 'private') {
-                    url += '&token=' + this.tokenUtil.getToken(url, bucket)
-                }
-            } else {
-                if (bucket.public_or_private === 'private') {
-                    url += '?token=' + this.tokenUtil.getToken(url, bucket)
-                }
             }
         } else {
             //其他类型暂不支持
         }
+        url = await this.fileService.makeUrl(bucket, file, { imagePostProcessInfo }, kind)
         return url
     }
 }
 
 export const StoreComponentProvider = {
     provide: 'StoreComponentToken',
-    useFactory: (kindUtil: KindUtil, fileUtil: FileUtil, tokenUtil: TokenUtil, imageProcessUtil: ImageProcessUtil, imageRepository: Repository<Image>, bucketRepository: Repository<Bucket>) => {
-        return new StoreComponent(kindUtil, fileUtil, tokenUtil, imageProcessUtil, imageRepository, bucketRepository)
+    useFactory: (kindUtil: KindUtil, fileUtil: FileUtil, authUtil: AuthUtil, restfulUtil: RestfulUtil, fileService: FileService, processStringUtil: ProcessStringUtil, imageRepository: Repository<Image>, bucketRepository: Repository<Bucket>) => {
+        return new StoreComponent(kindUtil, fileUtil, authUtil, restfulUtil, fileService, processStringUtil, imageRepository, bucketRepository)
     },
-    inject: [KindUtil, FileUtil, TokenUtil, ImageProcessUtil, 'LocalModule.ImageRepository', 'LocalModule.BucketRepository']
+    inject: [KindUtil, FileUtil, AuthUtil, RestfulUtil, FileService, ProcessStringUtil, 'UpyunModule.ImageRepository', 'UpyunModule.BucketRepository']
 
 }
