@@ -1,6 +1,8 @@
 import { Query, Resolver, ResolveProperty, Mutation } from '@nestjs/graphql';
+import { BucketConfig } from '../../interface/config/BucketConfig';
 import { ConfigService } from '../../service/ConfigService';
 import { FileService } from '../../service/FileService';
+import { Inject, HttpException } from '@nestjs/common';
 import { RestfulUtil } from '../../util/RestfulUtil';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Document } from '../../model/Document';
@@ -12,16 +14,16 @@ import { Video } from '../../model/Video';
 import { Image } from '../../model/Image';
 import * as formidable from 'formidable';
 import { File } from '../../model/File';
-import { Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import * as fs from 'fs';
+import { IncomingMessage } from 'http';
+import { CommonData } from '../../interface/Common';
 
 /* 空间基本配置的resolver */
 @Resolver('Config')
 export class ConfigResolver {
 
   private readonly gravity: Set<string>
-
   constructor(
     @Inject(KindUtil) private readonly kindUtil: KindUtil,
     @Inject(RestfulUtil) private readonly restfulUtil: RestfulUtil,
@@ -32,69 +34,48 @@ export class ConfigResolver {
 
   /* 配置空间基本信息 */
   @Mutation('bucket')
-  async bucket(req, body) {
-    let data = {
+  async bucket(req: IncomingMessage, body:BucketConfig): Promise<CommonData> {
+    let data: CommonData = {
       code: 200,
-      message: ""
+      message: "空间配置成功"
     }
-    //获取参数
-    let { isPublic, name, operator, password, directory, base_url, request_expire } = body;
-
-    if (isPublic === undefined || !name || !operator || !password || !directory || !base_url || !request_expire) {
-      data.code = 400
-      data.message = '缺少参数'
-      return data
-    }
-
-    if (isPublic !== true && isPublic !== false && isPublic !== 'true' && isPublic !== 'false') {
-      data.code = 400
-      data.message = 'isPublic参数不正确'
-      return data
-    }
-    if (isPublic === 'true') {
-      body.isPublic = true
-    } else if (isPublic === 'false') {
-      body.isPublic = false
-    }
-
-    body.request_expire = +request_expire
-    if (!Number.isInteger(body.request_expire)) {
-      data.code = 400
-      data.message = '请求超时参数为非整数'
-      return data
-    } else if (body.request_expire < 0) {
-      data.code = 400
-      data.message = '请求超时参数小于0'
-      return data
-    } else if (body.request_expire > 1800) {
-      data.code = 400
-      data.message = '请求超时参数大于1800'
-      return data
-    }
-
-    if (!isPublic) {
-      body.token_expire = +body.token_expire
-      if (!Number.isInteger(body.token_expire)) {
-        data.code = 400
-        data.message = 'token超时参数为非整数'
-        return data
-      } else if (body.token_expire < 0) {
-        data.code = 400
-        data.message = 'token超时参数小于0'
-        return data
-      } else if (body.token_expire > 1800) {
-        data.code = 400
-        data.message = 'token超时参数大于1800'
-        return data
+    try {
+      let { isPublic, name, operator, password, directory, base_url, request_expire } = body;
+      if (isPublic === undefined || !name || !operator || !password || !directory || !base_url || !request_expire) {
+        throw new HttpException('缺少参数', 400)
+      }
+      if (isPublic !== true && isPublic !== false && isPublic !== 'true' && isPublic !== 'false') {
+        throw new HttpException('isPublic参数不正确', 400)
+      }
+      if (!Number.isInteger(body.request_expire)) {
+        throw new HttpException('请求超时参数为非整数', 400)
+      } else if (body.request_expire < 0) {
+        throw new HttpException('请求超时参数小于0', 400)
+      } else if (body.request_expire > 1800) {
+        throw new HttpException('请求超时参数大于1800', 400)
+      }
+      if (!isPublic) {
+        if (!Number.isInteger(body.token_expire)) {
+          throw new HttpException('token超时参数为非整数', 400)
+        } else if (body.token_expire < 0) {
+          throw new HttpException('token超时参数小于0', 400)
+        } else if (body.token_expire > 1800) {
+          throw new HttpException('token超时参数大于1800', 400)
+        }
+      }
+      //保存配置，如果已存在就更新它
+      let bucket: Bucket = await this.configService.saveBucketConfig(body)
+      await this.restfulUtil.createDirectory(bucket)
+    } catch (err) {
+      if (err instanceof HttpException) {
+        data.code = err.getStatus()
+        data.message = err.getResponse() + ''
+      } else {
+        console.log(err)
+        data.code = 500
+        data.message = '出现了意外错误' + err.toString()
       }
     }
-    //保存配置，如果已存在就更新它
-    let bucket: Bucket = await this.configService.saveBucketConfig(data, body)
-    //空间配置保存失败
-    if (data.code == 401) {
-      return data
-    }
-    await this.restfulUtil.createDirectory(data, bucket)
     return data
   }
 
