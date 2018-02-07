@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Request, Response, Body, Param, Headers, Query ,Inject} from '@nestjs/common';
+import { Controller, Get, Post, Request, Response, Body, Param, Headers, Query ,Inject,UseFilters} from '@nestjs/common';
+import { UpyunExceptionFilter } from '../exception/UpyunExceptionFilter';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { FileService } from '../service/FileService';
 import { RestfulUtil } from '../util/RestfulUtil';
@@ -15,6 +16,7 @@ import * as  path from 'path';
 /*文件控制器、异步回调通知
 */
 @Controller('upyun/file')
+@UseFilters(new UpyunExceptionFilter())
 export class FileController {
 
   constructor(
@@ -38,10 +40,6 @@ export class FileController {
     let auth = headers['authorization']
     let date = headers['date']
     console.log(body)
-    let data = {
-      code: 200,
-      message: ''
-    }
     //接收到默认MIME类型，说明是上传回调
     if (content_type === 'application/x-www-form-urlencoded') {
       let code = +body.code
