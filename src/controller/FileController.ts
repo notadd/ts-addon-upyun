@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Request, Response, Body, Param, Headers, Query ,Inject,UseFilters} from '@nestjs/common';
+import { Controller, Get, Post, Request, Response, Body, Param, Headers, Query, Inject, UseFilters, HttpException } from '@nestjs/common';
 import { UpyunExceptionFilter } from '../exception/UpyunExceptionFilter';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { FileService } from '../service/FileService';
@@ -45,10 +45,7 @@ export class FileController {
       let code = +body.code
       //上传不成功时，要返回200,提示云存储不再发送回调请求
       if (code !== 200) {
-        //打印出错信息
-        res.sendStatus(200)
-        res.end()
-        return
+        throw new HttpException('上传失败,返回200告诉又拍云不要再发送回调信息', 200)
       }
       //解析出原图文件名
       let name = path.parse(body.url).name
@@ -60,43 +57,29 @@ export class FileController {
       //查找指定空间
       let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
       if (!bucket) {
-        res.sendStatus(200)
-        res.end()
-        return
+        throw new HttpException('空间不存在，说明是内部错误,返回200告诉又拍云不要再发送回调信息', 200)
       }
       //验签获取结果
       let pass = await this.authUtil.notifyVerify(auth, bucket, 'POST', '/upyun/file/notify', date, contentMd5, body)
       //验签不成功，要返回400,提示云存储继续发送回调请求
       if (!pass) {
-        res.sendStatus(400)
-        res.end()
-        return
+        throw new HttpException('验签失败,返回400告诉又拍云继续发送回调信息', 400)
       }
       if (kind === 'image') {
         let image = new Image()
         image.name = name
         image.type = type
-        await this.restfulUtil.deleteFile(data, bucket, image)
+        await this.restfulUtil.deleteFile(bucket, image)
       } else {
         //暂不支持
       }
-      if (data.code === 403) {
-        res.sendStatus(400)
-        res.end()
-        return
-      }
-      res.sendStatus(200)
-      res.end()
-      return
     }
     //如果请求MIME为json类型，说吗为异步预处理回调信息，只有图片保存格式不是原图时采用这种方式
     else if (content_type === 'application/json') {
       let code = body.status_code
-      //上传不成功时，要返回200,提示云存储不再发送回调请求
+      //预处理不成功时，要返回200,提示云存储不再发送回调请求
       if (code !== 200) {
-        res.sendStatus(200)
-        res.end()
-        return
+        throw new HttpException('预处理失败,返回200告诉又拍云不要再发送回调信息', 200)
       }
       //响应体中空间名
       let bucketName = body.bucket_name
@@ -111,19 +94,12 @@ export class FileController {
       let pass = await this.authUtil.taskNotifyVerify(auth, bucket, 'POST', '/upyun/file/notify', date, contentMd5, body)
       //验签不成功，要返回400,提示云存储继续发送回调请求
       if (!pass) {
-        res.sendStatus(400)
-        res.end()
-        return
+        throw new HttpException('验签失败,返回400告诉又拍云继续发送回调信息', 400)
       }
-      await this.fileService.postSaveTask(data, bucket, name, body, kind)
-      if (data.code === 401) {
-        res.sendStatus(400)
-        res.end()
-        return
-      }
-      res.sendStatus(200)
-      res.end()
-      return
+      await this.fileService.postSaveTask(bucket, name, body, kind)
     }
+    res.sendStatus(200)
+    res.end()
+    return
   }
 }
