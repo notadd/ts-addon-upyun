@@ -1,39 +1,34 @@
 import { Query, Resolver, ResolveProperty, Mutation } from '@nestjs/graphql';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { ConfigService } from '../../service/ConfigService';
-import { FileService } from '../../service/FileService'
+import { FileService } from '../../service/FileService';
 import { RestfulUtil } from '../../util/RestfulUtil';
-import { KindUtil } from '../../util/KindUtil'
-import { AuthUtil } from '../../util/AuthUtil'
-import { Document } from '../../model/Document'
+import { InjectRepository } from '@nestjs/typeorm';
+import { Document } from '../../model/Document';
+import { KindUtil } from '../../util/KindUtil';
+import { AuthUtil } from '../../util/AuthUtil';
 import { Bucket } from '../../model/Bucket';
-import { Audio } from '../../model/Audio'
-import { Video } from '../../model/Video'
+import { Audio } from '../../model/Audio';
+import { Video } from '../../model/Video';
 import { Image } from '../../model/Image';
-import { File } from '../../model/File'
-import * as formidable from 'formidable'
-import * as fs from 'fs'
+import * as formidable from 'formidable';
+import { File } from '../../model/File';
+import { Inject } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import * as fs from 'fs';
 
 /* 空间基本配置的resolver */
 @Resolver('Config')
 export class ConfigResolver {
 
-  //有效gravity参数集合，在水印配置中使用
   private readonly gravity: Set<string>
 
   constructor(
-    //文件种类工具
-    private readonly kindUtil: KindUtil,
-    //restful请求工具
-    private readonly restfulUtil: RestfulUtil,
-    //业务逻辑service
-    private readonly configService: ConfigService,
-    //空间配置仓库
-    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>) {
+    @Inject(KindUtil) private readonly kindUtil: KindUtil,
+    @Inject(RestfulUtil) private readonly restfulUtil: RestfulUtil,
+    @Inject(ConfigService) private readonly configService: ConfigService,
+    @Inject('UpyunModule.BucketRepository') private readonly bucketRepository: Repository<Bucket>) {
     this.gravity = new Set(['northwest', 'north', 'northeast', 'west', 'center', 'east', 'southwest', 'south', 'southeast'])
   }
-
 
   /* 配置空间基本信息 */
   @Mutation('bucket')
