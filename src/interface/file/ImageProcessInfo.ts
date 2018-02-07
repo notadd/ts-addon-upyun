@@ -1,5 +1,5 @@
 
-class ResizeData {
+interface ResizeData {
     scale: number
     wscale: number
     hscale: number
@@ -8,12 +8,12 @@ class ResizeData {
     pixel: number
 }
 
-class Resize {
+interface Resize {
     mode: string
     data: ResizeData
 }
 
-class Tailor {
+interface Tailor {
     isBefore: boolean
     width: number
     height: number
@@ -22,13 +22,13 @@ class Tailor {
     gravity: string
 }
 
-class Blur {
+interface Blur {
     redius: number
     sigma: number
 }
 
 
-export class ImagePreProcessInfo {
+export interface ImagePreProcessInfo {
     resize?: Resize
     tailor?: Tailor
     watermark?: boolean
@@ -36,7 +36,7 @@ export class ImagePreProcessInfo {
 }
 
 
-export class ImagePostProcessInfo {
+export interface ImagePostProcessInfo {
     resize?: Resize
     tailor?: Tailor
     watermark?: boolean
