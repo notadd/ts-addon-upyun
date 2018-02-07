@@ -23,9 +23,9 @@ import { Video } from '../../model/Video';
 import { Image } from '../../model/Image';
 import * as  formidable from 'formidable';
 import { File } from '../../model/File';
-
-import * as  path from 'path';
 import { IncomingMessage } from 'http';
+import * as  path from 'path';
+
 
 @Resolver('File')
 export class FileResolver {

@@ -64,20 +64,20 @@ export class FileService {
       //原图不处理
       if (format == 'raw') {
         //保存为原图，为了防止没有预处理字符串时不进行预处理任务，加上了/scale/100
-        obj['x-gmkerl-thumb'] = this.processStringUtil.makeImageProcessString(data, bucket, body.imagePreProcessInfo) + '/scale/100'
+        obj['x-gmkerl-thumb'] = this.processStringUtil.makeImageProcessString(bucket, body.imagePreProcessInfo) + '/scale/100'
         //这里将预处理的文件名设置为刚才保存的文件名，在回调中根据文件名来更新它，保存为原图时，
         obj['save_as'] = '/' + bucket.directory + '/' + file.name + '.' + file.type
         //apps字段应为json字符串
         policy['apps'] = [obj]
       } else if (format == 'webp_damage') {
         //保存为有损webp
-        obj['x-gmkerl-thumb'] = this.processStringUtil.makeImageProcessString(data, bucket, body.imagePreProcessInfo) + '/format/webp/strip/true'
+        obj['x-gmkerl-thumb'] = this.processStringUtil.makeImageProcessString(bucket, body.imagePreProcessInfo) + '/format/webp/strip/true'
         obj['save_as'] = '/' + bucket.directory + '/' + file.name + '.' + 'webp'
         //apps字段应为json字符串
         policy['apps'] = [obj]
       } else if (format == 'webp_undamage') {
         //保存为无损webp
-        obj['x-gmkerl-thumb'] = this.processStringUtil.makeImageProcessString(data, bucket, body.imagePreProcessInfo) + '/format/webp/lossless/true/strip/true'
+        obj['x-gmkerl-thumb'] = this.processStringUtil.makeImageProcessString(bucket, body.imagePreProcessInfo) + '/format/webp/lossless/true/strip/true'
         obj['save_as'] = '/' + bucket.directory + '/' + file.name + '.' + 'webp'
         policy['apps'] = [obj]
       } else {

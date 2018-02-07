@@ -10,6 +10,7 @@ import { HttpException } from '@nestjs/common';
   403：数据库错误
   404：文件不存在
   405：图片处理错误
+  406: 文件处理错误
   500：意外错误
 */
 @Catch(HttpException)

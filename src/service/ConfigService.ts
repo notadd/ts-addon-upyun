@@ -3,18 +3,18 @@ import { Repository, getManager, getConnection, Connection } from 'typeorm';
 import { VideoFormatConfig } from '../interface/config/VideoFormatConfig';
 import { AudioFormatConfig } from '../interface/config/AudioFormatConfig';
 import { ImageFormatConfig } from '../interface/config/ImageFormatConfig';
+import { Component, Inject, HttpException } from '@nestjs/common';
 import { BucketConfig } from '../interface/config/BucketConfig';
 import { ImageConfig } from '../model/ImageConfig';
 import { AudioConfig } from '../model/AudioConfig';
 import { VideoConfig } from '../model/VideoConfig';
-import { Component, Inject, HttpException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RestfulUtil } from '../util/RestfulUtil';
+import { FileUtil } from '../util/FileUtil';
 import { AuthUtil } from '../util/AuthUtil';
 import { Bucket } from '../model/Bucket';
 import { Image } from '../model/Image';
 import * as  crypto from 'crypto';
-import * as  fs from 'fs';
 
 
 /* 配置服务组件，包含了保存公有空间、私有空间、格式、水印等配置项的功能
@@ -24,6 +24,7 @@ import * as  fs from 'fs';
 export class ConfigService {
 
   constructor(
+    @Inject(FileUtil) private readonly fileUtil: FileUtil,
     @Inject(RestfulUtil) private readonly restfulUtil: RestfulUtil,
     @Inject('UpyunModule.ImageRepository') private readonly imageRepository: Repository<Image>,
     @Inject('UpyunModule.BucketRepository') private readonly bucketRepository: Repository<Bucket>,
@@ -130,7 +131,8 @@ export class ConfigService {
     if (buckets.length !== 2) {
       throw new HttpException('空间配置不存在', 401)
     }
-    let md5 = crypto.createHash('md5').update(fs.readFileSync(file.path)).digest('hex')
+    let buffer:Buffer = await this.fileUtil.read(file.path)
+    let md5 = crypto.createHash('md5').update(buffer).digest('hex')
     for (let i = 0; i < buckets.length; i++) {
       if (buckets[i].image_config.format === 'webp_damage' || buckets[i].image_config.format === 'webp_undamage') {
         type = 'webp'

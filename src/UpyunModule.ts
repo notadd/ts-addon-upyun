@@ -13,6 +13,7 @@ import { RestfulUtil } from './util/RestfulUtil';
 import { PromiseUtil } from './util/PromiseUtil';
 import { Document } from './model/Document';
 import { KindUtil } from './util/KindUtil';
+import { FileUtil } from './util/FileUtil';
 import { AuthUtil } from './util/AuthUtil';
 import { Bucket } from './model/Bucket';
 import { Module } from '@nestjs/common';
@@ -25,7 +26,12 @@ import { File } from './model/File';
 @Module({
   modules: [],
   controllers: [FileController],
-  components: [ConnectionProvider,...RepositorysProvider,ConfigResolver, FileResolver, ConfigService, FileService, PromiseUtil,RestfulUtil, KindUtil, AuthUtil, ProcessStringUtil],
+  components: [
+    ConnectionProvider, ...RepositorysProvider,
+    PromiseUtil, FileUtil, AuthUtil, KindUtil, RestfulUtil, ProcessStringUtil,
+    ConfigService, FileService,
+    ConfigResolver, FileResolver
+  ],
   exports: []
 })
 

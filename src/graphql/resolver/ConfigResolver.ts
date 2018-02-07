@@ -1,3 +1,7 @@
+import { EnableImageWatermarkConfig } from '../../interface/config/EnableImageWatermarkConfig';
+import { ImageWatermarkConfig } from '../../interface/config/ImageWatermarkConfig';
+import { AudioFormatConfig } from '../../interface/config/AudioFormatConfig';
+import { VideoFormatConfig } from '../../interface/config/VideoFormatConfig';
 import { Query, Resolver, ResolveProperty, Mutation } from '@nestjs/graphql';
 import { ImageFormatConfig } from '../../interface/config/ImageFormatConfig';
 import { BucketConfig } from '../../interface/config/BucketConfig';
@@ -7,6 +11,7 @@ import { Inject, HttpException } from '@nestjs/common';
 import { RestfulUtil } from '../../util/RestfulUtil';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Document } from '../../model/Document';
+import { FileUtil } from '../../util/FileUtil';
 import { KindUtil } from '../../util/KindUtil';
 import { AuthUtil } from '../../util/AuthUtil';
 import { Data } from '../../interface/Data';
@@ -18,24 +23,19 @@ import * as formidable from 'formidable';
 import { File } from '../../model/File';
 import { IncomingMessage } from 'http';
 import { Repository } from 'typeorm';
-import * as fs from 'fs';
-import { EnableImageWatermarkConfig } from '../../interface/config/EnableImageWatermarkConfig';
-import { ImageWatermarkConfig } from '../../interface/config/ImageWatermarkConfig';
-import { AudioFormatConfig } from '../../interface/config/AudioFormatConfig';
-import { VideoFormatConfig } from '../../interface/config/VideoFormatConfig';
 
 /* 空间基本配置的resolver */
 @Resolver('Config')
 export class ConfigResolver {
 
-  private readonly gravity: Set<string>
+  private readonly gravity: Set<string> = new Set(['northwest', 'north', 'northeast', 'west', 'center', 'east', 'southwest', 'south', 'southeast'])
   constructor(
+    @Inject(FileUtil) private readonly fileUtil: FileUtil,
     @Inject(KindUtil) private readonly kindUtil: KindUtil,
     @Inject(RestfulUtil) private readonly restfulUtil: RestfulUtil,
     @Inject(ConfigService) private readonly configService: ConfigService,
-    @Inject('UpyunModule.BucketRepository') private readonly bucketRepository: Repository<Bucket>) {
-    this.gravity = new Set(['northwest', 'north', 'northeast', 'west', 'center', 'east', 'southwest', 'south', 'southeast'])
-  }
+    @Inject('UpyunModule.BucketRepository') private readonly bucketRepository: Repository<Bucket>
+  ) {}
 
   /* 配置空间基本信息 */
   @Mutation('bucket')
@@ -116,7 +116,7 @@ export class ConfigResolver {
   async  enableImageWatermark(req: IncomingMessage, body: EnableImageWatermarkConfig): Promise<Data> {
     let data: Data = {
       code: 200,
-      message: ''
+      message: '启用图片水印成功'
     }
     try {
       //这里在schema中定义为枚举值，接受到参数为string
@@ -156,7 +156,7 @@ export class ConfigResolver {
     let tempPath = __dirname + '/' + body.name
     try {
       let { name, base64, gravity, opacity, x, y, ws } = body
-      fs.writeFileSync(tempPath, Buffer.from(base64, 'base64'))
+      await this.fileUtil.write(tempPath, Buffer.from(base64, 'base64'))
       let obj: any = {}
       let file: any = {}
       obj.x = x
@@ -205,7 +205,7 @@ export class ConfigResolver {
         data.message = '出现了意外错误' + err.toString()
       }
     } finally {
-      fs.unlinkSync(tempPath)
+      await this.fileUtil.delete(tempPath)
     }
     return data
   }
