@@ -1,10 +1,18 @@
 import { ImagePostProcessInfo, ImagePreProcessInfo } from '../interface/file/ImageProcessInfo';
 import { HttpException, Component, Inject } from '@nestjs/common';
+import { ProcessStringUtil } from '../util/ProcessStringUtil';
 import { Repository, Connection } from 'typeorm';
+import { Document } from '../model/Document';
+import { AuthUtil } from '../util/AuthUtil';
 import { KindUtil } from '../util/KindUtil';
+import { FileUtil } from '../util/FileUtil';
 import { Bucket } from '../model/Bucket';
+import { Video } from '../model/Video';
+import { Audio } from '../model/Audio';
 import { Image } from '../model/Image';
+import { File } from '../model/File';
 import * as path from 'path';
+import { RestfulUtil } from '../util/RestfulUtil';
 
 
 class StoreComponent {
@@ -12,13 +20,12 @@ class StoreComponent {
     constructor(
         @Inject(KindUtil) private readonly kindUtil: KindUtil,
         @Inject(FileUtil) private readonly fileUtil: FileUtil,
-        @Inject(TokenUtil) private readonly tokenUtil: TokenUtil,
-        @Inject(ImageProcessUtil) private readonly imageProcessUtil: ImageProcessUtil,
-        @Inject('LocalModule.ImageRepository') private readonly imageRepository: Repository<Image>,
-        @Inject('LocalModule.BucketRepository') private readonly bucketRepository: Repository<Bucket>
-    ) {
-        this.kindUtil = new KindUtil()
-    }
+        @Inject(AuthUtil) private readonly authUtil: AuthUtil,
+        @Inject(RestfulUtil) private readonly resufulUtil: RestfulUtil,
+        @Inject(ProcessStringUtil) private readonly processStringUtil: ProcessStringUtil,
+        @Inject('UpyunModule.ImageRepository') private readonly imageRepository: Repository<Image>,
+        @Inject('UpyunModule.BucketRepository') private readonly bucketRepository: Repository<Bucket>
+    ) {}
 
     async delete(bucketName: string, name: string, type: string): Promise<void> {
         //验证参数
@@ -30,22 +37,19 @@ class StoreComponent {
             throw new HttpException('指定空间' + bucketName + '不存在', 401)
         }
         //根据文件种类，查找、删除数据库
+        let file:Image|Audio|Video|Document|File
         let kind = this.kindUtil.getKind(type)
         if (kind === 'image') {
-            let image: Image = await this.imageRepository.findOne({ name, bucketId: bucket.id })
-            if (!image) {
+            file = await this.imageRepository.findOne({ name, bucketId: bucket.id })
+            if (!file) {
                 throw new HttpException('文件' + name + '不存在于数据库中', 404)
             }
-            await this.imageRepository.delete({ name, bucketId: bucket.id })
+            await this.imageRepository.deleteById(file.id)
         } else {
             //其他类型暂不支持
         }
-        //删除目录下存储文件
-        let realPath = path.resolve(__dirname, '../../', 'store', bucketName, name + '.' + type)
-        if (!this.fileUtil.exist(realPath)) {
-            throw new HttpException('要删除的文件不存在', 404)
-        }
-        await this.fileUtil.delete(realPath)
+        await this.resufulUtil.deleteFile(bucket,file)
+        return 
     }
 
     async upload(bucketName: string, rawName: string, base64: string): Promise<{ bucketName: string, name: string, type: string }> {
