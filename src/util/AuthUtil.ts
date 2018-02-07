@@ -13,7 +13,6 @@ export class AuthUtil {
 
   constructor() { }
 
-
   /* 获取请求头信息中签名，restfulAPI与form回调通知签名使用这种签名方式
     @Param data：响应信息
     @Param bucket：空间配置

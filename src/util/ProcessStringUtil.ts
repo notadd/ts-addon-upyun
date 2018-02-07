@@ -1,28 +1,18 @@
+import { ImagePostProcessInfo, ImagePreProcessInfo } from '../interface/file/ImageProcessInfo';
 import { Component, Inject } from '@nestjs/common';
+import { Bucket } from '../model/Bucket';
+import { KindUtil } from './KindUtil';
 import { isArray } from 'util';
-import { Bucket } from '../model/Bucket'
-import { ImagePostProcessInfo, ImagePreProcessInfo } from '../interface/file/ImageProcessInfo'
-
 
 /* URL做图处理字符串服务，可以根据请求体参数，拼接URL处理字符串 */
 @Component()
 export class ProcessStringUtil {
     private readonly gravity: Set<string>
-    private readonly font: Map<string, string>
-    private readonly colorRegex: RegExp
-    private readonly borderRegex: RegExp
-    private readonly format: Set<string>
-    constructor() {
+    constructor(
+        @Inject(KindUtil) private readonly kindUtil: KindUtil
+    ) {
         //重心集合，在裁剪与水印中使用
         this.gravity = new Set(['northwest', 'north', 'northeast', 'west', 'center', 'east', 'southwest', 'south', 'southeast'])
-        //字体集合，在文字水印中使用
-        this.font = new Map([['宋体', 'simsun'], ['黑体', 'simhei'], ['楷体', 'simkai'], ['隶书', 'simli'], ['幼圆', 'simyou'], ['仿宋', 'simfang'], ['简体中文', 'sc'], ['繁体中文', 'tc'], ['Arial', 'arial'], ['Georgia', 'georgia'], ['Helvetica', 'helvetica'], ['Times-New-Roman', 'roman']])
-        //验证RGB颜色的正则表达式
-        this.colorRegex = new RegExp('^[0-9A-F]{6}$', 'g')
-        //验证文字描边的正则表达式
-        this.borderRegex = new RegExp('^[0-9A-F]{8}$', 'g')
-        //图片后处理保存格式集合
-        this.format = new Set(['jpeg', 'png', 'webp'])
     }
 
     //根据请求体参数生成处理字符串
@@ -34,44 +24,27 @@ export class ProcessStringUtil {
         if (data.code !== 200) {
             return ''
         }
-        //console.log('1:'+processString)
-
         if (imageProcessInfo.tailor) processString += this.tailorString(data, imageProcessInfo.tailor)
         if (data.code !== 200) {
             return ''
         }
-        //console.log('2:'+processString)
-        /*停止圆角功能
-        if(imageProcessInfo.roundrect) processString += this.roundrectString(data,imageProcessInfo.roundrect)
-        if(data.code !== 200){
-            return ''
-        } */
-        //console.log('3:'+processString)
-
         processString += this.watermarkString(data, imageProcessInfo.watermark, bucket)
         if (data.code !== 200) {
             return ''
         }
-        //console.log('4:'+processString)
-
         if (imageProcessInfo.rotate) processString += this.rotateString(data, imageProcessInfo.rotate)
         if (data.code !== 200) {
             return ''
         }
-        //console.log('5:'+processString)
-
         if (imageProcessInfo.blur) processString += this.blurString(data, imageProcessInfo.blur)
         if (data.code !== 200) {
             return ''
         }
-        //console.log('6:'+processString)
-
         if (imageProcessInfo.sharpen || imageProcessInfo.format || imageProcessInfo.lossless || imageProcessInfo.quality || imageProcessInfo.progressive || imageProcessInfo.strip)
             processString += this.outputString(data, imageProcessInfo.sharpen, imageProcessInfo.format, imageProcessInfo.lossless, imageProcessInfo.quality, imageProcessInfo.progressive, imageProcessInfo.strip)
         if (data.code !== 200) {
             return ''
         }
-        //console.log('7:'+processString)
         return processString
     }
 
@@ -335,195 +308,6 @@ export class ProcessStringUtil {
 
         }
         return str
-
-        /*这段代码当使用自定义水印时用
-        if(!watermark){
-            return ''
-        }else if(isArray(watermark)){
-            let str = ''
-            for(let i=0;i<watermark.length;i++){
-                if(watermark[i].mode=='image'){
-                    let {url,gravity,x,y,opacity,ws,repeat,animate} = watermark[i].data
-
-                    if(!url){
-                        data.code = 409
-                        data.message = '图片url不存在'
-                        return ''
-                    }else{
-                        str += '/watermark/url/'+Buffer.from(url).toString('base64')
-                    }
-
-                    if(gravity&&!this.gravity.has(gravity)){
-                        data.code = 409
-                        data.message = '重心参数不正确'
-                        return ''
-                    }else if(!gravity){
-                        str+= '/align/northwest'
-                    }else{
-                        str+= '/align/'+gravity
-                    }
-
-                    if((x&&!Number.isInteger(x))||(y&&!Number.isInteger(y))){
-                        data.code = 409
-                        data.message = '偏移参数不正确'
-                        return ''
-                    }else if(!x&&!y){
-                        str+='/margin/20x20'
-                    }else if(!x&&y){
-                        str+='/margin/20x'+y
-                    }else if(x&&!y){
-                        str+='/margin/'+x+'x20'
-                    }else{
-                        str+='/margin/'+x+'x'+y
-                    }
-
-                    if(opacity&&!Number.isInteger(opacity)){
-                        data.code = 409
-                        data.message = '透明度参数不正确'
-                        return ''
-                    }else if(!opacity){
-                        //默认为100，不用管
-                    }else{
-                        str+='/opacity/'+opacity
-                    }
-
-                    if(ws&&Number.isInteger(ws)&&ws>=1&&ws<=100){
-                        str+='/percent/'+ws
-                    }else if(!ws){
-                        //默认为0，不用管
-                    }else{
-                        data.code = 409
-                        data.message = '短边自适应参数不正确'
-                        return ''
-                    }
-
-                    if(repeat&&repeat!==true&&repeat!==false){
-                        data.code = 409
-                        data.message = 'repeat参数不正确'
-                        return ''
-                    }else if(repeat===true){
-                        str+='/repeat/true'
-                    }else{
-                        //默认不管
-                    }
-
-                    if(animate&&animate!==true&&animate!==false){
-                        data.code = 409
-                        data.message = 'animate参数不正确'
-                        return ''
-                    }else if(animate===true){
-                        str+='/animate/true'
-                    }else{
-                        //默认不管
-                    }
-
-                }else if(watermark[i].mode=='text'){
-                    let {text,size,font,color,border,gravity,x,y,opacity,animate} = watermark[i].data
-
-                    if(!text){
-                        data.code = 409
-                        data.message = '水印文本不存在'
-                        return ''
-                    }else{
-                        str+='/watermark/text/'+Buffer.from(text).toString('base64')
-                    }
-
-                    if(size&&Number.isInteger(size)){
-                        str+='/size/'+size
-                    }else if(!size){
-                        str+='/size/32'
-                    }else{
-                        data.code = 409
-                        data.message = '文字大小不正确'
-                        return ''
-                    }
-                    
-                    if(font&&this.font.has(font)){
-                        str+='/font/'+font
-                    }else if(!font){
-                        str+='/font/simsun'
-                    }else{
-                        data.code = 409
-                        data.message = '文字字体不正确'
-                        return ''
-                    }
-
-                    if(color&&!this.colorRegex.test(color)){
-                        data.code = 409
-                        data.message = '文字颜色不正确'
-                        return ''
-                    }else if(!color){
-                        //默认为黑色不管
-                    }else{
-                        str+='/color/'+color
-                    }
-
-                    if(border&&!this.borderRegex.test(border)){
-                        data.code = 409
-                        data.message = '文字描边不正确'
-                        return ''
-                    }else if(!border){
-                        //默认为黑色不管
-                    }else{
-                        str+='/border/'+border
-                    }
-
-                    if(gravity&&!this.gravity.has(gravity)){
-                        data.code = 409
-                        data.message = '重心参数不正确'
-                        return ''
-                    }else if(!gravity){
-                        str+= '/align/northwest'
-                    }else{
-                        str+= '/align/'+gravity
-                    }
-
-                    if((x&&!Number.isInteger(x))||(y&&!Number.isInteger(y))){
-                        data.code = 409
-                        data.message = '偏移参数不正确'
-                        return ''
-                    }else if(!x&&!y){
-                        str+='/margin/20x20'
-                    }else if(!x&&y){
-                        str+='/margin/20x'+y
-                    }else if(x&&!y){
-                        str+='/margin/'+x+'x20'
-                    }else{
-                        str+='/margin/'+x+'x'+y
-                    }
-
-                    if(opacity&&!Number.isInteger(opacity)){
-                        data.code = 409
-                        data.message = '透明度参数不正确'
-                        return ''
-                    }else if(!opacity){
-                        //默认为100，不用管
-                    }else{
-                        str+='/opacity/'+opacity
-                    }
-
-                    if(animate&&animate!==true&&animate!==false){
-                        data.code = 409
-                        data.message = 'animate参数不正确'
-                        return ''
-                    }else if(animate===true){
-                        str+='/animate/true'
-                    }else{
-                        //默认不管
-                    }
-                }else{
-                    data.code = 409
-                    data.message = '水印模式不正确'
-                    return ''
-                }
-            }
-            return str
-        }else{
-            data.code = 409
-            data.message = '水印参数不正确'
-            return ''
-        }
-    */
     }
 
     rotateString(data: any, rotate: number) {
@@ -570,9 +354,9 @@ export class ProcessStringUtil {
             //false或者不存在都不管
         }
 
-        if (format && this.format.has(format)) {
+        if (format && this.kindUtil.isImage(format)) {
             str += '/format/' + format
-        } else if (format && !this.format.has(format)) {
+        } else if (format && !this.kindUtil.isImage(format)) {
             data.code = 427
             data.message = '格式参数不正确'
             return ''
