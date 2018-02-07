@@ -1,6 +1,7 @@
 import { ImagePostProcessInfo, ImagePreProcessInfo } from '../interface/file/ImageProcessInfo';
 import { HttpException, Component, Inject } from '@nestjs/common';
 import { ProcessStringUtil } from '../util/ProcessStringUtil';
+import { RestfulUtil } from '../util/RestfulUtil';
 import { Repository, Connection } from 'typeorm';
 import { Document } from '../model/Document';
 import { AuthUtil } from '../util/AuthUtil';
@@ -11,8 +12,9 @@ import { Video } from '../model/Video';
 import { Audio } from '../model/Audio';
 import { Image } from '../model/Image';
 import { File } from '../model/File';
+import * as crypto from 'crypto';
 import * as path from 'path';
-import { RestfulUtil } from '../util/RestfulUtil';
+import * as os from 'os';
 
 
 class StoreComponent {
@@ -25,7 +27,7 @@ class StoreComponent {
         @Inject(ProcessStringUtil) private readonly processStringUtil: ProcessStringUtil,
         @Inject('UpyunModule.ImageRepository') private readonly imageRepository: Repository<Image>,
         @Inject('UpyunModule.BucketRepository') private readonly bucketRepository: Repository<Bucket>
-    ) {}
+    ) { }
 
     async delete(bucketName: string, name: string, type: string): Promise<void> {
         //验证参数
@@ -37,7 +39,7 @@ class StoreComponent {
             throw new HttpException('指定空间' + bucketName + '不存在', 401)
         }
         //根据文件种类，查找、删除数据库
-        let file:Image|Audio|Video|Document|File
+        let file: Image | Audio | Video | Document | File
         let kind = this.kindUtil.getKind(type)
         if (kind === 'image') {
             file = await this.imageRepository.findOne({ name, bucketId: bucket.id })
@@ -48,15 +50,16 @@ class StoreComponent {
         } else {
             //其他类型暂不支持
         }
-        await this.resufulUtil.deleteFile(bucket,file)
-        return 
+        await this.resufulUtil.deleteFile(bucket, file)
+        return
     }
 
-    async upload(bucketName: string, rawName: string, base64: string): Promise<{ bucketName: string, name: string, type: string }> {
-        let tempPath: string = path.resolve(__dirname, '../', 'store', 'temp', (+new Date()) + '' + rawName)
+    async upload(bucketName: string, rawName: string, base64: string, imagePreProcessInfo: ImagePreProcessInfo): Promise<{ bucketName: string, name: string, type: string }> {
+
         if (!bucketName || !rawName || !base64) {
             throw new HttpException('缺少参数', 400)
         }
+
         let bucket: Bucket = await this.bucketRepository.createQueryBuilder('bucket')
             .leftJoinAndSelect('bucket.image_config', 'image_config')
             .where('bucket.name = :name', { name: bucketName })
@@ -64,43 +67,36 @@ class StoreComponent {
         if (!bucket) {
             throw new HttpException('指定空间' + bucketName + '不存在', 401)
         }
-        await this.fileUtil.write(tempPath, Buffer.from(base64, 'base64'))
-        let metadata: ImageMetadata
+
+        let buffer: Buffer = Buffer.from(base64, 'base64')
+        let md5 = crypto.createHash('md5').update(buffer).digest('hex')
+        let name = md5 + '_' + (+new Date())
+        let tempPath = os.tmpdir + '/' + rawName
+        await this.fileUtil.write(tempPath, buffer)
+        let file: Image | Audio | Video | Document | File
+        let uploadFile = { path: tempPath }
         let type: string = rawName.substring(rawName.lastIndexOf('.') + 1)
-        //根据文件种类
+        if (bucket.image_config.format === 'webp_damage' || bucket.image_config.format === 'webp_undamage') {
+            type = 'webp'
+        }
         let kind: string = this.kindUtil.getKind(type)
         try {
             if (kind === 'image') {
-                let imagePostProcessInfo: ImagePostProcessInfo
-                let format = bucket.image_config.format || 'raw'
-                //根据不同的图片保存类型，处理并且存储图片，返回处理后元数据
-                if (format === 'raw') {
-                    imagePostProcessInfo = { strip: true, watermark: false }
-                } else if (format === 'webp_damage') {
-                    imagePostProcessInfo = { format: 'webp', strip: true, watermark: false }
-                } else if (format === 'webp_undamage') {
-                    imagePostProcessInfo = { format: 'webp', lossless: true, strip: true, watermark: false }
-                }
-                metadata = await this.imageProcessUtil.processAndStore(tempPath, bucket, imagePostProcessInfo)
-                let image: Image = new Image()
-                image.bucket = bucket
-                image.raw_name = rawName
-                image.name = metadata.name
-                image.type = metadata.format
-                image.width = metadata.width
-                image.height = metadata.height
-                image.size = metadata.size
-                let isExist: Image = await this.imageRepository.findOne({ name: metadata.name, bucketId: bucket.id })
-                //只有指定路径图片不存在时才会保存
-                if (!isExist) {
-                    try {
-                        await this.imageRepository.save(image)
-                    } catch (err) {
-                        //保存图片出现错误，要删除存储图片
-                        await this.fileUtil.delete(path.resolve(__dirname, '../', 'store', bucket.name, image.name + '.' + image.type))
-                        throw new HttpException('上传图片保存失败' + err.toString(), 410)
-                    }
-                }
+                let { width, height, frames } = await this.resufulUtil.uploadFile(bucket, file, uploadFile, imagePreProcessInfo)
+                let { file_size, file_md5 } = await this.resufulUtil.getFileInfo(bucket, file)
+                file = this.imageRepository.create({
+                    bucket,
+                    raw_name: rawName,
+                    name,
+                    type,
+                    width,
+                    height,
+                    frames,
+                    size: file_size,
+                    md5: file_md5,
+                    status: 'post'
+                })
+                await this.imageRepository.save(file)
             } else {
                 //其他类型暂不支持
             }
@@ -110,7 +106,7 @@ class StoreComponent {
             //如果中间过程抛出了异常，要保证删除临时图片
             await this.fileUtil.deleteIfExist(tempPath)
         }
-        return { bucketName, name: metadata.name, type: metadata.format }
+        return { bucketName, name, type }
     }
 
     async getUrl(req: any, bucketName: string, name: string, type: string, imagePostProcessInfo: ImagePostProcessInfo): Promise<string> {

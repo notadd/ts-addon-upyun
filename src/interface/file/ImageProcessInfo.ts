@@ -36,7 +36,7 @@ export interface ImagePreProcessInfo {
 }
 
 
-export interface ImagePostProcessInfo {
+export class ImagePostProcessInfo {
     resize?: Resize
     tailor?: Tailor
     watermark?: boolean

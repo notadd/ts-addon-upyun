@@ -1,3 +1,4 @@
+import { ImagePostProcessInfo, ImagePreProcessInfo } from '../interface/file/ImageProcessInfo';
 import { Component, Inject, HttpException } from '@nestjs/common';
 import { Document } from '../model/Document';
 import { PromiseUtil } from './PromiseUtil';
@@ -11,6 +12,7 @@ import * as request from 'request';
 import * as crypto from 'crypto';
 import * as mime from 'mime';
 import * as fs from 'fs';
+import { ProcessStringUtil } from './ProcessStringUtil';
 
 
 /* 包含了restfulAPI的各种功能 
@@ -21,11 +23,12 @@ export class RestfulUtil {
   private readonly apihost = 'http://v0.api.upyun.com'
   constructor(
     @Inject(AuthUtil) private readonly authUtil: AuthUtil,
-    @Inject(PromiseUtil) private readonly promiseUtil: PromiseUtil
+    @Inject(PromiseUtil) private readonly promiseUtil: PromiseUtil,
+    @Inject(ProcessStringUtil) private readonly processStringUtil: ProcessStringUtil
   ) { }
 
   //上传文件，其中文件信息来自于formidable解析得到的File对象
-  async uploadFile(bucket: Bucket, file: File | Image | Video | Audio | Document, uploadFile: any): Promise<{ width: number, height: number, frames: number }> {
+  async uploadFile(bucket: Bucket, file: File | Image | Video | Audio | Document, uploadFile: any, imagePreProcessInfo: ImagePreProcessInfo): Promise<{ width: number, height: number, frames: number }> {
     let contentMd5 = file.md5
     let save_key = '/' + bucket.directory + '/' + file.name + '.' + file.type
     let requestUrl = this.apihost + '/' + bucket.name + save_key
@@ -33,13 +36,13 @@ export class RestfulUtil {
     let date: string = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
     let Authorization = await this.authUtil.getHeaderAuth(bucket, 'PUT', url, date, contentMd5)
     let format = bucket.image_config.format || 'raw'
-    let x_gmkerl_thumb
+    let x_gmkerl_thumb = this.processStringUtil.makeImageProcessString(bucket,imagePreProcessInfo)
     if (format === 'raw') {
-      x_gmkerl_thumb = '/scale/100'
+      x_gmkerl_thumb += '/scale/100'
     } else if (format === 'webp_damage') {
-      x_gmkerl_thumb = '/format/webp/strip/true'
+      x_gmkerl_thumb += '/format/webp/strip/true'
     } else {
-      x_gmkerl_thumb = '/format/webp/lossless/true/strip/true'
+      x_gmkerl_thumb += '/format/webp/lossless/true/strip/true'
     }
     let height, width, frames
     await this.promiseUtil.do((resolve, reject) => {
@@ -233,7 +236,7 @@ export class RestfulUtil {
         }
       }, (err, res, body) => {
         if (err) {
-          reject(new HttpException('获取文件信息失败',402))
+          reject(new HttpException('获取文件信息失败', 402))
           return
         }
         if (res.statusCode == 200) {
@@ -249,7 +252,7 @@ export class RestfulUtil {
           resolve()
           return
         }
-        reject(new HttpException('获取文件列表失败',402))
+        reject(new HttpException('获取文件列表失败', 402))
         return
       });
     })

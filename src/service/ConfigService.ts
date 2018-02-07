@@ -131,7 +131,7 @@ export class ConfigService {
     if (buckets.length !== 2) {
       throw new HttpException('空间配置不存在', 401)
     }
-    let buffer:Buffer = await this.fileUtil.read(file.path)
+    let buffer: Buffer = await this.fileUtil.read(file.path)
     let md5 = crypto.createHash('md5').update(buffer).digest('hex')
     for (let i = 0; i < buckets.length; i++) {
       if (buckets[i].image_config.format === 'webp_damage' || buckets[i].image_config.format === 'webp_undamage') {
@@ -145,7 +145,7 @@ export class ConfigService {
       image.name = md5 + '_' + (+new Date())
       image.type = type
       image.status = 'post'
-      let { width, height, frames } = await this.restfulUtil.uploadFile(buckets[i], image, file)
+      let { width, height, frames } = await this.restfulUtil.uploadFile(buckets[i], image, file, null)
       let { file_size, file_md5 } = await this.restfulUtil.getFileInfo(buckets[i], image)
       image.width = width
       image.height = height

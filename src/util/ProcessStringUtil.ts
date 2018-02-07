@@ -13,16 +13,21 @@ export class ProcessStringUtil {
     ) { }
 
     //根据请求体参数生成处理字符串
-    makeImageProcessString(bucket: Bucket, imageProcessInfo: ImagePostProcessInfo & ImagePreProcessInfo = {}): string {
+    makeImageProcessString(bucket: Bucket, imageProcessInfo: ImagePostProcessInfo | ImagePreProcessInfo): string {
         //分别获取缩放、裁剪、水印、旋转、圆角、高斯模糊、锐化、输出格式、图片质量、是否渐进显示、是否去除元信息等参数
         let processString = ''
+        if(!imageProcessInfo || !bucket){
+            return processString
+        }
         if (imageProcessInfo.resize) processString += this.resizeString(imageProcessInfo.resize)
         if (imageProcessInfo.tailor) processString += this.tailorString(imageProcessInfo.tailor)
         processString += this.watermarkString(imageProcessInfo.watermark, bucket)
         if (imageProcessInfo.rotate) processString += this.rotateString(imageProcessInfo.rotate)
-        if (imageProcessInfo.blur) processString += this.blurString(imageProcessInfo.blur)
-        if (imageProcessInfo.sharpen || imageProcessInfo.format || imageProcessInfo.lossless || imageProcessInfo.quality || imageProcessInfo.progressive || imageProcessInfo.strip)
-            processString += this.outputString(imageProcessInfo.sharpen, imageProcessInfo.format, imageProcessInfo.lossless, imageProcessInfo.quality, imageProcessInfo.progressive, imageProcessInfo.strip)
+        if (imageProcessInfo instanceof ImagePostProcessInfo) {
+            if (imageProcessInfo.blur) processString += this.blurString(imageProcessInfo.blur)
+            if (imageProcessInfo.sharpen || imageProcessInfo.format || imageProcessInfo.lossless || imageProcessInfo.quality || imageProcessInfo.progressive || imageProcessInfo.strip)
+                processString += this.outputString(imageProcessInfo.sharpen, imageProcessInfo.format, imageProcessInfo.lossless, imageProcessInfo.quality, imageProcessInfo.progressive, imageProcessInfo.strip)
+        }
         return processString
     }
 
