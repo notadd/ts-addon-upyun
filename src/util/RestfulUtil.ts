@@ -25,7 +25,7 @@ export class RestfulUtil {
   ) {}
 
   //上传文件，其中文件信息来自于formidable解析得到的File对象
-  async uploadFile(data: any, bucket: Bucket, file: File | Image | Video | Audio | Document, uploadFile: any): Promise<any> {
+  async uploadFile(bucket: Bucket, file: File | Image | Video | Audio | Document, uploadFile: any): Promise<{ width: number, height: number, frames: number }> {
     let contentMd5 = file.md5
     let save_key = '/' + bucket.directory + '/' + file.name + '.' + file.type
     let requestUrl = this.apihost + '/' + bucket.name + save_key
@@ -42,7 +42,7 @@ export class RestfulUtil {
       x_gmkerl_thumb = '/format/webp/lossless/true/strip/true'
     }
     let height, width, frames
-    await new Promise((resolve, reject) => {
+    await this.promiseUtil.do((resolve, reject) => {
       fs.createReadStream(uploadFile.path).pipe(request.put({
         url: requestUrl,
         headers: {
@@ -55,14 +55,10 @@ export class RestfulUtil {
         }
       }, (err, res, body) => {
         if (err) {
-          data.code = 402
-          data.message = '文件上传失败,网络错误'
-          resolve()
+          reject(new HttpException('文件上传失败,网络错误', 402))
           return
         }
         if (res.statusCode === 200) {
-          data.code = 200
-          data.message = '文件上传成功'
           width = res.headers['x-upyun-width']
           height = res.headers['x-upyun-height']
           frames = res.headers['x-upyun-frames']
@@ -72,23 +68,16 @@ export class RestfulUtil {
         if (body) {
           try {
             let { msg, code, id } = JSON.parse(body)
-            data.code = code
-            data.message = msg
+            reject(new HttpException(msg, code))
           } catch (err) {
-            data.code = 402
-            data.message = '响应体解析错误'
+            reject(new HttpException('响应体解析错误', 402))
           }
         } else {
-          data.code = 402
-          data.message = '响应体不存在'
+          reject(new HttpException('响应体不存在', 402))
         }
-        resolve()
         return
       }))
     })
-    if (data.code == 402) {
-      return {}
-    }
     return { width, height, frames }
   }
 
@@ -112,8 +101,8 @@ export class RestfulUtil {
       },
         (err, res, body) => {
           if (err) {
-            reject(new HttpException('目录创建失败，网络错误',402))
-            return 
+            reject(new HttpException('目录创建失败，网络错误', 402))
+            return
           }
           if (res.statusCode === 200) {
             resolve()
@@ -122,12 +111,12 @@ export class RestfulUtil {
           if (body) {
             try {
               let { msg, code, id } = JSON.parse(body)
-              reject(new HttpException(msg,code))
+              reject(new HttpException(msg, code))
             } catch (err) {
-              reject(new HttpException('响应体解析错误',402))
+              reject(new HttpException('响应体解析错误', 402))
             }
           } else {
-            reject(new HttpException('响应体不存在',402))
+            reject(new HttpException('响应体不存在', 402))
           }
           return
         })
