@@ -10,20 +10,22 @@ import { AllBody } from '../../interface/file/AllBody';
 import { AllData } from '../../interface/file/AllData';
 import { OneBody } from '../../interface/file/OneBody';
 import { OneData } from '../../interface/file/OneData';
+import { Inject, HttpException } from '@nestjs/common';
 import { RestfulUtil } from '../../util/RestfulUtil';
 import { Policy } from '../../interface/file/Policy';
-import { CommonData } from '../../interface/Common';
 import { Document } from '../../model/Document';
 import { KindUtil } from '../../util/KindUtil';
 import { AuthUtil } from '../../util/AuthUtil';
 import { Bucket } from '../../model/Bucket';
+import { Data } from '../../interface/Data';
 import { Audio } from '../../model/Audio';
 import { Video } from '../../model/Video';
 import { Image } from '../../model/Image';
 import * as  formidable from 'formidable';
 import { File } from '../../model/File';
-import { Inject } from '@nestjs/common';
+
 import * as  path from 'path';
+import { IncomingMessage } from 'http';
 
 @Resolver('File')
 export class FileResolver {
@@ -40,7 +42,7 @@ export class FileResolver {
   }
 
   @Query('downloadProcess')
-  async downloadProcess(req: any, body: FileLocationBody): Promise<DownloadProcessData> {
+  async downloadProcess(req: IncomingMessage, body: FileLocationBody): Promise<DownloadProcessData> {
     let data: DownloadProcessData = {
       code: 200,
       message: '下载预处理成功',
@@ -51,33 +53,39 @@ export class FileResolver {
       },
       url: 'http://v0.api.upyun.com'
     }
-    let { bucketName, name, type } = body
-    if (!bucketName || !name) {
-      data.message = '缺少参数'
-      return data
+    try {
+      let { bucketName, name, type } = body
+      if (!bucketName || !name) {
+        throw new HttpException('缺少参数',400)
+      }
+      let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
+      if (!bucket) {
+        throw new HttpException('指定空间' + bucketName + '不存在',401)
+      }
+      let kind
+      let status = 'post'
+      let file: File | Audio | Video | Image | Document
+      if (this.kindUtil.isImage(type)) {
+        file = await this.imageRepository.findOne({ name, type, bucketId: bucket.id })
+      } else {
+        //其他类型暂不支持
+      }
+      if (!file) {
+        throw new HttpException('指定文件' + name + '不存在',402)
+      }
+      data.url += '/' + bucket.name + '/' + bucket.directory + '/' + file.name + '.' + file.type
+      data.headers.date = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
+      data.headers.authorization = await this.authUtil.getHeaderAuth(bucket, 'GET', data.url.replace('http://v0.api.upyun.com', ''), data.headers.date, '')
+    } catch (err) {
+      if (err instanceof HttpException) {
+        data.code = err.getStatus()
+        data.message = err.getResponse() + ''
+      } else {
+        console.log(err)
+        data.code = 500
+        data.message = '出现了意外错误' + err.toString()
+      }
     }
-    let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
-    if (!bucket) {
-      data.code = 401
-      data.message = '指定空间' + bucketName + '不存在'
-      return
-    }
-    let kind
-    let status = 'post'
-    let file: File | Audio | Video | Image | Document
-    if (this.kindUtil.isImage(type)) {
-      file = await this.imageRepository.findOne({ name, type, bucketId: bucket.id })
-    } else {
-      //其他类型暂不支持
-    }
-    if (!file) {
-      data.code = 402
-      data.message = '指定文件' + name + '不存在'
-      return data
-    }
-    data.url += '/' + bucket.name + '/' + bucket.directory + '/' + file.name + '.' + file.type
-    data.headers.date = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
-    data.headers.authorization = await this.authUtil.getHeaderAuth(bucket, 'GET', data.url.replace('http://v0.api.upyun.com', ''), data.headers.date, '')
     return data
   }
 

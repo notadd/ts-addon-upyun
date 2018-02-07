@@ -21,6 +21,8 @@ import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import { EnableImageWatermarkConfig } from '../../interface/config/EnableImageWatermarkConfig';
 import { ImageWatermarkConfig } from '../../interface/config/ImageWatermarkConfig';
+import { AudioFormatConfig } from '../../interface/config/AudioFormatConfig';
+import { VideoFormatConfig } from '../../interface/config/VideoFormatConfig';
 
 /* 空间基本配置的resolver */
 @Resolver('Config')
@@ -164,31 +166,31 @@ export class ConfigResolver {
       file.name = name
       file.path = __dirname + '/' + name
       if (!this.gravity.has(obj.gravity)) {
-        throw new HttpException('不允许的水印图片位置',400)
+        throw new HttpException('不允许的水印图片位置', 400)
       }
       if (!Number.isInteger(obj.x)) {
-        throw new HttpException('x偏移不是整数',400)
+        throw new HttpException('x偏移不是整数', 400)
       }
       if (!Number.isInteger(obj.y)) {
-        throw new HttpException('y偏移不是整数',400)
+        throw new HttpException('y偏移不是整数', 400)
       }
       if (!Number.isInteger(obj.opacity)) {
-        throw new HttpException('透明度不是整数',400)
+        throw new HttpException('透明度不是整数', 400)
       } else if (obj.opacity <= 0) {
-        throw new HttpException('透明度不大于0',400)
+        throw new HttpException('透明度不大于0', 400)
       } else if (obj.opacity > 100) {
-        throw new HttpException('透明度大于100',400)
+        throw new HttpException('透明度大于100', 400)
       } else {
       }
       if (!Number.isInteger(obj.ws)) {
-        throw new HttpException('短边自适应比例不是整数',400)
+        throw new HttpException('短边自适应比例不是整数', 400)
       } else if (obj.ws <= 0) {
-        throw new HttpException('短边自适应比例不大于0',400)
+        throw new HttpException('短边自适应比例不大于0', 400)
       } else {
         //暂定短边自适应比例可以大于100
       }
       if (!this.kindUtil.isImage(file.name.substr(file.name.lastIndexOf('.') + 1))) {
-        throw new HttpException('不允许的水印图片类型',400)
+        throw new HttpException('不允许的水印图片类型', 400)
       }
       //保存后台水印配置
       await this.configService.saveImageWatermarkConfig(file, obj)
@@ -207,69 +209,84 @@ export class ConfigResolver {
 
   /* 音频保存格式配置，目前公有空间、私有空间采用一个保存格式，会在两个配置信息中各保存一次 */
   @Mutation('audioFormat')
-  async  audioFormat(req, body): Promise<any> {
-    let data = {
+  async  audioFormat(req: IncomingMessage, body: AudioFormatConfig): Promise<Data> {
+    let data: Data = {
       code: 200,
-      message: ""
+      message: "音频保存格式配置成功"
     }
-    let format = body.format
-    if (!format) {
-      data.code = 400
-      data.message = '缺少参数'
-      return data
-    }
-    //保存公有空间格式
-    await this.configService.saveAudioFormatConfig(data, body)
-    //格式参数不正确、配置不存在、保存失败
-    if (data.code == 401 || data.code == 402 || data.code == 403) {
-      return data
+    try {
+      let format = body.format
+      if (!format) {
+        throw new HttpException('缺少参数', 400)
+      }
+      //保存公有空间格式
+      await this.configService.saveAudioFormatConfig(body)
+    } catch (err) {
+      if (err instanceof HttpException) {
+        data.code = err.getStatus()
+        data.message = err.getResponse() + ''
+      } else {
+        console.log(err)
+        data.code = 500
+        data.message = '出现了意外错误' + err.toString()
+      }
     }
     return data
   }
 
   /* 视频保存配置，目前公有空间、私有空间采用一个保存格式，会在两个配置信息中各保存一次 */
   @Mutation('videoFormat')
-  async videoFormat(req, body): Promise<any> {
-    let data = {
+  async videoFormat(req: IncomingMessage, body: VideoFormatConfig): Promise<Data> {
+    let data: Data = {
       code: 200,
-      message: ""
+      message: "视频保存格式配置成功"
     }
-    let { format, resolution } = body
-    if (!format || !resolution) {
-      data.code = 400
-      data.message = '缺少参数'
-      return data
+    try {
+      let { format, resolution } = body
+      if (!format || !resolution) {
+        throw new HttpException('缺少参数', 400)
+      }
+      //保存公有空间格式
+      await this.configService.saveVideoFormatConfig(body)
+    } catch (err) {
+      if (err instanceof HttpException) {
+        data.code = err.getStatus()
+        data.message = err.getResponse() + ''
+      } else {
+        console.log(err)
+        data.code = 500
+        data.message = '出现了意外错误' + err.toString()
+      }
     }
-    //保存公有空间格式
-    await this.configService.saveVideoFormatConfig(data, body)
-    //格式参数不正确、配置不存在、保存失败
-    if (data.code == 401 || data.code == 402 || data.code == 403) {
-      return data
-    }
-
     return data
   }
 
   /* 获取所有空间信息字段 */
   @Query('buckets')
-  async buckets() {
-    let data = {
+  async buckets(): Promise<Data & { buckets: Bucket[] }> {
+    let data: Data & { buckets: Bucket[] } = {
       code: 200,
-      message: '',
+      message: '获取空间配置成功',
       buckets: []
     }
-
-    let buckets: Bucket[] = await this.bucketRepository.createQueryBuilder('bucket')
-      .select(['bucket.id', 'bucket.public_or_private', 'bucket.name'])
-      .getMany()
-    if (buckets.length !== 2) {
-      data.code = 401
-      data.message = '空间配置不存在'
-      return data
+    try {
+      let buckets: Bucket[] = await this.bucketRepository.createQueryBuilder('bucket')
+        .select(['bucket.id', 'bucket.public_or_private', 'bucket.name'])
+        .getMany()
+      if (buckets.length !== 2) {
+        throw new HttpException('空间配置不存在',401)
+      }
+      data.buckets = buckets
+    } catch (err) {
+      if (err instanceof HttpException) {
+        data.code = err.getStatus()
+        data.message = err.getResponse() + ''
+      } else {
+        console.log(err)
+        data.code = 500
+        data.message = '出现了意外错误' + err.toString()
+      }
     }
-    data.code = 200
-    data.message = '获取空间配置成功'
-    data.buckets = buckets
     return data
   }
 }
