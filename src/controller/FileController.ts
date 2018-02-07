@@ -1,43 +1,30 @@
-import { ApiUseTags, ApiResponse, ApiOperation, ApiConsumes, ApiProduces, ApiImplicitBody } from '@nestjs/swagger';
-import { Controller, Get, Post, Request, Response, Body, Param, Headers, Query } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Controller, Get, Post, Request, Response, Body, Param, Headers, Query ,Inject} from '@nestjs/common';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { ConfigService } from '../service/ConfigService';
 import { FileService } from '../service/FileService';
 import { RestfulUtil } from '../util/RestfulUtil';
-import { KindUtil } from '../util/KindUtil'
-import { AuthUtil } from '../util/AuthUtil'
-import { Document } from '../model/Document'
+import { Document } from '../model/Document';
+import { KindUtil } from '../util/KindUtil';
+import { AuthUtil } from '../util/AuthUtil';
 import { Bucket } from '../model/Bucket';
-import { Audio } from '../model/Audio'
-import { Video } from '../model/Video'
+import { Audio } from '../model/Audio';
+import { Video } from '../model/Video';
 import { Image } from '../model/Image';
-import { File } from '../model/File'
-import { DownloadProcessBody } from '../interface/file/DownloadProcessBody'
-import { UploadProcessBody } from '../interface/file/UploadProcessBody'
-import { FileBody } from '../interface/file/FileBody'
-import { FilesBody } from '../interface/file/FilesBody'
-import { DeleteFileBody } from '../interface/file/DeleteFileBody'
-import { FileInfoBody } from '../interface/file/FileInfoBody'
-import { FileListBody } from '../interface/file/FileListBody'
-import * as  formidable from 'formidable'
-import * as  path from 'path'
+import { File } from '../model/File';
+import * as  path from 'path';
 
-/*文件控制器，包含了文件下载预处理、上传预处理、异步回调通知、获取单个文件url、获取多个文件信息以及url、删除文件、从云存储获取单个文件信息、获取指定空间下文件列表等接口
-  所有文件接口只接受json类型请求体，post请求方法
+/*文件控制器、异步回调通知
 */
-@ApiUseTags('File')
 @Controller('upyun/file')
 export class FileController {
 
   constructor(
-    private readonly authUtil: AuthUtil,
-    private readonly kindUtil: KindUtil,
-    private readonly restfulUtil: RestfulUtil,
-    private readonly fileService: FileService,
-    @InjectRepository(File) private readonly fileRepository: Repository<File>,
-    @InjectRepository(Image) private readonly imageRepository: Repository<Image>,
-    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>) {
+    @Inject(AuthUtil) private readonly authUtil: AuthUtil,
+    @Inject(KindUtil) private readonly kindUtil: KindUtil,
+    @Inject(RestfulUtil) private readonly restfulUtil: RestfulUtil,
+    @Inject(FileService) private readonly fileService: FileService,
+    @Inject('UpyunModule.FileRepository') private readonly fileRepository: Repository<File>,
+    @Inject('UpyunModule.ImageRepository') private readonly imageRepository: Repository<Image>,
+    @Inject('UpyunModule.BucketRepository') private readonly bucketRepository: Repository<Bucket>) {
   }
 
   /* 异步回调通知接口，接受两种请求，默认所有文件都会进行预处理，所有每个上传请求会接收到两个回调请求，一个是原图的，一个是预处理结果
@@ -45,7 +32,6 @@ export class FileController {
      application/json：                 异步预处理上传回调 ，根据文件名更新数据库                          
   */
   @Post('notify')
-  @ApiOperation({ title: '上传、预处理回调接口，由云存储调用' })
   async asyncNotify( @Body() body, @Request() req, @Headers() headers, @Response() res): Promise<any> {
     let content_type = headers['content-type']
     let contentMd5 = headers['content-md5']
