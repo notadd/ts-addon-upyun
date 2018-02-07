@@ -22,7 +22,7 @@ export class RestfulUtil {
   constructor(
     @Inject(AuthUtil) private readonly authUtil: AuthUtil,
     @Inject(PromiseUtil) private readonly promiseUtil: PromiseUtil
-  ) {}
+  ) { }
 
   //上传文件，其中文件信息来自于formidable解析得到的File对象
   async uploadFile(bucket: Bucket, file: File | Image | Video | Audio | Document, uploadFile: any): Promise<{ width: number, height: number, frames: number }> {
@@ -55,7 +55,7 @@ export class RestfulUtil {
         }
       }, (err, res, body) => {
         if (err) {
-          reject(new HttpException('文件上传失败,网络错误', 402))
+          reject(new HttpException('文件上传失败,网络错误', 403))
           return
         }
         if (res.statusCode === 200) {
@@ -70,10 +70,10 @@ export class RestfulUtil {
             let { msg, code, id } = JSON.parse(body)
             reject(new HttpException(msg, code))
           } catch (err) {
-            reject(new HttpException('响应体解析错误', 402))
+            reject(new HttpException('响应体解析错误', 403))
           }
         } else {
-          reject(new HttpException('响应体不存在', 402))
+          reject(new HttpException('响应体不存在', 403))
         }
         return
       }))
@@ -101,7 +101,7 @@ export class RestfulUtil {
       },
         (err, res, body) => {
           if (err) {
-            reject(new HttpException('目录创建失败，网络错误', 402))
+            reject(new HttpException('目录创建失败，网络错误', 403))
             return
           }
           if (res.statusCode === 200) {
@@ -113,10 +113,10 @@ export class RestfulUtil {
               let { msg, code, id } = JSON.parse(body)
               reject(new HttpException(msg, code))
             } catch (err) {
-              reject(new HttpException('响应体解析错误', 402))
+              reject(new HttpException('响应体解析错误', 403))
             }
           } else {
-            reject(new HttpException('响应体不存在', 402))
+            reject(new HttpException('响应体不存在', 403))
           }
           return
         })
@@ -125,17 +125,16 @@ export class RestfulUtil {
   }
 
   /* 删除指定空间指定文件
-     @Param data:状态码
      @Param bucket：文件所属空间
      @Param file：文件对象
    */
-  async deleteFile(data: any, bucket: Bucket, file: File | Image | Video | Audio | Document): Promise<void> {
+  async deleteFile(bucket: Bucket, file: File | Image | Video | Audio | Document): Promise<void> {
     let save_key = '/' + bucket.directory + '/' + file.name + '.' + file.type
     let requestUrl = this.apihost + '/' + bucket.name + save_key
     let url = '/' + bucket.name + save_key
     let date: string = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
     let Authorization = await this.authUtil.getHeaderAuth(bucket, 'DELETE', url, date, '')
-    await new Promise((resolve, reject) => {
+    await this.promiseUtil.do((resolve, reject) => {
       request.delete({
         url: requestUrl,
         headers: {
@@ -144,35 +143,23 @@ export class RestfulUtil {
         }
       }, (err, res, body) => {
         if (err) {
-          data.code = 403
-          data.message = '删除文件失败'
-          console.log('删除文件失败')
-          console.log(err)
-          resolve()
+          reject(new HttpException('删除文件失败', 403))
           return
         }
         if (res.statusCode == 200) {
-          data.code = 200
-          data.message = '删除文件成功'
-          console.log('删除文件成功')
           resolve()
           return
         }
         if (body) {
           try {
             let { msg, code, id } = JSON.parse(body)
-            data.code = code
-            data.message = msg
+            reject(new HttpException(msg, code))
           } catch (err) {
-            data.code = 403
-            data.message = '响应体解析错误'
+            reject(new HttpException('响应体解析错误', 403))
           }
         } else {
-          data.code = 403
-          data.message = '响应体不存在'
+          reject(new HttpException('响应体不存在', 403))
         }
-        console.log('删除文件失败')
-        resolve()
         return
       });
     })
@@ -182,14 +169,14 @@ export class RestfulUtil {
 
   /* 获取指定文件的保存信息
    */
-  async getFileInfo(data: any, bucket: Bucket, file: File | Image | Video | Audio | Document): Promise<any> {
+  async getFileInfo(data: any, bucket: Bucket, file: File | Image | Video | Audio | Document): Promise<{ file_size: number, file_date: any, file_md5: string }> {
     let save_key = '/' + bucket.directory + '/' + file.name + '.' + file.type
     let requestUrl = this.apihost + '/' + bucket.name + save_key
     let url = '/' + bucket.name + save_key
     let date: string = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
     let Authorization = await this.authUtil.getHeaderAuth(bucket, 'HEAD', url, date, '')
     let file_size, file_date, file_md5
-    await new Promise((resolve, reject) => {
+    await this.promiseUtil.do((resolve, reject) => {
       request.head({
         url: requestUrl,
         headers: {
@@ -198,14 +185,10 @@ export class RestfulUtil {
         }
       }, (err, res, body) => {
         if (err) {
-          data.code = 403
-          data.message = '获取文件信息失败'
-          resolve()
+          reject(new HttpException('获取文件信息失败', 403))
           return
         }
         if (res.statusCode == 200) {
-          data.code = 200
-          data.message = '获取文件信息成功'
           file_size = +res.headers['x-upyun-file-size']
           file_date = +res.headers['x-upyun-file-date']
           file_md5 = res.headers['content-md5']
@@ -215,17 +198,13 @@ export class RestfulUtil {
         if (body) {
           try {
             let { msg, code, id } = JSON.parse(body)
-            data.code = code
-            data.message = msg
+            reject(new HttpException(msg, code))
           } catch (err) {
-            data.code = 403
-            data.message = '响应体解析错误'
+            reject(new HttpException('响应体解析错误', 403))
           }
         } else {
-          data.code = 403
-          data.message = '响应体不存在'
+          reject(new HttpException('响应体不存在', 403))
         }
-        resolve()
         return
       });
     })
@@ -238,13 +217,14 @@ export class RestfulUtil {
      响应体为换行符、空格拼接的字符串，列分别为
      文件名/目录名  类型(N表示文件、F标志目录) 大小 最后修改时间
    */
-  async getFileList(data: any, bucket: Bucket): Promise<any> {
+  async getFileList(bucket: Bucket): Promise<any> {
     let save_key = '/' + bucket.directory
     let requestUrl = this.apihost + '/' + bucket.name + save_key
     let url = '/' + bucket.name + save_key
     let date: string = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
     let Authorization = await this.authUtil.getHeaderAuth(bucket, 'GET', url, date, '')
-    await new Promise((resolve, reject) => {
+    let info
+    await this.promiseUtil.do((resolve, reject) => {
       request.get({
         url: requestUrl,
         headers: {
@@ -253,15 +233,11 @@ export class RestfulUtil {
         }
       }, (err, res, body) => {
         if (err) {
-          data.code = 403
-          data.message = '获取文件信息失败'
-          resolve()
+          reject(new HttpException('获取文件信息失败',403))
           return
         }
         if (res.statusCode == 200) {
-          data.code = 200
-          data.message = '获取文件信息成功'
-          data.info = body.split('\n').map((value, index, raw) => {
+          info = body.split('\n').map((value, index, raw) => {
             let temp = value.split('\t')
             return {
               name: temp[0],
@@ -273,11 +249,10 @@ export class RestfulUtil {
           resolve()
           return
         }
-        data.code = 403
-        data.message = '获取文件信息失败'
-        resolve()
+        reject(new HttpException('获取文件列表失败',403))
         return
       });
     })
+    return info
   }
 }
