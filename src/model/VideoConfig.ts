@@ -8,7 +8,10 @@ import { Bucket } from './Bucket'
 export class VideoConfig {
 
   //主键，需要设置插入，1默认为公有空间配置，2默认为私有空间配置
-  @PrimaryColumn()
+  @PrimaryColumn({
+    name:'id',
+    type:'int'
+  })
   id: number;
 
   //保存格式，raw、vp9、h264、h265
