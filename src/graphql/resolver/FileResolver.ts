@@ -174,7 +174,7 @@ export class FileResolver {
       //验证参数存在
       let { bucketName, name, type } = body
       if (!bucketName || !name || !type) {
-        throw new HttpException('缺少参数',400)
+        throw new HttpException('缺少参数', 400)
       }
       let bucket: Bucket = await this.bucketRepository.createQueryBuilder("bucket")
         .leftJoinAndSelect("bucket.image_config", "image_config")
@@ -183,7 +183,7 @@ export class FileResolver {
         .where("bucket.name = :name", { name: bucketName })
         .getOne()
       if (!bucket) {
-        throw new HttpException('指定空间'+bucketName+'不存在',401)
+        throw new HttpException('指定空间' + bucketName + '不存在', 401)
       }
       //根据种类获取不同url
       let kind = this.kindUtil.getKind(type)
@@ -192,13 +192,13 @@ export class FileResolver {
       if (kind === 'image') {
         file = await this.imageRepository.findOne({ name, bucketId: bucket.id })
         if (!file) {
-          throw new HttpException('指定图片不存在',402)
+          throw new HttpException('指定图片不存在', 402)
         }
       } else {
         //暂不支持
       }
       //所有文件调用统一的拼接Url方法
-      await this.fileService.makeUrl(data, bucket, file, body, kind)
+      data.url = await this.fileService.makeUrl(bucket, file, body, kind)
     } catch (err) {
       if (err instanceof HttpException) {
         data.code = err.getStatus()
@@ -224,10 +224,10 @@ export class FileResolver {
             data.documents: 文档信息数组
   */
   @Query('all')
-  async  files(req: any, body: AllBody): Promise<AllData> {
+  async  files(req: IncomingMessage, body: AllBody): Promise<AllData> {
     let data: AllData = {
       code: 200,
-      message: '',
+      message: '获取指定空间下所有文件成功',
       baseUrl: '',
       files: [],
       images: [],
@@ -235,20 +235,27 @@ export class FileResolver {
       videos: [],
       documents: []
     }
-    let { bucketName } = body
-    if (!bucketName) {
-      data.code = 400
-      data.message = '缺少参数'
-      return data
+    try {
+      let { bucketName } = body
+      if (!bucketName) {
+        throw new HttpException('缺少参数', 400)
+      }
+      let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
+      if (!bucket) {
+        throw new HttpException('空间' + bucketName + '不存在', 401)
+      }
+      data.baseUrl = bucket.base_url
+      await this.fileService.getAll(data, bucket)
+    } catch (err) {
+      if (err instanceof HttpException) {
+        data.code = err.getStatus()
+        data.message = err.getResponse() + ''
+      } else {
+        console.log(err)
+        data.code = 500
+        data.message = '出现了意外错误' + err.toString()
+      }
     }
-    let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
-    if (!bucket) {
-      data.code = 401
-      data.message = '空间' + bucketName + '不存在'
-      return
-    }
-    data.baseUrl = bucket.base_url
-    await this.fileService.getAll(data, bucket)
     return data
   }
 
@@ -261,37 +268,39 @@ export class FileResolver {
              data.message：响应信息
   */
   @Mutation('deleteFile')
-  async deleteFile(req: any, body: FileLocationBody): Promise<CommonData> {
-    let data: CommonData = {
+  async deleteFile(req: IncomingMessage, body: FileLocationBody): Promise<Data> {
+    let data: Data = {
       code: 200,
-      message: ''
+      message: '删除文件成功'
     }
-    let { bucketName, type, name } = body
-    if (!bucketName || !name || !type) {
-      data.code = 400
-      data.message = '缺少参数'
-      return data
-    }
+    try {
+      let { bucketName, type, name } = body
+      if (!bucketName || !name || !type) {
+        throw new HttpException('缺少参数', 400)
+      }
 
-    let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
-    if (!bucket) {
-      data.code = 401
-      data.message = '空间' + bucketName + '不存在'
-      return
-    }
-    let kind = this.kindUtil.getKind(type)
-    if (kind === 'image') {
-      let image: Image = await this.imageRepository.findOne({ name, bucketId: bucket.id })
-      if (!image) {
-        data.code = 402
-        data.message = '文件md5=' + name + '不存在'
-        return
+      let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
+      if (!bucket) {
+        throw new HttpException('空间' + bucketName + '不存在', 401)
       }
-      await this.restfulUtil.deleteFile(data, bucket, image)
-      if (data.code === 403) {
-        return data
+      let kind = this.kindUtil.getKind(type)
+      if (kind === 'image') {
+        let image: Image = await this.imageRepository.findOne({ name, bucketId: bucket.id })
+        if (!image) {
+          throw new HttpException('文件md5=' + name + '不存在', 402)
+        }
+        await this.restfulUtil.deleteFile(bucket, image)
+        await this.imageRepository.delete({ name, bucketId: bucket.id })
       }
-      await this.imageRepository.delete({ name, bucketId: bucket.id })
+    } catch (err) {
+      if (err instanceof HttpException) {
+        data.code = err.getStatus()
+        data.message = err.getResponse() + ''
+      } else {
+        console.log(err)
+        data.code = 500
+        data.message = '出现了意外错误' + err.toString()
+      }
     }
     return data
   }
