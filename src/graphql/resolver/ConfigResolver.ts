@@ -153,9 +153,10 @@ export class ConfigResolver {
       code: 200,
       message: '图片水印配置成功'
     }
+    let tempPath = __dirname + '/' + body.name
     try {
       let { name, base64, gravity, opacity, x, y, ws } = body
-      fs.writeFileSync(__dirname + '/' + name, Buffer.from(base64, 'base64'))
+      fs.writeFileSync(tempPath, Buffer.from(base64, 'base64'))
       let obj: any = {}
       let file: any = {}
       obj.x = x
@@ -164,7 +165,7 @@ export class ConfigResolver {
       obj.ws = ws
       obj.gravity = gravity
       file.name = name
-      file.path = __dirname + '/' + name
+      file.path = tempPath
       if (!this.gravity.has(obj.gravity)) {
         throw new HttpException('不允许的水印图片位置', 400)
       }
@@ -203,6 +204,8 @@ export class ConfigResolver {
         data.code = 500
         data.message = '出现了意外错误' + err.toString()
       }
+    } finally {
+      fs.unlinkSync(tempPath)
     }
     return data
   }
@@ -274,7 +277,7 @@ export class ConfigResolver {
         .select(['bucket.id', 'bucket.public_or_private', 'bucket.name'])
         .getMany()
       if (buckets.length !== 2) {
-        throw new HttpException('空间配置不存在',401)
+        throw new HttpException('空间配置不存在', 401)
       }
       data.buckets = buckets
     } catch (err) {

@@ -169,7 +169,7 @@ export class RestfulUtil {
 
   /* 获取指定文件的保存信息
    */
-  async getFileInfo(data: any, bucket: Bucket, file: File | Image | Video | Audio | Document): Promise<{ file_size: number, file_date: any, file_md5: string }> {
+  async getFileInfo(bucket: Bucket, file: File | Image | Video | Audio | Document): Promise<{ file_size: number, file_date: any, file_md5: string }> {
     let save_key = '/' + bucket.directory + '/' + file.name + '.' + file.type
     let requestUrl = this.apihost + '/' + bucket.name + save_key
     let url = '/' + bucket.name + save_key
