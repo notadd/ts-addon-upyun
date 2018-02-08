@@ -123,7 +123,10 @@ class StoreComponent {
         if (!bucketName || !name || !type) {
             throw new HttpException('缺少参数', 400)
         }
-        let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
+        let bucket: Bucket = await this.bucketRepository.createQueryBuilder('bucket')
+            .leftJoinAndSelect('bucket.image_config', 'image_config')
+            .where('bucket.name = :name', { name: bucketName })
+            .getOne()
         if (!bucket) {
             throw new HttpException('指定空间' + bucketName + '不存在', 401)
         }
