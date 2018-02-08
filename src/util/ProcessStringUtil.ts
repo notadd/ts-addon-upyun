@@ -192,7 +192,7 @@ export class ProcessStringUtil {
         let str: string = ''
         if (enable) {
             if (bucket.image_config.watermark_save_key) {
-                str += 't.js' + Buffer.from(bucket.image_config.watermark_save_key).toString('base64')
+                str += '/watermark/url/' + Buffer.from(bucket.image_config.watermark_save_key).toString('base64')
             } else {
                 throw new HttpException('水印图片url不存在', 405)
             }
