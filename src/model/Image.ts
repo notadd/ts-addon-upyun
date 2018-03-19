@@ -9,21 +9,21 @@ export class Image extends AbstractFile {
 
   @Column({
     name: 'width',
-    type: 'int',
+    type: 'integer',
     nullable: true
   })
   width: number;
 
   @Column({
     name: 'height',
-    type: 'int',
+    type: 'integer',
     nullable: true
   })
   height: number;
 
   @Column({
     name: 'frames',
-    type: 'int',
+    type: 'integer',
     nullable: true
   })
   frames: number;

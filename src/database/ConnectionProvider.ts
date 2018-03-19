@@ -13,15 +13,14 @@ export const ConnectionProvider = {
     useFactory:async ()=>{
         return await createConnection({
             name:'upyun',
-            type: 'mysql',
+            type: 'postgres',
             host: 'localhost',
-            port: 3306,
-            username: 'root',
+            port: 5432,
+            username: 'postgres',
             password: '123456',
             database: "upyun",
             synchronize:true,
             dropSchema:true,
-            charset:'UTF8',
             entities: [
                 ImageConfig,
                 AudioConfig,

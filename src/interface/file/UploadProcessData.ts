@@ -3,6 +3,7 @@ export interface UploadProcessData {
   message: string
   method: string
   url: string
+  baseUrl:string
   form: {
     policy: string
     authorization: string

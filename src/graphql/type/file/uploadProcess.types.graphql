@@ -21,6 +21,8 @@ type  UploadProcessData{
     url:String
     #upload request method
     method:String
+    #base url for visit image
+    baseUrl:String
     #upload request form
     form:UploadProcessForm
 }

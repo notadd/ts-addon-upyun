@@ -6,7 +6,7 @@ export class AbstractFile {
 
     @PrimaryGeneratedColumn({
         name: 'id',
-        type: 'int'
+        type: 'integer'
     })
     id: number;
 
@@ -53,7 +53,7 @@ export class AbstractFile {
 
     @Column({
         name: 'size',
-        type: 'int',
+        type: 'integer',
         nullable: true
     })
     size: number;
@@ -69,8 +69,7 @@ export class AbstractFile {
 
     @Column({
         name: 'status',
-        type: 'enum',
-        enum: ['pre', 'post'],
+        type: 'varchar',
         nullable: false
     })
     status: string;

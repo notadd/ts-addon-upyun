@@ -97,6 +97,7 @@ export class FileResolver {
       message: '上传预处理成功',
       url: 'http://v0.api.upyun.com',
       method: 'post',
+      baseUrl:'',
       form: {
         policy: '',
         authorization: ''
@@ -120,6 +121,7 @@ export class FileResolver {
       if (!bucket) {
         throw new HttpException('指定空间' + bucketName + '不存在', 401)
       }
+      data.baseUrl = bucket.base_url
       //预保存图片,获取保存的图片，图片名为预处理图片名，会设置到policy的apps中去
       let image = await this.fileService.preSaveFile(bucket, body)
       //上传policy字段

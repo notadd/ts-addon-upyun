@@ -9,15 +9,14 @@ export class AudioConfig {
   //主键，需要设置插入，1默认为公有空间配置，2默认为私有空间配置
   @PrimaryColumn({
     name:'id',
-    type:'int'
+    type:'integer'
   })
   id: number;
 
   //保存格式，raw、mp3、aac
   @Column({
     name: 'format',
-    type: 'enum',
-    enum: ['raw', 'mp3', 'aac'],
+    type: 'varchar',
     nullable: true
   })
   format: string;

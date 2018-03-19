@@ -16,7 +16,7 @@ export class Bucket {
   //主键，需要设置插入，1默认为公有空间配置，2默认为私有空间配置
   @PrimaryColumn({
     name: 'id',
-    type: 'int'
+    type: 'integer'
   })
   id: number;
 
@@ -70,7 +70,7 @@ export class Bucket {
   //请求过期时间，单位秒
   @Column({
     name: 'request_expire',
-    type: 'int',
+    type: 'integer',
     nullable: false
   })
   request_expire: number;
@@ -97,7 +97,7 @@ export class Bucket {
   //token过期时间，单位秒
   @Column({
     name: 'token_expire',
-    type: 'int',
+    type: 'integer',
     nullable: true
   })
   token_expire: number;
