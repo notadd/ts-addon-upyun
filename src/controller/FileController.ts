@@ -2,16 +2,16 @@ import { Controller, Get, Post, Request, Response, Body, Param, Headers, Query, 
 import { UpyunExceptionFilter } from '../exception/UpyunExceptionFilter';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { FileService } from '../service/FileService';
+import { Document } from '../model/Document.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RestfulUtil } from '../util/RestfulUtil';
-import { Document } from '../model/Document';
+import { Bucket } from '../model/Bucket.entity';
+import { Audio } from '../model/Audio.entity';
+import { Video } from '../model/Video.entity';
+import { Image } from '../model/Image.entity';
+import { File } from '../model/File.entity';
 import { KindUtil } from '../util/KindUtil';
 import { AuthUtil } from '../util/AuthUtil';
-import { Bucket } from '../model/Bucket';
-import { Audio } from '../model/Audio';
-import { Video } from '../model/Video';
-import { Image } from '../model/Image';
-import { File } from '../model/File';
 import * as  path from 'path';
 
 /*文件控制器、异步回调通知

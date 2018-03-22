@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryColumn, Index, OneToOne, JoinColumn, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Bucket } from './Bucket'
+import { Bucket } from './Bucket.entity'
 
 /* 视频配置实体类 */
 @Entity({

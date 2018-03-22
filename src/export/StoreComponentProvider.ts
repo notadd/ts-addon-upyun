@@ -1,21 +1,21 @@
 import { ImagePostProcessInfo, ImagePreProcessInfo } from '../interface/file/ImageProcessInfo';
 import { HttpException, Component, Inject } from '@nestjs/common';
 import { ProcessStringUtil } from '../util/ProcessStringUtil';
+import { FileService } from '../service/FileService';
+import { Document } from '../model/Document.entity';
 import { RestfulUtil } from '../util/RestfulUtil';
 import { Repository, Connection } from 'typeorm';
-import { Document } from '../model/Document';
+import { Bucket } from '../model/Bucket.entity';
+import { Video } from '../model/Video.entity';
+import { Audio } from '../model/Audio.entity';
+import { Image } from '../model/Image.entity';
+import { File } from '../model/File.entity';
 import { AuthUtil } from '../util/AuthUtil';
 import { KindUtil } from '../util/KindUtil';
 import { FileUtil } from '../util/FileUtil';
-import { Bucket } from '../model/Bucket';
-import { Video } from '../model/Video';
-import { Audio } from '../model/Audio';
-import { Image } from '../model/Image';
-import { File } from '../model/File';
 import * as crypto from 'crypto';
 import * as path from 'path';
 import * as os from 'os';
-import { FileService } from '../service/FileService';
 
 
 class StoreComponent {
@@ -152,6 +152,6 @@ export const StoreComponentProvider = {
     useFactory: (kindUtil: KindUtil, fileUtil: FileUtil, authUtil: AuthUtil, restfulUtil: RestfulUtil, fileService: FileService, processStringUtil: ProcessStringUtil, imageRepository: Repository<Image>, bucketRepository: Repository<Bucket>) => {
         return new StoreComponent(kindUtil, fileUtil, authUtil, restfulUtil, fileService, processStringUtil, imageRepository, bucketRepository)
     },
-    inject: [KindUtil, FileUtil, AuthUtil, RestfulUtil, FileService, ProcessStringUtil, 'UpyunModule.ImageRepository', 'UpyunModule.BucketRepository']
+    inject: [KindUtil, FileUtil, AuthUtil, RestfulUtil, FileService, ProcessStringUtil, 'ImageRepository', 'BucketRepository']
 
 }
