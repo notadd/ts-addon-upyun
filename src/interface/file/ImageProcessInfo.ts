@@ -1,5 +1,5 @@
 
-interface ResizeData {
+export interface ResizeData {
     scale: number
     wscale: number
     hscale: number
@@ -8,12 +8,12 @@ interface ResizeData {
     pixel: number
 }
 
-interface Resize {
+export interface Resize {
     mode: string
     data: ResizeData
 }
 
-interface Tailor {
+export interface Tailor {
     isBefore: boolean
     width: number
     height: number
@@ -22,7 +22,7 @@ interface Tailor {
     gravity: string
 }
 
-interface Blur {
+export interface Blur {
     redius: number
     sigma: number
 }

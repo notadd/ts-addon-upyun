@@ -5,15 +5,15 @@ import { AudioFormatConfig } from '../interface/config/AudioFormatConfig';
 import { ImageFormatConfig } from '../interface/config/ImageFormatConfig';
 import { Component, Inject, HttpException } from '@nestjs/common';
 import { BucketConfig } from '../interface/config/BucketConfig';
-import { ImageConfig } from '../model/ImageConfig';
-import { AudioConfig } from '../model/AudioConfig';
-import { VideoConfig } from '../model/VideoConfig';
+import { ImageConfig } from '../model/ImageConfig.entity';
+import { AudioConfig } from '../model/AudioConfig.entity';
+import { VideoConfig } from '../model/VideoConfig.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RestfulUtil } from '../util/RestfulUtil';
+import { Bucket } from '../model/Bucket.entity';
+import { Image } from '../model/Image.entity';
 import { FileUtil } from '../util/FileUtil';
 import { AuthUtil } from '../util/AuthUtil';
-import { Bucket } from '../model/Bucket';
-import { Image } from '../model/Image';
 import * as  crypto from 'crypto';
 
 
