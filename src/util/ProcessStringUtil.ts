@@ -1,6 +1,6 @@
 import { ImagePostProcessInfo, ImagePreProcessInfo } from '../interface/file/ImageProcessInfo';
 import { Component, Inject, HttpException } from '@nestjs/common';
-import { Bucket } from '../model/Bucket';
+import { Bucket } from '../model/Bucket.entity';
 import { KindUtil } from './KindUtil';
 import { isArray } from 'util';
 

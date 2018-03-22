@@ -1,10 +1,10 @@
+import { Document } from '../model/Document.entity'
+import { Bucket } from '../model/Bucket.entity';
+import { Audio } from '../model/Audio.entity';
+import { Video } from '../model/Video.entity';
+import { Image } from '../model/Image.entity';
+import { File } from '../model/File.entity';
 import { Component } from '@nestjs/common';
-import { Document } from '../model/Document'
-import { Bucket } from '../model/Bucket';
-import { Audio } from '../model/Audio'
-import { Video } from '../model/Video'
-import { Image } from '../model/Image';
-import { File } from '../model/File'
 const crypto = require('crypto')
 
 /* 验证签名服务组件，包含获取头信息签名、请求体签名、token、回调通知验签等功能 */

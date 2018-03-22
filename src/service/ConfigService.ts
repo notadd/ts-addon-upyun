@@ -26,11 +26,11 @@ export class ConfigService {
   constructor(
     @Inject(FileUtil) private readonly fileUtil: FileUtil,
     @Inject(RestfulUtil) private readonly restfulUtil: RestfulUtil,
-    @Inject('UpyunModule.ImageRepository') private readonly imageRepository: Repository<Image>,
-    @Inject('UpyunModule.BucketRepository') private readonly bucketRepository: Repository<Bucket>,
-    @Inject('UpyunModule.ImageConfigRepository') private readonly imageConfigRepository: Repository<ImageConfig>,
-    @Inject('UpyunModule.AudioConfigRepository') private readonly audioConfigRepository: Repository<AudioConfig>,
-    @Inject('UpyunModule.VideoConfigRepository') private readonly videoConfigRepository: Repository<VideoConfig>
+    @InjectRepository(Image) private readonly imageRepository: Repository<Image>,
+    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>,
+    @InjectRepository(ImageConfig) private readonly imageConfigRepository: Repository<ImageConfig>,
+    @InjectRepository(AudioConfig) private readonly audioConfigRepository: Repository<AudioConfig>,
+    @InjectRepository(VideoConfig) private readonly videoConfigRepository: Repository<VideoConfig>
   ) { }
 
   async saveBucketConfig(body: BucketConfig): Promise<Bucket> {

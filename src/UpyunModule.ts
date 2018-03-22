@@ -3,24 +3,25 @@ import { ConfigResolver } from './graphql/resolver/ConfigResolver';
 import { FileResolver } from './graphql/resolver/FileResolver';
 import { FileController } from './controller/FileController';
 import { ProcessStringUtil } from './util/ProcessStringUtil';
+import { ImageConfig } from './model/ImageConfig.entity';
+import { AudioConfig } from './model/AudioConfig.entity';
+import { VideoConfig } from './model/VideoConfig.entity';
 import { ConfigService } from './service/ConfigService';
 import { FileService } from './service/FileService';
-import { ImageConfig } from './model/ImageConfig';
-import { AudioConfig } from './model/AudioConfig';
-import { VideoConfig } from './model/VideoConfig';
+import { Document } from './model/Document.entity';
 import { RestfulUtil } from './util/RestfulUtil';
 import { PromiseUtil } from './util/PromiseUtil';
 import { Module, Global } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Document } from './model/Document';
+import { Bucket } from './model/Bucket.entity';
+import { Image } from './model/Image.entity';
+import { Audio } from './model/Audio.entity';
+import { Video } from './model/Video.entity';
+import { File } from './model/File.entity';
 import { KindUtil } from './util/KindUtil';
 import { FileUtil } from './util/FileUtil';
 import { AuthUtil } from './util/AuthUtil';
-import { Bucket } from './model/Bucket';
-import { Image } from './model/Image';
-import { Audio } from './model/Audio';
-import { Video } from './model/Video';
-import { File } from './model/File';
+
 
 @Global()
 @Module({

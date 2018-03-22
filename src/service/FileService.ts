@@ -1,17 +1,17 @@
-import { UploadProcessBody } from '../interface/file/UploadProcessBody';
 import { Component, Inject, forwardRef, HttpException } from '@nestjs/common';
+import { UploadProcessBody } from '../interface/file/UploadProcessBody';
 import { ProcessStringUtil } from '../util/ProcessStringUtil';
+import { Document } from '../model/Document.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RestfulUtil } from '../util/RestfulUtil';
 import { ConfigService } from './ConfigService';
-import { Document } from '../model/Document';
+import { Bucket } from '../model/Bucket.entity';
+import { Audio } from '../model/Audio.entity';
+import { Video } from '../model/Video.entity';
+import { Image } from '../model/Image.entity';
+import { File } from '../model/File.entity';
 import { KindUtil } from '../util/KindUtil';
 import { AuthUtil } from '../util/AuthUtil';
-import { Bucket } from '../model/Bucket';
-import { Audio } from '../model/Audio';
-import { Video } from '../model/Video';
-import { Image } from '../model/Image';
-import { File } from '../model/File';
 import { Repository } from 'typeorm';
 import * as crypto from 'crypto';
 import { isArray } from 'util';
@@ -29,11 +29,11 @@ export class FileService {
     @Inject(KindUtil) private readonly kindUtil: KindUtil,
     @Inject(RestfulUtil) private readonly restfulUtil: RestfulUtil,
     @Inject(ProcessStringUtil) private readonly processStringUtil: ProcessStringUtil,
-    @Inject('UpyunModule.FileRepository') private readonly fileRepository: Repository<File>,
-    @Inject('UpyunModule.ImageRepository') private readonly imageRepository: Repository<Image>,
-    @Inject('UpyunModule.AudioRepository') private readonly audioRepository: Repository<Audio>,
-    @Inject('UpyunModule.VideoRepository') private readonly videoRepository: Repository<Video>,
-    @Inject('UpyunModule.BucketRepository') private readonly bucketRepository: Repository<Bucket>) { }
+    @InjectRepository(File) private readonly fileRepository: Repository<File>,
+    @InjectRepository(Image) private readonly imageRepository: Repository<Image>,
+    @InjectRepository(Audio) private readonly audioRepository: Repository<Audio>,
+    @InjectRepository(Video) private readonly videoRepository: Repository<Video>,
+    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>) { }
 
 
   async makePolicy(data: any, policy: any, bucket: Bucket, body: UploadProcessBody, file: File | Image | Video | Audio | Document): Promise<void> {

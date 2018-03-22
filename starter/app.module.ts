@@ -7,13 +7,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   modules: [UpyunModule,GraphQLModule,TypeOrmModule.forRoot({
-    name: 'local',
+    name: 'upyun',
     type: 'postgres',
     host: 'localhost',
     port: 5433,
     username: 'postgres',
     password: '123456',
-    database: "local",
+    database: "upyun",
     synchronize: true,
     dropSchema: true,
     logger: 'simple-console',

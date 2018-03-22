@@ -1,18 +1,18 @@
 import { ImagePostProcessInfo, ImagePreProcessInfo } from '../interface/file/ImageProcessInfo';
 import { Component, Inject, HttpException } from '@nestjs/common';
-import { Document } from '../model/Document';
+import { ProcessStringUtil } from './ProcessStringUtil';
+import { Document } from '../model/Document.entity';
+import { Bucket } from '../model/Bucket.entity';
+import { Audio } from '../model/Audio.entity';
+import { Video } from '../model/Video.entity';
+import { Image } from '../model/Image.entity';
+import { File } from '../model/File.entity';
 import { PromiseUtil } from './PromiseUtil';
 import { AuthUtil } from '../util/AuthUtil';
-import { Bucket } from '../model/Bucket';
-import { Audio } from '../model/Audio';
-import { Video } from '../model/Video';
-import { Image } from '../model/Image';
-import { File } from '../model/File';
 import * as request from 'request';
 import * as crypto from 'crypto';
 import * as mime from 'mime';
 import * as fs from 'fs';
-import { ProcessStringUtil } from './ProcessStringUtil';
 
 
 /* 包含了restfulAPI的各种功能 
