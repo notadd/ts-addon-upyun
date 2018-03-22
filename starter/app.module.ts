@@ -2,8 +2,24 @@ import { Module,MiddlewaresConsumer,NestModule,RequestMethod,Inject } from '@nes
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 import { GraphQLModule , GraphQLFactory} from '@nestjs/graphql';
 import { UpyunModule } from '../src/UpyunModule';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+
 @Module({
-  modules: [UpyunModule,GraphQLModule],
+  modules: [UpyunModule,GraphQLModule,TypeOrmModule.forRoot({
+    name: 'local',
+    type: 'postgres',
+    host: 'localhost',
+    port: 5433,
+    username: 'postgres',
+    password: '123456',
+    database: "local",
+    synchronize: true,
+    dropSchema: true,
+    logger: 'simple-console',
+    logging: null,
+    entities: ['../**/*.entity.ts']
+  })],
   controllers: [],
   components: []
 })
