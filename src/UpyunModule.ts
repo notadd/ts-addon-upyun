@@ -1,7 +1,5 @@
 import { StoreComponentProvider } from './export/StoreComponentProvider';
-import { RepositorysProvider } from './database/RepositorysProvider';
 import { ConfigResolver } from './graphql/resolver/ConfigResolver';
-import { ConnectionProvider } from './database/ConnectionProvider';
 import { FileResolver } from './graphql/resolver/FileResolver';
 import { FileController } from './controller/FileController';
 import { ProcessStringUtil } from './util/ProcessStringUtil';
@@ -13,6 +11,7 @@ import { VideoConfig } from './model/VideoConfig';
 import { RestfulUtil } from './util/RestfulUtil';
 import { PromiseUtil } from './util/PromiseUtil';
 import { Module, Global } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { Document } from './model/Document';
 import { KindUtil } from './util/KindUtil';
 import { FileUtil } from './util/FileUtil';
@@ -25,10 +24,9 @@ import { File } from './model/File';
 
 @Global()
 @Module({
-  modules: [],
+  modules: [TypeOrmModule.forFeature([Bucket,AudioConfig,VideoConfig,ImageConfig,Document,Audio,Video,File,Image])],
   controllers: [FileController],
   components: [
-    ConnectionProvider, ...RepositorysProvider,
     PromiseUtil, FileUtil, AuthUtil, KindUtil, RestfulUtil, ProcessStringUtil,
     ConfigService, FileService,
     ConfigResolver, FileResolver,

@@ -2,6 +2,7 @@ import { Controller, Get, Post, Request, Response, Body, Param, Headers, Query, 
 import { UpyunExceptionFilter } from '../exception/UpyunExceptionFilter';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { FileService } from '../service/FileService';
+import { InjectRepository } from '@nestjs/typeorm';
 import { RestfulUtil } from '../util/RestfulUtil';
 import { Document } from '../model/Document';
 import { KindUtil } from '../util/KindUtil';
@@ -24,9 +25,9 @@ export class FileController {
     @Inject(KindUtil) private readonly kindUtil: KindUtil,
     @Inject(RestfulUtil) private readonly restfulUtil: RestfulUtil,
     @Inject(FileService) private readonly fileService: FileService,
-    @Inject('UpyunModule.FileRepository') private readonly fileRepository: Repository<File>,
-    @Inject('UpyunModule.ImageRepository') private readonly imageRepository: Repository<Image>,
-    @Inject('UpyunModule.BucketRepository') private readonly bucketRepository: Repository<Bucket>) {
+    @InjectRepository(File) private readonly fileRepository: Repository<File>,
+    @InjectRepository(Image) private readonly imageRepository: Repository<Image>,
+    @InjectRepository(Bucket) private readonly bucketRepository: Repository<Bucket>) {
   }
 
   /* 异步回调通知接口，接受两种请求，默认所有文件都会进行预处理，所有每个上传请求会接收到两个回调请求，一个是原图的，一个是预处理结果
