@@ -20,7 +20,7 @@ import * as fs from 'fs';
 */
 @Component()
 export class RestfulUtil {
-  private readonly apihost = 'http://v0.api.upyun.com'
+  private readonly apihost = 'https://v0.api.upyun.com'
   constructor(
     @Inject(AuthUtil) private readonly authUtil: AuthUtil,
     @Inject(PromiseUtil) private readonly promiseUtil: PromiseUtil,
