@@ -54,7 +54,7 @@ export class FileResolver {
         authorization: '',
         date: ''
       },
-      url: 'http://v0.api.upyun.com'
+      url: 'https://v0.api.upyun.com'
     }
     let { bucketName, name, type } = body
     if (!bucketName || !name) {
@@ -77,7 +77,7 @@ export class FileResolver {
     }
     data.url += '/' + bucket.name + '/' + bucket.directory + '/' + file.name + '.' + file.type
     data.headers.date = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
-    data.headers.authorization = await this.authUtil.getHeaderAuth(bucket, 'GET', data.url.replace('http://v0.api.upyun.com', ''), data.headers.date, '')
+    data.headers.authorization = await this.authUtil.getHeaderAuth(bucket, 'GET', data.url.replace('https://v0.api.upyun.com', ''), data.headers.date, '')
     return data
   }
 
@@ -87,7 +87,7 @@ export class FileResolver {
     let data: UploadProcessData = {
       code: 200,
       message: '上传预处理成功',
-      url: 'http://v0.api.upyun.com',
+      url: 'https://v0.api.upyun.com',
       method: 'post',
       baseUrl: '',
       form: {
