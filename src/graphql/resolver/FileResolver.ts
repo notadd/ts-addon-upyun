@@ -24,8 +24,8 @@ import { File } from '../../model/File.entity';
 import { KindUtil } from '../../util/KindUtil';
 import { AuthUtil } from '../../util/AuthUtil';
 import { Data } from '../../interface/Data';
-import * as  formidable from 'formidable';
 import { IncomingMessage } from 'http';
+import { Request } from 'express';
 import * as  path from 'path';
 
 
@@ -83,7 +83,7 @@ export class FileResolver {
 
 
   @Mutation('uploadProcess')
-  async uploadProcess(req: IncomingMessage, body: UploadProcessBody): Promise<UploadProcessData> {
+  async uploadProcess(req: Request, body: UploadProcessBody): Promise<UploadProcessData> {
     let data: UploadProcessData = {
       code: 200,
       message: '上传预处理成功',
@@ -126,7 +126,7 @@ export class FileResolver {
       'date': '',
       'content-md5': md5,
       //异步回调通知路径，图片异步预处理回调也是这个接口
-      'notify-url': 'http://upyuns.frp2.chuantou.org/upyun/file/notify',
+      'notify-url': req.protocol + '://' + req.get('host') + '/upyun/file/notify',
       //图片生存期限默认为180天
       'x-upyun-meta-ttl': 180,
       //扩展参数，包含了空间名
