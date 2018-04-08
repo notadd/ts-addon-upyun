@@ -5,10 +5,10 @@ type Mutation{
 
 #the enum of image format
 enum ImageFormat {
-  #original format 
-  raw
-  #webp 
-  webp_damage
-  #webp and lossless
-  webp_undamage
+    #original format
+    raw
+    #webp
+    webp_damage
+    #webp and lossless
+    webp_undamage
 }

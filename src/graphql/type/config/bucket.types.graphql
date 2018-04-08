@@ -1,7 +1,7 @@
 type Mutation{
     #bucket configuration
     bucket(
-        isPublic:Boolean 
+        isPublic:Boolean
         name:String
         operator:String
         password:String

@@ -5,16 +5,16 @@ type Mutation{
 
 #the enum of video coded format
 enum VideoFormat {
-  raw
-  vp9
-  h264
-  h265
+    raw
+    vp9
+    h264
+    h265
 }
 
 #the enum of video  resolution ratio
 enum VideoResolution {
-  raw
-  p1080
-  p720
-  p480
+    raw
+    p1080
+    p720
+    p480
 }

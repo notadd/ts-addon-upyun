@@ -1,9 +1,9 @@
 type Mutation{
-   #upload pretreatment 
-   uploadProcess(bucketName:String,md5:String,contentName:String,contentSecret:String,tags:[String],imagePreProcessInfo:ImagePreProcessInfo):UploadProcessData
+    #upload pretreatment
+    uploadProcess(bucketName:String,md5:String,contentName:String,contentSecret:String,tags:[String],imagePreProcessInfo:ImagePreProcessInfo):UploadProcessData
 }
 
-#upload request form 
+#upload request form
 type UploadProcessForm{
     #the base64 code of upload parameter
     policy:String

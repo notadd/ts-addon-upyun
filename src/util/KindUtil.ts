@@ -1,10 +1,12 @@
-import { Component, Inject } from '@nestjs/common';
+import { Component } from '@nestjs/common';
+
 const allowExtension = require('../allowExtension.json')
 
 @Component()
 export class KindUtil {
 
-    constructor() { }
+    constructor() {
+    }
 
     getKind(type: string) {
         if (allowExtension.image.includes(type)) {

@@ -1,6 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, Index, ManyToOne, JoinColumn, OneToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { Bucket } from './Bucket.entity'
-
+import { Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 export class AbstractFile {
 
@@ -74,7 +72,6 @@ export class AbstractFile {
     })
     status: string;
 
-
     @CreateDateColumn({
         name: 'create_date',
         type: 'date'
@@ -86,6 +83,4 @@ export class AbstractFile {
         type: 'date'
     })
     update_date: Date;
-
-
 }

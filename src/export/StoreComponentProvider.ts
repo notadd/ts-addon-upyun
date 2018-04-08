@@ -1,22 +1,20 @@
-import { ImagePostProcessInfo, ImagePreProcessInfo } from '../interface/file/ImageProcessInfo';
-import { HttpException, Component, Inject } from '@nestjs/common';
-import { ProcessStringUtil } from '../util/ProcessStringUtil';
-import { FileService } from '../service/FileService';
-import { Document } from '../model/Document.entity';
-import { RestfulUtil } from '../util/RestfulUtil';
-import { Repository, Connection } from 'typeorm';
-import { Bucket } from '../model/Bucket.entity';
-import { Video } from '../model/Video.entity';
-import { Audio } from '../model/Audio.entity';
-import { Image } from '../model/Image.entity';
-import { File } from '../model/File.entity';
-import { AuthUtil } from '../util/AuthUtil';
-import { KindUtil } from '../util/KindUtil';
-import { FileUtil } from '../util/FileUtil';
 import * as crypto from 'crypto';
-import * as path from 'path';
 import * as os from 'os';
-
+import { Repository } from 'typeorm';
+import { HttpException, Inject } from '@nestjs/common';
+import { ImagePostProcessInfo, ImagePreProcessInfo } from '../interface/file/ImageProcessInfo';
+import { Audio } from '../model/Audio.entity';
+import { Bucket } from '../model/Bucket.entity';
+import { Document } from '../model/Document.entity';
+import { File } from '../model/File.entity';
+import { Image } from '../model/Image.entity';
+import { Video } from '../model/Video.entity';
+import { FileService } from '../service/FileService';
+import { AuthUtil } from '../util/AuthUtil';
+import { FileUtil } from '../util/FileUtil';
+import { KindUtil } from '../util/KindUtil';
+import { ProcessStringUtil } from '../util/ProcessStringUtil';
+import { RestfulUtil } from '../util/RestfulUtil';
 
 export class StoreComponent {
 
@@ -29,7 +27,8 @@ export class StoreComponent {
         @Inject(ProcessStringUtil) private readonly processStringUtil: ProcessStringUtil,
         @Inject('UpyunModule.ImageRepository') private readonly imageRepository: Repository<Image>,
         @Inject('UpyunModule.BucketRepository') private readonly bucketRepository: Repository<Bucket>
-    ) { }
+    ) {
+    }
 
     async delete(bucketName: string, name: string, type: string): Promise<void> {
         //验证参数
@@ -53,10 +52,16 @@ export class StoreComponent {
             //其他类型暂不支持
         }
         await this.resufulUtil.deleteFile(bucket, file)
+
         return
     }
 
-    async upload(bucketName: string, rawName: string, base64: string, imagePreProcessInfo: ImagePreProcessInfo): Promise<{ bucketName: string, name: string, type: string }> {
+    async upload(
+        bucketName: string,
+        rawName: string,
+        base64: string,
+        imagePreProcessInfo: ImagePreProcessInfo,
+    ): Promise<{ bucketName: string, name: string, type: string }> {
 
         if (!bucketName || !rawName || !base64) {
             throw new HttpException('缺少参数', 400)
@@ -115,6 +120,7 @@ export class StoreComponent {
             //如果中间过程抛出了异常，要保证删除临时图片
             await this.fileUtil.deleteIfExist(tempPath)
         }
+
         return { bucketName, name, type }
     }
 
@@ -143,15 +149,42 @@ export class StoreComponent {
             //其他类型暂不支持
         }
         url = await this.fileService.makeUrl(bucket, file, { imagePostProcessInfo }, kind)
+
         return url
     }
 }
 
 export const StoreComponentProvider = {
     provide: 'StoreComponentToken',
-    useFactory: (kindUtil: KindUtil, fileUtil: FileUtil, authUtil: AuthUtil, restfulUtil: RestfulUtil, fileService: FileService, processStringUtil: ProcessStringUtil, imageRepository: Repository<Image>, bucketRepository: Repository<Bucket>) => {
-        return new StoreComponent(kindUtil, fileUtil, authUtil, restfulUtil, fileService, processStringUtil, imageRepository, bucketRepository)
+    useFactory: (
+        kindUtil: KindUtil,
+        fileUtil: FileUtil,
+        authUtil: AuthUtil,
+        restfulUtil: RestfulUtil,
+        fileService: FileService,
+        processStringUtil: ProcessStringUtil,
+        imageRepository: Repository<Image>,
+        bucketRepository: Repository<Bucket>,
+    ) => {
+        return new StoreComponent(
+            kindUtil,
+            fileUtil,
+            authUtil,
+            restfulUtil,
+            fileService,
+            processStringUtil,
+            imageRepository,
+            bucketRepository,
+        );
     },
-    inject: [KindUtil, FileUtil, AuthUtil, RestfulUtil, FileService, ProcessStringUtil, 'ImageRepository', 'BucketRepository']
-
-}
+    inject: [
+        KindUtil,
+        FileUtil,
+        AuthUtil,
+        RestfulUtil,
+        FileService,
+        ProcessStringUtil,
+        'ImageRepository',
+        'BucketRepository',
+    ],
+};

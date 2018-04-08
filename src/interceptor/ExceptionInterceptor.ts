@@ -1,13 +1,10 @@
-
-import { Interceptor, NestInterceptor, ExecutionContext, HttpException } from '@nestjs/common';
-import { Observable } from 'rxjs/Observable';
+import { ExecutionContext, HttpException, Interceptor, NestInterceptor } from '@nestjs/common';
 import 'rxjs/add/operator/catch';
+import { Observable } from 'rxjs/Observable';
 
 @Interceptor()
 export class ExceptionInterceptor implements NestInterceptor {
-
     intercept(dataOrRequest, context: ExecutionContext, stream$: Observable<any>): Observable<any> {
-
         return stream$.catch((err, caught): any => {
             if (err instanceof HttpException) {
                 return Promise.resolve({

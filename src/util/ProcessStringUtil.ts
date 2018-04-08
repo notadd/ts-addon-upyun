@@ -1,22 +1,23 @@
+import { Component, HttpException, Inject } from '@nestjs/common';
 import { ImagePostProcessInfo, ImagePreProcessInfo } from '../interface/file/ImageProcessInfo';
-import { Component, Inject, HttpException } from '@nestjs/common';
 import { Bucket } from '../model/Bucket.entity';
 import { KindUtil } from './KindUtil';
-import { isArray } from 'util';
 
 /* URL做图处理字符串服务，可以根据请求体参数，拼接URL处理字符串 */
 @Component()
 export class ProcessStringUtil {
-    private readonly gravity: Set<string> = new Set(['northwest', 'north', 'northeast', 'west', 'center', 'east', 'southwest', 'south', 'southeast'])
+    private readonly gravity: Set<string> = new Set([ 'northwest', 'north', 'northeast', 'west', 'center', 'east', 'southwest', 'south', 'southeast' ])
+
     constructor(
         @Inject(KindUtil) private readonly kindUtil: KindUtil
-    ) { }
+    ) {
+    }
 
     //根据请求体参数生成处理字符串
     makeImageProcessString(bucket: Bucket, imageProcessInfo: ImagePostProcessInfo | ImagePreProcessInfo): string {
         //分别获取缩放、裁剪、水印、旋转、圆角、高斯模糊、锐化、输出格式、图片质量、是否渐进显示、是否去除元信息等参数
         let processString = ''
-        if(!imageProcessInfo || !bucket){
+        if (!imageProcessInfo || !bucket) {
             return processString
         }
         if (imageProcessInfo.resize) processString += this.resizeString(imageProcessInfo.resize)

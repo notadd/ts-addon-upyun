@@ -1,7 +1,6 @@
 import { Component, HttpException, Inject } from '@nestjs/common';
-import { PromiseUtil } from './PromiseUtil';
 import * as fs from 'fs'
-
+import { PromiseUtil } from './PromiseUtil';
 
 /* 异步操作文件的封装工具类 */
 @Component()
@@ -9,7 +8,8 @@ export class FileUtil {
 
     constructor(
         @Inject(PromiseUtil) private readonly promiseUtil: PromiseUtil
-    ) { }
+    ) {
+    }
 
     async write(path: string, buffer: Buffer): Promise<void> {
         await this.promiseUtil.do((resolver, reject) => {
@@ -93,4 +93,4 @@ export class FileUtil {
             })
         })
     }
-} 
+}

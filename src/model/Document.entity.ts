@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, Index, ManyToOne, JoinColumn, OneToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { AbstractFile } from './AbstractFile'
 import { Bucket } from './Bucket.entity'
 
