@@ -3,9 +3,11 @@
     "version": "1.0.0",
     "description": "基于nestjs又拍云存储插件",
     "scripts": {
+        "build": "node --max_old_space_size=4096 ./node_modules/gulp/bin/gulp.js build",
+        "prepublish": "node --max_old_space_size=4096 ./node_modules/gulp/bin/gulp.js build",
+        "publish": "node ./node_modules/lerna/bin/lerna.js publish -m \"chore(release): publish %s\"",
         "start": "node index.js",
         "start:watch": "nodemon",
-        "prestart:prod": "tsc",
         "start:prod": "node dist/server.js"
     },
     "repository": {
