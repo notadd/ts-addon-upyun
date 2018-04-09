@@ -2,6 +2,7 @@ const gulp = require("gulp");
 const rename = require("gulp-rename");
 const sequence = require("gulp-sequence");
 const ts = require("@notadd/gulp-typescript");
+const tslint = require("gulp-tslint");
 
 const packages = {
     "upyun": ts.createProject("src/tsconfig.json"),
@@ -20,6 +21,13 @@ modules.forEach(module => {
     gulp.task(module, () => {
         return packages[module]
             .src()
+            .pipe(tslint({
+                formatter: "verbose",
+            }))
+            .pipe(tslint.report({
+                emitError: false,
+                summarizeFailureOutput: true,
+            }))
             .pipe(packages[module]())
             .pipe(gulp.dest(dist));
     });
