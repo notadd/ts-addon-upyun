@@ -1,5 +1,7 @@
 # Addon Upyun Storage
 
+### [中文说明](README_zh.md)
+
 - [x] Upload based on Form form without going through the server.
 - [x] Unified API, seamlessly switching backends.
 - [x] Support image processing
