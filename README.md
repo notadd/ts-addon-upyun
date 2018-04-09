@@ -4,8 +4,8 @@
 - [x] Unified API, seamlessly switching backends.
 - [x] Support image processing
 - [x] Supports default webp format
-- [] Audio Processing Support
-- [] Support video processing
+- [ ] Audio Processing Support
+- [ ] Support video processing
 
 ## Application Installation
 
