@@ -5,7 +5,7 @@ const ts = require("@notadd/gulp-typescript");
 const tslint = require("gulp-tslint");
 
 const packages = {
-    "upyun": ts.createProject("src/tsconfig.json"),
+    "upyun": ts.createProject("./tsconfig.json"),
 };
 
 const dist = "package";

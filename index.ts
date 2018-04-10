@@ -1,1 +1,1 @@
-export * from './src/UpyunModule'
+export * from "./src/UpyunModule";
