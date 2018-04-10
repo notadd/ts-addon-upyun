@@ -15,7 +15,7 @@ export class AbstractFile {
         length: 50,
         nullable: false
     })
-    raw_name: string;
+    rawName: string;
 
     @Column({
         name: "name",
@@ -31,7 +31,7 @@ export class AbstractFile {
         type: "simple-array",
         nullable: true,
     })
-    tags: string[];
+    tags: Array<string>;
 
     @Column({
         name: "md5",
@@ -45,7 +45,7 @@ export class AbstractFile {
         name: "type",
         type: "varchar",
         length: 20,
-        //File可以没有扩展名
+        // File可以没有扩展名
         nullable: true
     })
     type: string;
@@ -57,14 +57,14 @@ export class AbstractFile {
     })
     size: number;
 
-    //访问密钥
+    // 访问密钥
     @Column({
         name: "content_secret",
         type: "varchar",
         length: "50",
         nullable: true
     })
-    content_secret: string;
+    contentSecret: string;
 
     @Column({
         name: "status",
@@ -77,11 +77,11 @@ export class AbstractFile {
         name: "create_date",
         type: "date"
     })
-    create_date: Date;
+    createDate: Date;
 
     @UpdateDateColumn({
         name: "update_date",
         type: "date"
     })
-    update_date: Date;
+    updateDate: Date;
 }

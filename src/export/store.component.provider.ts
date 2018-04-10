@@ -83,7 +83,7 @@ export class StoreComponent {
         let file: Image | Audio | Video | Document | File;
         const uploadFile = { path: tempPath };
         let type: string = rawName.substring(rawName.lastIndexOf(".") + 1);
-        if (bucket.image_config.format === "webp_damage" || bucket.image_config.format === "webp_undamage") {
+        if (bucket.imageConfig.format === "webp_damage" || bucket.imageConfig.format === "webp_undamage") {
             type = "webp";
         }
         const kind: string = this.kindUtil.getKind(type);
@@ -91,7 +91,7 @@ export class StoreComponent {
             if (kind === "image") {
                 file = this.imageRepository.create({
                     bucket,
-                    raw_name: rawName,
+                    rawName,
                     name,
                     type,
                     md5,
@@ -101,7 +101,7 @@ export class StoreComponent {
                 const { file_size, file_md5 } = await this.resufulUtil.getFileInfo(bucket, file);
                 file = this.imageRepository.create({
                     bucket,
-                    raw_name: rawName,
+                    rawName,
                     name,
                     type,
                     width,
