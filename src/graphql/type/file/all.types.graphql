@@ -6,27 +6,27 @@ type Query{
 #file info
 type File{
     id:Int
-    raw_name:String
+    rawName:String
     name:String
     tags:[String]
     type:String
     size:Int
-    content_secret:String
-    create_date:String
-    update_date:String
+    contentSecret:String
+    createDate:String
+    updateDate:String
     url:String
 }
 
 #image info
 type Image{
     id:Int
-    raw_name:String
+    rawName:String
     name:String
     tags:[String]
     type:String
     size:Int
-    create_date:String
-    update_date:String
+    createDate:String
+    updateDate:String
     width:Int
     height:Int
     url:String
@@ -35,40 +35,40 @@ type Image{
 #audio info
 type Audio{
     id:Int
-    raw_name:String
+    rawName:String
     name:String
     tags:[String]
     md5:String
     type:String
     size:Int
-    create_date:String
-    update_date:String
+    createDate:String
+    updateDate:String
     url:String
 }
 
 #video info
 type Video{
     id:Int
-    raw_name:String
+    rawName:String
     name:String
     tags:[String]
     type:String
     size:Int
-    create_date:String
-    update_date:String
+    createDate:String
+    updateDate:String
     url:String
 }
 
 #document info
 type Document{
     id:Int
-    raw_name:String
+    rawName:String
     name:String
     tags:[String]
     type:String
     size:Int
-    create_date:String
-    update_date:String
+    createDate:String
+    updateDate:String
     url:String
 }
 

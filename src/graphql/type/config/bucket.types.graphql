@@ -7,9 +7,9 @@ type Mutation{
         password:String
         directory:String
         base_url:String
-        request_expire:Int
-        token_expire:Int
-        token_secret_key:String):ConfigData
+        requestExpire:Int
+        tokenExpire:Int
+        tokenSecretKey:String):ConfigData
 }
 
 #config return data

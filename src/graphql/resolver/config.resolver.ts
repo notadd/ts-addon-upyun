@@ -37,26 +37,26 @@ export class ConfigResolver {
     /* 配置空间基本信息 */
     @Mutation("bucket")
     async bucket(req: IncomingMessage, body: BucketConfig): Promise<Data> {
-        let { isPublic, name, operator, password, directory, base_url, request_expire } = body;
-        if (isPublic === undefined || !name || !operator || !password || !directory || !base_url || !request_expire) {
+        let { isPublic, name, operator, password, directory, base_url, requestExpire } = body;
+        if (isPublic === undefined || !name || !operator || !password || !directory || !base_url || !requestExpire) {
             throw new HttpException("缺少参数", 400)
         }
         if (isPublic !== true && isPublic !== false && isPublic !== "true" && isPublic !== "false") {
             throw new HttpException("isPublic参数不正确", 400)
         }
-        if (!Number.isInteger(body.request_expire)) {
+        if (!Number.isInteger(body.requestExpire)) {
             throw new HttpException("请求超时参数为非整数", 400)
-        } else if (body.request_expire < 0) {
+        } else if (body.requestExpire < 0) {
             throw new HttpException("请求超时参数小于0", 400)
-        } else if (body.request_expire > 1800) {
+        } else if (body.requestExpire > 1800) {
             throw new HttpException("请求超时参数大于1800", 400)
         }
         if (!isPublic) {
-            if (!Number.isInteger(body.token_expire)) {
+            if (!Number.isInteger(body.tokenExpire)) {
                 throw new HttpException("token超时参数为非整数", 400);
-            } else if (body.token_expire < 0) {
+            } else if (body.tokenExpire < 0) {
                 throw new HttpException("token超时参数小于0", 400);
-            } else if (body.token_expire > 1800) {
+            } else if (body.tokenExpire > 1800) {
                 throw new HttpException("token超时参数大于1800", 400)
             }
         }
@@ -178,7 +178,7 @@ export class ConfigResolver {
     @Query("buckets")
     async buckets(): Promise<Data & { buckets: Bucket[] }> {
         const buckets: Bucket[] = await this.bucketRepository.createQueryBuilder("bucket")
-            .select([ "bucket.id", "bucket.public_or_private", "bucket.name" ])
+            .select([ "bucket.id", "bucket.publicOrPrivate", "bucket.name" ])
             .getMany();
         if (buckets.length !== 2) {
             throw new HttpException("空间配置不存在", 401);

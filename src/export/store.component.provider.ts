@@ -53,7 +53,6 @@ export class StoreComponent {
             // 其他类型暂不支持
         }
         await this.resufulUtil.deleteFile(bucket, file);
-
         return;
     }
 
@@ -69,7 +68,7 @@ export class StoreComponent {
         }
 
         const bucket: Bucket = await this.bucketRepository.createQueryBuilder("bucket")
-            .leftJoinAndSelect("bucket.image_config", "image_config")
+            .leftJoinAndSelect("bucket.imageConfig", "imageConfig")
             .where("bucket.name = :name", { name: bucketName })
             .getOne();
         if (!bucket) {
@@ -131,7 +130,7 @@ export class StoreComponent {
             throw new HttpException("缺少参数", 400);
         }
         const bucket: Bucket = await this.bucketRepository.createQueryBuilder("bucket")
-            .leftJoinAndSelect("bucket.image_config", "image_config")
+            .leftJoinAndSelect("bucket.imageConfig", "imageConfig")
             .where("bucket.name = :name", { name: bucketName })
             .getOne();
         if (!bucket) {

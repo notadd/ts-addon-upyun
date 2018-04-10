@@ -181,9 +181,9 @@ export class ProcessStringUtil {
         } else if (watermark === false) {
             enable = false
         } else if (watermark === null || watermark === undefined) {
-            if (bucket.image_config.watermark_enable === 1) {
+            if (bucket.imageConfig.watermarkEnable === 1) {
                 enable = true
-            } else if (bucket.image_config.watermark_enable === 0) {
+            } else if (bucket.imageConfig.watermarkEnable === 0) {
                 enable = false
             } else {
                 enable = false
@@ -193,41 +193,41 @@ export class ProcessStringUtil {
         }
         let str: string = ""
         if (enable) {
-            if (bucket.image_config.watermark_save_key) {
-                str += "/watermark/url/" + Buffer.from(bucket.image_config.watermark_save_key).toString("base64")
+            if (bucket.imageConfig.watermark_save_key) {
+                str += "/watermark/url/" + Buffer.from(bucket.imageConfig.watermark_save_key).toString("base64")
             } else {
                 throw new HttpException("水印图片url不存在", 405)
             }
 
-            if (bucket.image_config.watermark_gravity && !this.gravity.has(bucket.image_config.watermark_gravity)) {
+            if (bucket.imageConfig.watermarkGravity && !this.gravity.has(bucket.imageConfig.watermarkGravity)) {
                 throw new HttpException("水印重心参数不正确", 405)
             } else {
-                str += "/align/" + bucket.image_config.watermark_gravity
+                str += "/align/" + bucket.imageConfig.watermarkGravity
             }
 
-            if ((bucket.image_config.watermark_x && !Number.isInteger(bucket.image_config.watermark_x)) || (bucket.image_config.watermark_y && !Number.isInteger(bucket.image_config.watermark_y))) {
+            if ((bucket.imageConfig.watermarkX && !Number.isInteger(bucket.imageConfig.watermarkX)) || (bucket.imageConfig.watermarkY && !Number.isInteger(bucket.imageConfig.watermarkY))) {
                 throw new HttpException("偏移参数不正确", 405)
-            } else if (!bucket.image_config.watermark_x && !bucket.image_config.watermark_y) {
+            } else if (!bucket.imageConfig.watermarkX && !bucket.imageConfig.watermarkY) {
                 str += "/margin/20x20"
-            } else if (!bucket.image_config.watermark_x && bucket.image_config.watermark_y) {
-                str += "/margin/20x" + bucket.image_config.watermark_y
-            } else if (bucket.image_config.watermark_x && !bucket.image_config.watermark_y) {
-                str += "/margin/" + bucket.image_config.watermark_x + "x20"
+            } else if (!bucket.imageConfig.watermarkX && bucket.imageConfig.watermarkY) {
+                str += "/margin/20x" + bucket.imageConfig.watermarkY
+            } else if (bucket.imageConfig.watermarkX && !bucket.imageConfig.watermarkY) {
+                str += "/margin/" + bucket.imageConfig.watermarkX + "x20"
             } else {
-                str += "/margin/" + bucket.image_config.watermark_x + "x" + bucket.image_config.watermark_y
+                str += "/margin/" + bucket.imageConfig.watermarkX + "x" + bucket.imageConfig.watermarkY
             }
 
-            if (bucket.image_config.watermark_opacity && !Number.isInteger(bucket.image_config.watermark_opacity)) {
+            if (bucket.imageConfig.watermarkOpacity && !Number.isInteger(bucket.imageConfig.watermarkOpacity)) {
                 throw new HttpException("透明度参数不正确", 405)
-            } else if (!bucket.image_config.watermark_opacity) {
+            } else if (!bucket.imageConfig.watermarkOpacity) {
                 //默认为100，不用管
             } else {
-                str += "/opacity/" + bucket.image_config.watermark_opacity
+                str += "/opacity/" + bucket.imageConfig.watermarkOpacity
             }
 
-            if (bucket.image_config.watermark_ws && Number.isInteger(bucket.image_config.watermark_ws) && bucket.image_config.watermark_ws >= 1 && bucket.image_config.watermark_ws <= 100) {
-                str += "/percent/" + bucket.image_config.watermark_ws
-            } else if (!bucket.image_config.watermark_ws) {
+            if (bucket.imageConfig.watermarkWs && Number.isInteger(bucket.imageConfig.watermarkWs) && bucket.imageConfig.watermarkWs >= 1 && bucket.imageConfig.watermarkWs <= 100) {
+                str += "/percent/" + bucket.imageConfig.watermarkWs
+            } else if (!bucket.imageConfig.watermarkWs) {
                 //默认为0，不用管
             } else {
                 throw new HttpException("短边自适应参数不正确", 405)

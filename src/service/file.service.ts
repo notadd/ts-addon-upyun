@@ -47,8 +47,8 @@ export class FileService {
         let kind = this.kindUtil.getKind(type)
         //这里原图的save_key不保存它，在回调中直接删除
         policy[ "save-key" ] += "/" + bucket.directory + "/" + md5 + "_" + (+new Date()) + "." + type
-        policy[ "expiration" ] = Math.floor((+new Date()) / 1000) + bucket.request_expire
-        policy[ "date" ] = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
+        policy[ "expiration" ] = Math.floor((+new Date()) / 1000) + bucket.requestExpire
+        policy[ "date" ] = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString()
         //根据配置，设置预处理参数，只有一个预处理任务
         if (kind === "image") {
             let obj = {
@@ -57,7 +57,7 @@ export class FileService {
                 "save_as": "",
                 "notify_url": policy[ "notify-url" ]
             }
-            let format = bucket.image_config.format || "raw"
+            let format = bucket.imageConfig.format || "raw"
             //原图不处理
             if (format == "raw") {
                 //保存为原图，为了防止没有预处理字符串时不进行预处理任务，加上了/scale/100
@@ -98,14 +98,14 @@ export class FileService {
         if (kind === "image") {
             //创建图片
             let image = new Image()
-            image.raw_name = contentName
+            image.rawName = contentName
             //这个文件名会设置到预处理参数apps的save_as中去，而不是上传参数的save_key中，那个文件名不保存，在回调中直接删除
             image.name = md5 + "_" + (+new Date())
             image.md5 = md5
             image.tags = tags
             image.type = type
             image.status = "pre"
-            image.content_secret = contentSecret || null
+            image.contentSecret = contentSecret || null
             image.bucket = bucket
             try {
                 await this.imageRepository.save(image)
@@ -150,15 +150,15 @@ export class FileService {
     async makeUrl(bucket: Bucket, file: File | Image | Video | Audio | Document, body: any, kind: string): Promise<string> {
         let url: string = "/" + bucket.directory + "/" + file.name + "." + file.type
         url += "!"
-        if (file.content_secret) {
-            url += file.content_secret
+        if (file.contentSecret) {
+            url += file.contentSecret
         }
         if (kind === "image") {
             //拼接处理字符串，使用请求体参数
             url += this.processStringUtil.makeImageProcessString(bucket, body.imagePostProcessInfo)
         }
         //如果是私有空间需要拼接token查询字符串
-        if (bucket.public_or_private == "private") {
+        if (bucket.publicOrPrivate == "private") {
             url += "?_upt=" + await this.authUtil.getToken(bucket, url)
         }
         url = bucket.base_url.concat(url)
@@ -173,10 +173,10 @@ export class FileService {
         data.documents = await bucket.documents
         let addUrl = async function (value) {
             value.url = "/" + bucket.directory + "/" + value.name + "." + value.type
-            if (value.content_secret) {
-                value.url += "!" + value.content_secret
+            if (value.contentSecret) {
+                value.url += "!" + value.contentSecret
             }
-            if (bucket.public_or_private === "private") {
+            if (bucket.publicOrPrivate === "private") {
                 value.url += "?_upt=" + await this.authUtil.getToken(bucket, value.url)
             }
         }

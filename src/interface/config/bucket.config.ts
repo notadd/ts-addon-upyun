@@ -10,11 +10,11 @@ export interface BucketConfig {
 
     directory: string;
 
-    request_expire: number;
+    requestExpire: number;
 
     base_url: string;
 
-    token_secret_key?: string;
+    tokenSecretKey?: string;
 
-    token_expire?: number
+    tokenExpire?: number
 }

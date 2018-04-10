@@ -101,7 +101,7 @@ export class FileResolver {
         }
         // 查询空间配置，关联查询图片、音频、视频配置，处理文件需要这些信息
         const bucket: Bucket = await this.bucketRepository.createQueryBuilder("bucket")
-            .leftJoinAndSelect("bucket.image_config", "image_config")
+            .leftJoinAndSelect("bucket.imageConfig", "imageConfig")
             .leftJoinAndSelect("bucket.audio_config", "audio_config")
             .leftJoinAndSelect("bucket.video_config", "video_config")
             .where("bucket.name = :name", { name: bucketName })
@@ -151,7 +151,7 @@ export class FileResolver {
             throw new HttpException("缺少参数", 400);
         }
         const bucket: Bucket = await this.bucketRepository.createQueryBuilder("bucket")
-            .leftJoinAndSelect("bucket.image_config", "image_config")
+            .leftJoinAndSelect("bucket.imageConfig", "imageConfig")
             .leftJoinAndSelect("bucket.audio_config", "audio_config")
             .leftJoinAndSelect("bucket.video_config", "video_config")
             .where("bucket.name = :name", { name: bucketName })

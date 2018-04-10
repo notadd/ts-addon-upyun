@@ -24,7 +24,7 @@ export class Bucket {
 
     // 公有还是私有空间，值为public、private
     @Column({
-        name: "public_or_private",
+        name: "publicOrPrivate",
         type: "varchar",
         length: 20,
         nullable: false,
@@ -71,7 +71,7 @@ export class Bucket {
 
     // 请求过期时间，单位秒
     @Column({
-        name: "request_expire",
+        name: "requestExpire",
         type: "integer",
         nullable: false
     })
@@ -89,7 +89,7 @@ export class Bucket {
 
     // token密钥
     @Column({
-        name: "token_secret_key",
+        name: "tokenSecretKey",
         type: "varchar",
         length: 250,
         nullable: true
@@ -98,15 +98,15 @@ export class Bucket {
 
     // token过期时间，单位秒
     @Column({
-        name: "token_expire",
+        name: "tokenExpire",
         type: "integer",
         nullable: true
     })
     tokenExpire: number;
 
     /*
-    这里lazy:false的意思不是每个Bucket查询出来的时候就会包含image_config
-    它的意思只是在于获取的属性是否是Promise，而要查询出来的Bucket包含image_config，必须使用find({relation:xxxx})
+    这里lazy:false的意思不是每个Bucket查询出来的时候就会包含imageConfig
+    它的意思只是在于获取的属性是否是Promise，而要查询出来的Bucket包含imageConfig，必须使用find({relation:xxxx})
     */
     @OneToOne(type => ImageConfig, imageConfig => imageConfig.bucket, {
         cascadeInsert: true,

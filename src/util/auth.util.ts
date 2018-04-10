@@ -56,8 +56,8 @@ export class AuthUtil {
        @Param bucket：空间配置
     */
     async getToken(bucket: Bucket, url: string) {
-        let expireTime = Math.floor((+new Date()) / 1000) + bucket.token_expire
-        let str = bucket.token_secret_key + "&" + expireTime + "&" + url
+        let expireTime = Math.floor((+new Date()) / 1000) + bucket.tokenExpire
+        let str = bucket.tokenSecretKey + "&" + expireTime + "&" + url
         let md5 = crypto.createHash("md5").update(str).digest("hex")
         //获取中间8位
         let middle8 = md5.substring(12, 20)

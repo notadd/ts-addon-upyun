@@ -10,7 +10,7 @@ export class AbstractFile {
     id: number;
 
     @Column({
-        name: "raw_name",
+        name: "rawName",
         type: "varchar",
         length: 50,
         nullable: false
@@ -59,7 +59,7 @@ export class AbstractFile {
 
     // 访问密钥
     @Column({
-        name: "content_secret",
+        name: "contentSecret",
         type: "varchar",
         length: "50",
         nullable: true
@@ -74,13 +74,13 @@ export class AbstractFile {
     status: string;
 
     @CreateDateColumn({
-        name: "create_date",
+        name: "createDate",
         type: "date"
     })
     createDate: Date;
 
     @UpdateDateColumn({
-        name: "update_date",
+        name: "updateDate",
         type: "date"
     })
     updateDate: Date;

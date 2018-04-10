@@ -1,5 +1,5 @@
 type Query{
-    #get information of bucket,return id、public_or_private、name
+    #get information of bucket,return id、publicOrPrivate、name
     buckets:BucketsData
 }
 
@@ -8,7 +8,7 @@ type Bucket{
     #id
     id:Int
     #public bucket or private bucket
-    public_or_private:String
+    publicOrPrivate:String
     #bucket name
     name:String
 }

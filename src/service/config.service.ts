@@ -41,14 +41,14 @@ export class ConfigService {
             password: crypto.createHash("md5").update(body.password).digest("hex"),
             directory: body.directory,
             baseUrl: body.base_url,
-            requestExpire: body.request_expire
+            requestExpire: body.requestExpire
         });
         if (body.isPublic) {
             exist = await this.bucketRepository.findOneById(1);
         } else {
             exist = await this.bucketRepository.findOneById(2);
-            newBucket.tokenExpire = body.token_expire;
-            newBucket.tokenSecretKey = body.token_secret_key;
+            newBucket.tokenExpire = body.tokenExpire;
+            newBucket.tokenSecretKey = body.tokenSecretKey;
         }
         if (exist) {
             try {
@@ -60,7 +60,7 @@ export class ConfigService {
         }
         const audio_config = new AudioConfig();
         const video_config = new VideoConfig();
-        const image_config = new ImageConfig();
+        const imageConfig = new ImageConfig();
         if (body.isPublic) {
             newBucket.id = 1;
             newBucket.publicOrPrivate = "public";
@@ -70,10 +70,10 @@ export class ConfigService {
         }
         audio_config.id = newBucket.id;
         video_config.id = newBucket.id;
-        image_config.id = newBucket.id;
+        imageConfig.id = newBucket.id;
         newBucket.audioConfig = audio_config;
         newBucket.videoConfig = video_config;
-        newBucket.imageConfig = image_config;
+        newBucket.imageConfig = imageConfig;
         try {
             await this.bucketRepository.save(newBucket);
         } catch (err) {
@@ -88,7 +88,7 @@ export class ConfigService {
         if (format !== "raw" && format !== "webp_damage" && format !== "webp_undamage") {
             throw new HttpException("图片保存格式不正确", 400);
         }
-        const buckets: Bucket[] = await this.bucketRepository.find({ relations: [ "image_config" ] });
+        const buckets: Bucket[] = await this.bucketRepository.find({ relations: [ "imageConfig" ] });
         if (buckets.length !== 2) {
             throw new HttpException("空间配置不存在", 401);
         }
@@ -103,19 +103,19 @@ export class ConfigService {
     }
 
     async saveEnableImageWatermarkConfig(body: EnableImageWatermarkConfig): Promise<void> {
-        const buckets: Bucket[] = await this.bucketRepository.find({ relations: [ "image_config" ] });
+        const buckets: Bucket[] = await this.bucketRepository.find({ relations: [ "imageConfig" ] });
         if (buckets.length !== 2) {
             throw new HttpException("空间配置不存在", 401);
         }
-        let watermark_enable: number;
+        let watermarkEnable: number;
         if (body.enable) {
-            watermark_enable = 1;
+            watermarkEnable = 1;
         } else {
-            watermark_enable = 0;
+            watermarkEnable = 0;
         }
         try {
             for (let i = 0; i < buckets.length; i++) {
-                await this.imageConfigRepository.updateById(buckets[ i ].imageConfig.id, { watermark_enable });
+                await this.imageConfigRepository.updateById(buckets[ i ].imageConfig.id, { watermarkEnable });
             }
         } catch (err) {
             throw new HttpException("水印启用保存失败" + err.toString(), 403);
@@ -123,7 +123,7 @@ export class ConfigService {
     }
 
     async saveImageWatermarkConfig(file: any, obj: any): Promise<void> {
-        const buckets: Bucket[] = await this.bucketRepository.find({ relations: [ "image_config" ] });
+        const buckets: Bucket[] = await this.bucketRepository.find({ relations: [ "imageConfig" ] });
         let type = file.name.substr(file.name.lastIndexOf(".") + 1).toLowerCase();
         if (buckets.length !== 2) {
             throw new HttpException("空间配置不存在", 401);
@@ -137,7 +137,7 @@ export class ConfigService {
             const image: Image = new Image();
             // 这里有坑，如果之前使用了await bucket.images，那么这个bucket的性质会改变，即便这样关联，最后image中仍旧没有bucketId值
             image.bucket = buckets[ i ];
-            image.raw_name = file.name;
+            image.rawName = file.name;
             // 图片文件名为md5_时间戳
             image.name = md5 + "_" + (+new Date());
             image.type = type;
@@ -157,11 +157,11 @@ export class ConfigService {
             try {
                 await this.imageConfigRepository.updateById(buckets[ i ].imageConfig.id, {
                     watermark_save_key: "/" + buckets[ i ].directory + "/" + image.name + "." + image.type,
-                    watermark_gravity: obj.gravity,
-                    watermark_opacity: obj.opacity,
-                    watermark_ws: obj.ws,
-                    watermark_x: obj.x,
-                    watermark_y: obj.y
+                    watermarkGravity: obj.gravity,
+                    watermarkOpacity: obj.opacity,
+                    watermarkWs: obj.ws,
+                    watermarkX: obj.x,
+                    watermarkY: obj.y
                 });
             } catch (err) {
                 throw new HttpException("水印配置更新失败" + err.toString(), 403);

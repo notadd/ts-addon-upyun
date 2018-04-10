@@ -34,9 +34,9 @@ export class RestfulUtil {
         let save_key = "/" + bucket.directory + "/" + file.name + "." + file.type
         let requestUrl = this.apihost + "/" + bucket.name + save_key
         let url = "/" + bucket.name + save_key
-        let date: string = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
+        let date: string = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString()
         let Authorization = await this.authUtil.getHeaderAuth(bucket, "PUT", url, date, contentMd5)
-        let format = bucket.image_config.format || "raw"
+        let format = bucket.imageConfig.format || "raw"
         let x_gmkerl_thumb = this.processStringUtil.makeImageProcessString(bucket, imagePreProcessInfo)
         if (format === "raw") {
             x_gmkerl_thumb += "/scale/100"
@@ -91,7 +91,7 @@ export class RestfulUtil {
     async createDirectory(bucket: Bucket): Promise<void> {
         let requestUrl = this.apihost + "/" + bucket.name + "/" + bucket.directory
         let url = "/" + bucket.name + "/" + bucket.directory
-        let date: string = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
+        let date: string = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString()
         let Authorization = await this.authUtil.getHeaderAuth(bucket, "POST", url, date, null)
         await this.promiseUtil.do((resolve, reject) => {
             request.post({
@@ -135,7 +135,7 @@ export class RestfulUtil {
         let save_key = "/" + bucket.directory + "/" + file.name + "." + file.type
         let requestUrl = this.apihost + "/" + bucket.name + save_key
         let url = "/" + bucket.name + save_key
-        let date: string = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
+        let date: string = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString()
         let Authorization = await this.authUtil.getHeaderAuth(bucket, "DELETE", url, date, "")
         await this.promiseUtil.do((resolve, reject) => {
             request.delete({
@@ -175,7 +175,7 @@ export class RestfulUtil {
         let save_key = "/" + bucket.directory + "/" + file.name + "." + file.type
         let requestUrl = this.apihost + "/" + bucket.name + save_key
         let url = "/" + bucket.name + save_key
-        let date: string = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
+        let date: string = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString()
         let Authorization = await this.authUtil.getHeaderAuth(bucket, "HEAD", url, date, "")
         let file_size, file_date, file_md5
         await this.promiseUtil.do((resolve, reject) => {
@@ -222,7 +222,7 @@ export class RestfulUtil {
         let save_key = "/" + bucket.directory
         let requestUrl = this.apihost + "/" + bucket.name + save_key
         let url = "/" + bucket.name + save_key
-        let date: string = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
+        let date: string = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString()
         let Authorization = await this.authUtil.getHeaderAuth(bucket, "GET", url, date, "")
         let info
         await this.promiseUtil.do((resolve, reject) => {

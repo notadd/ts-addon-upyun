@@ -4,7 +4,7 @@ import { Bucket } from "./bucket.entity";
 
 /* 图片配置实体类 */
 @Entity({
-    name: "image_config"
+    name: "imageConfig"
 })
 export class ImageConfig {
 
@@ -25,11 +25,11 @@ export class ImageConfig {
 
     // 是否启用水印，true、false
     @Column({
-        name: "watermark_enable",
+        name: "watermarkEnable",
         type: "smallint",
         nullable: true
     })
-    watermarkenable: number;
+    watermarkEnable: number;
 
     // 水印图片保存的save_key，每个空间图片加水印使用自己空间下的水印图片，所以水印图片要保存两次
     @Column({
@@ -42,7 +42,7 @@ export class ImageConfig {
 
     // 水印位置，九宫格
     @Column({
-        name: "watermark_gravity",
+        name: "watermarkGravity",
         type: "varchar",
         nullable: true
     })
@@ -50,7 +50,7 @@ export class ImageConfig {
 
     // 水印横轴偏移
     @Column({
-        name: "watermark_x",
+        name: "watermarkX",
         type: "integer",
         nullable: true
     })
@@ -58,7 +58,7 @@ export class ImageConfig {
 
     // 水印纵轴偏移
     @Column({
-        name: "watermark_y",
+        name: "watermarkY",
         type: "integer",
         nullable: true
     })
@@ -66,7 +66,7 @@ export class ImageConfig {
 
     // 水印透明度
     @Column({
-        name: "watermark_opacity",
+        name: "watermarkOpacity",
         type: "integer",
         nullable: true
     })
@@ -74,7 +74,7 @@ export class ImageConfig {
 
     // 水印与图片短边自适应比例
     @Column({
-        name: "watermark_ws",
+        name: "watermarkWs",
         type: "integer",
         nullable: true
     })
