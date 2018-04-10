@@ -22,57 +22,57 @@ var ImageConfig = /** @class */ (function () {
         typeorm_1.Column({
             name: "format",
             type: "varchar",
-            nullable: true
+            undefinedable: true
         })
     ], ImageConfig.prototype, "format");
     __decorate([
         typeorm_1.Column({
             name: "watermarkEnable",
             type: "smallint",
-            nullable: true
+            undefinedable: true
         })
     ], ImageConfig.prototype, "watermarkEnable");
     __decorate([
         typeorm_1.Column({
-            name: "watermark_save_key",
+            name: "watermarkSaveKey",
             type: "varchar",
             length: 80,
-            nullable: true
+            undefinedable: true
         })
     ], ImageConfig.prototype, "watermarkSaveKey");
     __decorate([
         typeorm_1.Column({
             name: "watermarkGravity",
             type: "varchar",
-            nullable: true
+            undefinedable: true
         })
     ], ImageConfig.prototype, "watermarkGravity");
     __decorate([
         typeorm_1.Column({
             name: "watermarkX",
             type: "integer",
-            nullable: true
+            undefinedable: true
         })
     ], ImageConfig.prototype, "watermarkX");
     __decorate([
         typeorm_1.Column({
             name: "watermarkY",
             type: "integer",
-            nullable: true
+            undefinedable: true
         })
     ], ImageConfig.prototype, "watermarkY");
     __decorate([
         typeorm_1.Column({
             name: "watermarkOpacity",
             type: "integer",
-            nullable: true
+            undefinedable: true
         })
     ], ImageConfig.prototype, "watermarkOpacity");
     __decorate([
         typeorm_1.Column({
             name: "watermarkWs",
             type: "integer",
-            nullable: true
+            undefinedable: true
         })
     ], ImageConfig.prototype, "watermarkWs");
     __decorate([

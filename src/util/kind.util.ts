@@ -1,7 +1,7 @@
 
 import { Component } from "@nestjs/common";
 
-const allowExtension = require("../allowExtension.json")
+const allowExtension = require("../allowExtension.json");
 
 @Component()
 export class KindUtil {
@@ -11,20 +11,20 @@ export class KindUtil {
 
     getKind(type: string) {
         if (allowExtension.image.includes(type)) {
-            return "image"
+            return "image";
         } else if (allowExtension.audio.includes(type)) {
-            return "audio"
+            return "audio";
         } else if (allowExtension.video.includes(type)) {
-            return "video"
+            return "video";
         } else if (allowExtension.document.includes(type)) {
-            return "document"
+            return "document";
         } else {
-            return "file"
+            return "file";
         }
     }
 
     isImage(type: string) {
-        return allowExtension.image.includes(type)
+        return allowExtension.image.includes(type);
     }
 }
 

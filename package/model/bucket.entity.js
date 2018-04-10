@@ -30,7 +30,7 @@ var Bucket = /** @class */ (function () {
             name: "publicOrPrivate",
             type: "varchar",
             length: 20,
-            nullable: false,
+            undefinedable: false,
             unique: true
         })
     ], Bucket.prototype, "publicOrPrivate");
@@ -39,7 +39,7 @@ var Bucket = /** @class */ (function () {
             name: "name",
             type: "varchar",
             length: 50,
-            nullable: false,
+            undefinedable: false,
             unique: true
         })
     ], Bucket.prototype, "name");
@@ -48,7 +48,7 @@ var Bucket = /** @class */ (function () {
             name: "operator",
             type: "varchar",
             length: 50,
-            nullable: false
+            undefinedable: false
         })
     ], Bucket.prototype, "operator");
     __decorate([
@@ -56,7 +56,7 @@ var Bucket = /** @class */ (function () {
             name: "password",
             type: "varchar",
             length: 50,
-            nullable: false
+            undefinedable: false
         })
     ], Bucket.prototype, "password");
     __decorate([
@@ -64,14 +64,14 @@ var Bucket = /** @class */ (function () {
             name: "directory",
             type: "varchar",
             length: 20,
-            nullable: false
+            undefinedable: false
         })
     ], Bucket.prototype, "directory");
     __decorate([
         typeorm_1.Column({
             name: "requestExpire",
             type: "integer",
-            nullable: false
+            undefinedable: false
         })
     ], Bucket.prototype, "requestExpire");
     __decorate([
@@ -79,7 +79,7 @@ var Bucket = /** @class */ (function () {
             name: "baseUrl",
             type: "varchar",
             length: 50,
-            nullable: false,
+            undefinedable: false,
             unique: true
         })
     ], Bucket.prototype, "baseUrl");
@@ -88,14 +88,14 @@ var Bucket = /** @class */ (function () {
             name: "tokenSecretKey",
             type: "varchar",
             length: 250,
-            nullable: true
+            undefinedable: true
         })
     ], Bucket.prototype, "tokenSecretKey");
     __decorate([
         typeorm_1.Column({
             name: "tokenExpire",
             type: "integer",
-            nullable: true
+            undefinedable: true
         })
     ], Bucket.prototype, "tokenExpire");
     __decorate([

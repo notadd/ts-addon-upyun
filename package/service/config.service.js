@@ -69,7 +69,7 @@ var ConfigService = /** @class */ (function () {
     }
     ConfigService.prototype.saveBucketConfig = function (body) {
         return __awaiter(this, void 0, void 0, function () {
-            var exist, newBucket, err_1, audio_config, video_config, imageConfig, err_2;
+            var exist, newBucket, err_1, audioConfig, videoConfig, imageConfig, err_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -106,8 +106,8 @@ var ConfigService = /** @class */ (function () {
                         throw new common_1.HttpException("空间配置更新失败" + err_1.toString(), 403);
                     case 8: return [2 /*return*/, newBucket];
                     case 9:
-                        audio_config = new audio_config_entity_1.AudioConfig();
-                        video_config = new video_config_entity_1.VideoConfig();
+                        audioConfig = new audio_config_entity_1.AudioConfig();
+                        videoConfig = new video_config_entity_1.VideoConfig();
                         imageConfig = new image_config_entity_1.ImageConfig();
                         if (body.isPublic) {
                             newBucket.id = 1;
@@ -117,11 +117,11 @@ var ConfigService = /** @class */ (function () {
                             newBucket.id = 2;
                             newBucket.publicOrPrivate = "private";
                         }
-                        audio_config.id = newBucket.id;
-                        video_config.id = newBucket.id;
+                        audioConfig.id = newBucket.id;
+                        videoConfig.id = newBucket.id;
                         imageConfig.id = newBucket.id;
-                        newBucket.audioConfig = audio_config;
-                        newBucket.videoConfig = video_config;
+                        newBucket.audioConfig = audioConfig;
+                        newBucket.videoConfig = videoConfig;
                         newBucket.imageConfig = imageConfig;
                         _a.label = 10;
                     case 10:
@@ -220,7 +220,7 @@ var ConfigService = /** @class */ (function () {
     };
     ConfigService.prototype.saveImageWatermarkConfig = function (file, obj) {
         return __awaiter(this, void 0, void 0, function () {
-            var buckets, type, buffer, md5, i, image, _a, width, height, frames_1, _b, file_size, file_md5, err_5, err_6;
+            var buckets, type, buffer, md5, i, image, _a, width, height, frames_1, _b, fileSize, fileMd5, err_5, err_6;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0: return [4 /*yield*/, this.bucketRepository.find({ relations: ["imageConfig"] })];
@@ -249,17 +249,17 @@ var ConfigService = /** @class */ (function () {
                         image.name = md5 + "_" + (+new Date());
                         image.type = type;
                         image.status = "post";
-                        return [4 /*yield*/, this.restfulUtil.uploadFile(buckets[i], image, file, null)];
+                        return [4 /*yield*/, this.restfulUtil.uploadFile(buckets[i], image, file, undefined)];
                     case 4:
                         _a = _c.sent(), width = _a.width, height = _a.height, frames_1 = _a.frames;
                         return [4 /*yield*/, this.restfulUtil.getFileInfo(buckets[i], image)];
                     case 5:
-                        _b = _c.sent(), file_size = _b.file_size, file_md5 = _b.file_md5;
+                        _b = _c.sent(), fileSize = _b.fileSize, fileMd5 = _b.fileMd5;
                         image.width = width;
                         image.height = height;
                         image.frames = frames_1;
-                        image.size = file_size;
-                        image.md5 = file_md5;
+                        image.size = fileSize;
+                        image.md5 = fileMd5;
                         _c.label = 6;
                     case 6:
                         _c.trys.push([6, 8, , 9]);
@@ -273,7 +273,7 @@ var ConfigService = /** @class */ (function () {
                     case 9:
                         _c.trys.push([9, 11, , 12]);
                         return [4 /*yield*/, this.imageConfigRepository.updateById(buckets[i].imageConfig.id, {
-                                watermark_save_key: "/" + buckets[i].directory + "/" + image.name + "." + image.type,
+                                watermarkSaveKey: "/" + buckets[i].directory + "/" + image.name + "." + image.type,
                                 watermarkGravity: obj.gravity,
                                 watermarkOpacity: obj.opacity,
                                 watermarkWs: obj.ws,
@@ -305,7 +305,7 @@ var ConfigService = /** @class */ (function () {
                         if (format !== "raw" && format !== "mp3" && format !== "aac") {
                             throw new common_1.HttpException("音频保存格式不正确", 400);
                         }
-                        return [4 /*yield*/, this.bucketRepository.find({ relations: ["audio_config"] })];
+                        return [4 /*yield*/, this.bucketRepository.find({ relations: ["audioConfig"] })];
                     case 1:
                         buckets = _a.sent();
                         if (buckets.length !== 2) {
@@ -349,7 +349,7 @@ var ConfigService = /** @class */ (function () {
                         if (resolution !== "raw" && resolution !== "p1080" && resolution !== "p720" && resolution !== "p480") {
                             throw new common_1.HttpException("视频分辨率格式不正确", 400);
                         }
-                        return [4 /*yield*/, this.bucketRepository.find({ relations: ["video_config"] })];
+                        return [4 /*yield*/, this.bucketRepository.find({ relations: ["videoConfig"] })];
                     case 1:
                         buckets = _a.sent();
                         if (buckets.length !== 2) {

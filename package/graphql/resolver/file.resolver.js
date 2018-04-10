@@ -140,8 +140,8 @@ var FileResolver = /** @class */ (function () {
                         }
                         return [4 /*yield*/, this.bucketRepository.createQueryBuilder("bucket")
                                 .leftJoinAndSelect("bucket.imageConfig", "imageConfig")
-                                .leftJoinAndSelect("bucket.audio_config", "audio_config")
-                                .leftJoinAndSelect("bucket.video_config", "video_config")
+                                .leftJoinAndSelect("bucket.audioConfig", "audioConfig")
+                                .leftJoinAndSelect("bucket.videoConfig", "videoConfig")
                                 .where("bucket.name = :name", { name: bucketName })
                                 .getOne()];
                     case 1:
@@ -200,8 +200,8 @@ var FileResolver = /** @class */ (function () {
                         }
                         return [4 /*yield*/, this.bucketRepository.createQueryBuilder("bucket")
                                 .leftJoinAndSelect("bucket.imageConfig", "imageConfig")
-                                .leftJoinAndSelect("bucket.audio_config", "audio_config")
-                                .leftJoinAndSelect("bucket.video_config", "video_config")
+                                .leftJoinAndSelect("bucket.audioConfig", "audioConfig")
+                                .leftJoinAndSelect("bucket.videoConfig", "videoConfig")
                                 .where("bucket.name = :name", { name: bucketName })
                                 .getOne()];
                     case 1:

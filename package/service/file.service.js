@@ -78,20 +78,20 @@ var FileService = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         md5 = body.md5, contentSecret = body.contentSecret, contentName = body.contentName;
-                        //设置各种上传参数
+                        // 设置各种上传参数
                         if (contentSecret) {
                             policy["content-secret"] = contentSecret;
                         }
-                        policy["bucket"] = bucket.name;
+                        policy.bucket = bucket.name;
                         policy["ext-param"] += bucket.name;
-                        data["url"] += "/" + bucket.name;
+                        data.url += "/" + bucket.name;
                         type = file.type || "";
                         kind = this.kindUtil.getKind(type);
-                        //这里原图的save_key不保存它，在回调中直接删除
+                        // 这里原图的save_key不保存它，在回调中直接删除
                         policy["save-key"] += "/" + bucket.directory + "/" + md5 + "_" + (+new Date()) + "." + type;
-                        policy["expiration"] = Math.floor((+new Date()) / 1000) + bucket.requestExpire;
-                        policy["date"] = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
-                        //根据配置，设置预处理参数，只有一个预处理任务
+                        policy.expiration = Math.floor((+new Date()) / 1000) + bucket.requestExpire;
+                        policy.date = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
+                        // 根据配置，设置预处理参数，只有一个预处理任务
                         if (kind === "image") {
                             obj = {
                                 "name": "thumb",
@@ -100,36 +100,36 @@ var FileService = /** @class */ (function () {
                                 "notify_url": policy["notify-url"]
                             };
                             format = bucket.imageConfig.format || "raw";
-                            //原图不处理
-                            if (format == "raw") {
-                                //保存为原图，为了防止没有预处理字符串时不进行预处理任务，加上了/scale/100
+                            // 原图不处理
+                            if (format === "raw") {
+                                // 保存为原图，为了防止没有预处理字符串时不进行预处理任务，加上了/scale/100
                                 obj["x-gmkerl-thumb"] = this.processStringUtil.makeImageProcessString(bucket, body.imagePreProcessInfo) + "/scale/100";
-                                //这里将预处理的文件名设置为刚才保存的文件名，在回调中根据文件名来更新它，保存为原图时，
-                                obj["save_as"] = "/" + bucket.directory + "/" + file.name + "." + file.type;
-                                //apps字段应为json字符串
-                                policy["apps"] = [obj];
+                                // 这里将预处理的文件名设置为刚才保存的文件名，在回调中根据文件名来更新它，保存为原图时，
+                                obj.save_as = "/" + bucket.directory + "/" + file.name + "." + file.type;
+                                // apps字段应为json字符串
+                                policy.apps = [obj];
                             }
-                            else if (format == "webp_damage") {
-                                //保存为有损webp
+                            else if (format === "webp_damage") {
+                                // 保存为有损webp
                                 obj["x-gmkerl-thumb"] = this.processStringUtil.makeImageProcessString(bucket, body.imagePreProcessInfo) + "/format/webp/strip/true";
-                                obj["save_as"] = "/" + bucket.directory + "/" + file.name + "." + "webp";
-                                //apps字段应为json字符串
-                                policy["apps"] = [obj];
+                                obj.save_as = "/" + bucket.directory + "/" + file.name + "." + "webp";
+                                // apps字段应为json字符串
+                                policy.apps = [obj];
                             }
-                            else if (format == "webp_undamage") {
-                                //保存为无损webp
+                            else if (format === "webp_undamage") {
+                                // 保存为无损webp
                                 obj["x-gmkerl-thumb"] = this.processStringUtil.makeImageProcessString(bucket, body.imagePreProcessInfo) + "/format/webp/lossless/true/strip/true";
-                                obj["save_as"] = "/" + bucket.directory + "/" + file.name + "." + "webp";
-                                policy["apps"] = [obj];
+                                obj.save_as = "/" + bucket.directory + "/" + file.name + "." + "webp";
+                                policy.apps = [obj];
                             }
                             else {
                                 throw new Error("格式配置不正确，应该不能发生");
                             }
                         }
                         else {
-                            //暂时不支持
+                            // 暂时不支持
                         }
-                        //设置表单policy字段
+                        // 设置表单policy字段
                         data.form.policy = Buffer.from(JSON.stringify(policy)).toString("base64");
                         method = data.method;
                         _a = data.form;
@@ -153,13 +153,13 @@ var FileService = /** @class */ (function () {
                         if (!(kind === "image")) return [3 /*break*/, 5];
                         image = new image_entity_1.Image();
                         image.rawName = contentName;
-                        //这个文件名会设置到预处理参数apps的save_as中去，而不是上传参数的save_key中，那个文件名不保存，在回调中直接删除
+                        // 这个文件名会设置到预处理参数apps的save_as中去，而不是上传参数的save_key中，那个文件名不保存，在回调中直接删除
                         image.name = md5 + "_" + (+new Date());
                         image.md5 = md5;
                         image.tags = tags;
                         image.type = type;
                         image.status = "pre";
-                        image.contentSecret = contentSecret || null;
+                        image.contentSecret = contentSecret || undefined;
                         image.bucket = bucket;
                         _a.label = 1;
                     case 1:
@@ -180,30 +180,28 @@ var FileService = /** @class */ (function () {
     /* 预处理回调通知验签成功，且响应码为200时，后保存图片 */
     FileService.prototype.postSaveTask = function (bucket, name, body, kind) {
         return __awaiter(this, void 0, void 0, function () {
-            var image, _a, file_size, file_md5, err_2;
+            var image, _a, fileSize, fileMd5, err_2;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         if (!(kind === "image")) return [3 /*break*/, 7];
-                        return [4 /*yield*/, this.imageRepository.findOne({ name: name, bucketId: bucket.id, status: "pre" })
-                            //预保存图片不存在时，正常返回，服务器错误
-                        ];
+                        return [4 /*yield*/, this.imageRepository.findOne({ name: name, bucketId: bucket.id, status: "pre" })];
                     case 1:
                         image = _b.sent();
-                        //预保存图片不存在时，正常返回，服务器错误
+                        // 预保存图片不存在时，正常返回，服务器错误
                         if (!image) {
                             return [2 /*return*/];
                         }
-                        image.width = body.imginfo["width"],
-                            image.height = body.imginfo["height"],
-                            image.type = body.imginfo["type"].toLowerCase(),
-                            image.frames = body.imginfo["frames"],
+                        image.width = body.imginfo.width,
+                            image.height = body.imginfo.height,
+                            image.type = body.imginfo.type.toLowerCase(),
+                            image.frames = body.imginfo.frames,
                             image.status = "post";
                         return [4 /*yield*/, this.restfulUtil.getFileInfo(bucket, image)];
                     case 2:
-                        _a = _b.sent(), file_size = _a.file_size, file_md5 = _a.file_md5;
-                        image.size = file_size;
-                        image.md5 = file_md5;
+                        _a = _b.sent(), fileSize = _a.fileSize, fileMd5 = _a.fileMd5;
+                        image.size = fileSize;
+                        image.md5 = fileMd5;
                         _b.label = 3;
                     case 3:
                         _b.trys.push([3, 5, , 6]);
@@ -221,7 +219,7 @@ var FileService = /** @class */ (function () {
             });
         });
     };
-    //创建url
+    // 创建url
     FileService.prototype.makeUrl = function (bucket, file, body, kind) {
         return __awaiter(this, void 0, void 0, function () {
             var url, _a, _b;
@@ -234,10 +232,10 @@ var FileService = /** @class */ (function () {
                             url += file.contentSecret;
                         }
                         if (kind === "image") {
-                            //拼接处理字符串，使用请求体参数
+                            // 拼接处理字符串，使用请求体参数
                             url += this.processStringUtil.makeImageProcessString(bucket, body.imagePostProcessInfo);
                         }
-                        if (!(bucket.publicOrPrivate == "private")) return [3 /*break*/, 2];
+                        if (!(bucket.publicOrPrivate === "private")) return [3 /*break*/, 2];
                         _a = url;
                         _b = "?_upt=";
                         return [4 /*yield*/, this.authUtil.getToken(bucket, url)];

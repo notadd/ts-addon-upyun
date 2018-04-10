@@ -25,14 +25,14 @@ var Video = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     __decorate([
-        typeorm_1.Column({ nullable: true })
+        typeorm_1.Column({ undefinedable: true })
     ], Video.prototype, "bucketId");
     __decorate([
         typeorm_1.ManyToOne(function (type) { return bucket_entity_1.Bucket; }, function (bucket) { return bucket.videos; }, {
             cascadeInsert: false,
             cascadeUpdate: false,
             cascadeRemove: false,
-            nullable: false,
+            undefinedable: false,
             lazy: false
         }),
         typeorm_1.JoinColumn()

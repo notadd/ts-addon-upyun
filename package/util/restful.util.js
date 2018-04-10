@@ -61,31 +61,31 @@ var RestfulUtil = /** @class */ (function () {
         this.processStringUtil = processStringUtil;
         this.apihost = "https://v0.api.upyun.com";
     }
-    //上传文件，其中文件信息来自于formidable解析得到的File对象
+    // 上传文件，其中文件信息来自于formidable解析得到的File对象
     RestfulUtil.prototype.uploadFile = function (bucket, file, uploadFile, imagePreProcessInfo) {
         return __awaiter(this, void 0, void 0, function () {
-            var contentMd5, save_key, requestUrl, url, date, Authorization, format, x_gmkerl_thumb, height, width, frames;
+            var contentMd5, saveKey, requestUrl, url, date, Authorization, format, xGmkerlThumb, height, width, frames;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         contentMd5 = file.md5;
-                        save_key = "/" + bucket.directory + "/" + file.name + "." + file.type;
-                        requestUrl = this.apihost + "/" + bucket.name + save_key;
-                        url = "/" + bucket.name + save_key;
+                        saveKey = "/" + bucket.directory + "/" + file.name + "." + file.type;
+                        requestUrl = this.apihost + "/" + bucket.name + saveKey;
+                        url = "/" + bucket.name + saveKey;
                         date = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
                         return [4 /*yield*/, this.authUtil.getHeaderAuth(bucket, "PUT", url, date, contentMd5)];
                     case 1:
                         Authorization = _a.sent();
                         format = bucket.imageConfig.format || "raw";
-                        x_gmkerl_thumb = this.processStringUtil.makeImageProcessString(bucket, imagePreProcessInfo);
+                        xGmkerlThumb = this.processStringUtil.makeImageProcessString(bucket, imagePreProcessInfo);
                         if (format === "raw") {
-                            x_gmkerl_thumb += "/scale/100";
+                            xGmkerlThumb += "/scale/100";
                         }
                         else if (format === "webp_damage") {
-                            x_gmkerl_thumb += "/format/webp/strip/true";
+                            xGmkerlThumb += "/format/webp/strip/true";
                         }
                         else {
-                            x_gmkerl_thumb += "/format/webp/lossless/true/strip/true";
+                            xGmkerlThumb += "/format/webp/lossless/true/strip/true";
                         }
                         return [4 /*yield*/, this.promiseUtil["do"](function (resolve, reject) {
                                 fs.createReadStream(uploadFile.path).pipe(request.put({
@@ -95,8 +95,8 @@ var RestfulUtil = /** @class */ (function () {
                                         "Content-Length": file.size,
                                         "Content-MD5": contentMd5,
                                         Authorization: Authorization,
-                                        Date: date,
-                                        "x-gmkerl-thumb": x_gmkerl_thumb
+                                        "Date": date,
+                                        "x-gmkerl-thumb": xGmkerlThumb
                                     }
                                 }, function (err, res, body) {
                                     if (err) {
@@ -144,7 +144,7 @@ var RestfulUtil = /** @class */ (function () {
                         requestUrl = this.apihost + "/" + bucket.name + "/" + bucket.directory;
                         url = "/" + bucket.name + "/" + bucket.directory;
                         date = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
-                        return [4 /*yield*/, this.authUtil.getHeaderAuth(bucket, "POST", url, date, null)];
+                        return [4 /*yield*/, this.authUtil.getHeaderAuth(bucket, "POST", url, date, undefined)];
                     case 1:
                         Authorization = _a.sent();
                         return [4 /*yield*/, this.promiseUtil["do"](function (resolve, reject) {
@@ -192,13 +192,13 @@ var RestfulUtil = /** @class */ (function () {
      */
     RestfulUtil.prototype.deleteFile = function (bucket, file) {
         return __awaiter(this, void 0, void 0, function () {
-            var save_key, requestUrl, url, date, Authorization;
+            var savekey, requestUrl, url, date, Authorization;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        save_key = "/" + bucket.directory + "/" + file.name + "." + file.type;
-                        requestUrl = this.apihost + "/" + bucket.name + save_key;
-                        url = "/" + bucket.name + save_key;
+                        savekey = "/" + bucket.directory + "/" + file.name + "." + file.type;
+                        requestUrl = this.apihost + "/" + bucket.name + savekey;
+                        url = "/" + bucket.name + savekey;
                         date = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
                         return [4 /*yield*/, this.authUtil.getHeaderAuth(bucket, "DELETE", url, date, "")];
                     case 1:
@@ -215,7 +215,7 @@ var RestfulUtil = /** @class */ (function () {
                                         reject(new common_1.HttpException("删除文件失败", 402));
                                         return;
                                     }
-                                    if (res.statusCode == 200) {
+                                    if (res.statusCode === 200) {
                                         resolve();
                                         return;
                                     }
@@ -245,13 +245,13 @@ var RestfulUtil = /** @class */ (function () {
      */
     RestfulUtil.prototype.getFileInfo = function (bucket, file) {
         return __awaiter(this, void 0, void 0, function () {
-            var save_key, requestUrl, url, date, Authorization, file_size, file_date, file_md5;
+            var savekey, requestUrl, url, date, Authorization, fileSize, fileDate, fileMd5;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        save_key = "/" + bucket.directory + "/" + file.name + "." + file.type;
-                        requestUrl = this.apihost + "/" + bucket.name + save_key;
-                        url = "/" + bucket.name + save_key;
+                        savekey = "/" + bucket.directory + "/" + file.name + "." + file.type;
+                        requestUrl = this.apihost + "/" + bucket.name + savekey;
+                        url = "/" + bucket.name + savekey;
                         date = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
                         return [4 /*yield*/, this.authUtil.getHeaderAuth(bucket, "HEAD", url, date, "")];
                     case 1:
@@ -268,10 +268,10 @@ var RestfulUtil = /** @class */ (function () {
                                         reject(new common_1.HttpException("获取文件信息失败", 402));
                                         return;
                                     }
-                                    if (res.statusCode == 200) {
-                                        file_size = +res.headers["x-upyun-file-size"];
-                                        file_date = +res.headers["x-upyun-file-date"];
-                                        file_md5 = res.headers["content-md5"];
+                                    if (res.statusCode === 200) {
+                                        fileSize = +res.headers["x-upyun-file-size"];
+                                        fileDate = +res.headers["x-upyun-file-date"];
+                                        fileMd5 = res.headers["content-md5"];
                                         resolve();
                                         return;
                                     }
@@ -292,7 +292,7 @@ var RestfulUtil = /** @class */ (function () {
                             })];
                     case 2:
                         _a.sent();
-                        return [2 /*return*/, { file_size: file_size, file_date: file_date, file_md5: file_md5 }];
+                        return [2 /*return*/, { fileSize: fileSize, fileDate: fileDate, fileMd5: fileMd5 }];
                 }
             });
         });
@@ -304,13 +304,13 @@ var RestfulUtil = /** @class */ (function () {
      */
     RestfulUtil.prototype.getFileList = function (bucket) {
         return __awaiter(this, void 0, void 0, function () {
-            var save_key, requestUrl, url, date, Authorization, info;
+            var saveKey, requestUrl, url, date, Authorization, info;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        save_key = "/" + bucket.directory;
-                        requestUrl = this.apihost + "/" + bucket.name + save_key;
-                        url = "/" + bucket.name + save_key;
+                        saveKey = "/" + bucket.directory;
+                        requestUrl = this.apihost + "/" + bucket.name + saveKey;
+                        url = "/" + bucket.name + saveKey;
                         date = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
                         return [4 /*yield*/, this.authUtil.getHeaderAuth(bucket, "GET", url, date, "")];
                     case 1:
@@ -327,7 +327,7 @@ var RestfulUtil = /** @class */ (function () {
                                         reject(new common_1.HttpException("获取文件信息失败", 402));
                                         return;
                                     }
-                                    if (res.statusCode == 200) {
+                                    if (res.statusCode === 200) {
                                         info = body.split("\n").map(function (value, index, raw) {
                                             var temp = value.split("\t");
                                             return {

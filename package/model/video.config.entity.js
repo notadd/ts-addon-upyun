@@ -22,23 +22,23 @@ var VideoConfig = /** @class */ (function () {
         typeorm_1.Column({
             name: "format",
             type: "varchar",
-            nullable: true
+            undefinedable: true
         })
     ], VideoConfig.prototype, "format");
     __decorate([
         typeorm_1.Column({
             name: "resolution",
             type: "varchar",
-            nullable: true
+            undefinedable: true
         })
     ], VideoConfig.prototype, "resolution");
     __decorate([
-        typeorm_1.OneToOne(function (type) { return bucket_entity_1.Bucket; }, function (bucket) { return bucket.video_config; }),
+        typeorm_1.OneToOne(function (type) { return bucket_entity_1.Bucket; }, function (bucket) { return bucket.videoConfig; }),
         typeorm_1.JoinColumn()
     ], VideoConfig.prototype, "bucket");
     VideoConfig = __decorate([
         typeorm_1.Entity({
-            name: "video_config"
+            name: "videoConfig"
         })
     ], VideoConfig);
     return VideoConfig;

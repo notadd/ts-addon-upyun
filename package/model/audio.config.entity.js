@@ -22,16 +22,16 @@ var AudioConfig = /** @class */ (function () {
         typeorm_1.Column({
             name: "format",
             type: "varchar",
-            nullable: true
+            undefinedable: true
         })
     ], AudioConfig.prototype, "format");
     __decorate([
-        typeorm_1.OneToOne(function (type) { return bucket_entity_1.Bucket; }, function (bucket) { return bucket.audio_config; }),
+        typeorm_1.OneToOne(function (type) { return bucket_entity_1.Bucket; }, function (bucket) { return bucket.audioConfig; }),
         typeorm_1.JoinColumn()
     ], AudioConfig.prototype, "bucket");
     AudioConfig = __decorate([
         typeorm_1.Entity({
-            name: "audio_config"
+            name: "audioConfig"
         })
     ], AudioConfig);
     return AudioConfig;

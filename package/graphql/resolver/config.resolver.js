@@ -116,7 +116,7 @@ var ConfigResolver = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         format = body.format;
-                        if (format == undefined || format.length == 0) {
+                        if (format === undefined || format.length === 0) {
                             throw new common_1.HttpException("缺少参数", 400);
                         }
                         // 保存格式
@@ -136,7 +136,7 @@ var ConfigResolver = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         enable = body.enable;
-                        if (enable === null || enable === undefined) {
+                        if (enable === undefined || enable === undefined) {
                             throw new common_1.HttpException("缺少参数", 400);
                         }
                         // enable参数错误

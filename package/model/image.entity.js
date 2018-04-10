@@ -28,32 +28,32 @@ var Image = /** @class */ (function (_super) {
         typeorm_1.Column({
             name: "width",
             type: "integer",
-            nullable: true
+            undefinedable: true
         })
     ], Image.prototype, "width");
     __decorate([
         typeorm_1.Column({
             name: "height",
             type: "integer",
-            nullable: true
+            undefinedable: true
         })
     ], Image.prototype, "height");
     __decorate([
         typeorm_1.Column({
             name: "frames",
             type: "integer",
-            nullable: true
+            undefinedable: true
         })
     ], Image.prototype, "frames");
     __decorate([
-        typeorm_1.Column({ nullable: true })
+        typeorm_1.Column({ undefinedable: true })
     ], Image.prototype, "bucketId");
     __decorate([
         typeorm_1.ManyToOne(function (type) { return bucket_entity_1.Bucket; }, function (bucket) { return bucket.images; }, {
             cascadeInsert: false,
             cascadeRemove: false,
             cascadeUpdate: false,
-            nullable: false,
+            undefinedable: false,
             lazy: false
         }),
         typeorm_1.JoinColumn()

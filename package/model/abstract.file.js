@@ -21,7 +21,7 @@ var AbstractFile = /** @class */ (function () {
             name: "rawName",
             type: "varchar",
             length: 50,
-            nullable: false
+            undefinedable: false
         })
     ], AbstractFile.prototype, "rawName");
     __decorate([
@@ -29,7 +29,7 @@ var AbstractFile = /** @class */ (function () {
             name: "name",
             type: "varchar",
             length: 50,
-            nullable: false,
+            undefinedable: false,
             unique: true
         })
     ], AbstractFile.prototype, "name");
@@ -37,7 +37,7 @@ var AbstractFile = /** @class */ (function () {
         typeorm_1.Column({
             name: "tags",
             type: "simple-array",
-            nullable: true
+            undefinedable: true
         })
     ], AbstractFile.prototype, "tags");
     __decorate([
@@ -45,7 +45,7 @@ var AbstractFile = /** @class */ (function () {
             name: "md5",
             type: "varchar",
             length: 50,
-            nullable: false
+            undefinedable: false
         })
     ], AbstractFile.prototype, "md5");
     __decorate([
@@ -54,14 +54,14 @@ var AbstractFile = /** @class */ (function () {
             type: "varchar",
             length: 20,
             // File可以没有扩展名
-            nullable: true
+            undefinedable: true
         })
     ], AbstractFile.prototype, "type");
     __decorate([
         typeorm_1.Column({
             name: "size",
             type: "integer",
-            nullable: true
+            undefinedable: true
         })
     ], AbstractFile.prototype, "size");
     __decorate([
@@ -69,14 +69,14 @@ var AbstractFile = /** @class */ (function () {
             name: "contentSecret",
             type: "varchar",
             length: "50",
-            nullable: true
+            undefinedable: true
         })
     ], AbstractFile.prototype, "contentSecret");
     __decorate([
         typeorm_1.Column({
             name: "status",
             type: "varchar",
-            nullable: false
+            undefinedable: false
         })
     ], AbstractFile.prototype, "status");
     __decorate([

@@ -102,7 +102,7 @@ var StoreComponent = /** @class */ (function () {
     };
     StoreComponent.prototype.upload = function (bucketName, rawName, base64, imagePreProcessInfo) {
         return __awaiter(this, void 0, void 0, function () {
-            var bucket, buffer, md5, name, tempPath, file, uploadFile, type, kind, _a, width, height, frames_1, _b, file_size, file_md5, err_1;
+            var bucket, buffer, md5, name, tempPath, file, uploadFile, type, kind, _a, width, height, frames_1, _b, fileSize, fileMd5, err_1;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
@@ -148,7 +148,7 @@ var StoreComponent = /** @class */ (function () {
                         _a = _c.sent(), width = _a.width, height = _a.height, frames_1 = _a.frames;
                         return [4 /*yield*/, this.resufulUtil.getFileInfo(bucket, file)];
                     case 5:
-                        _b = _c.sent(), file_size = _b.file_size, file_md5 = _b.file_md5;
+                        _b = _c.sent(), fileSize = _b.fileSize, fileMd5 = _b.fileMd5;
                         file = this.imageRepository.create({
                             bucket: bucket,
                             rawName: rawName,
@@ -157,8 +157,8 @@ var StoreComponent = /** @class */ (function () {
                             width: width,
                             height: height,
                             frames: frames_1,
-                            size: file_size,
-                            md5: file_md5,
+                            size: fileSize,
+                            md5: fileMd5,
                             status: "post"
                         });
                         return [4 /*yield*/, this.imageRepository.save(file)];

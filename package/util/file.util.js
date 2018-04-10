@@ -133,7 +133,7 @@ var FileUtil = /** @class */ (function () {
             });
         });
     };
-    //获取文件状态，一般只有一个size能言用
+    // 获取文件状态，一般只有一个size能言用
     FileUtil.prototype.size = function (path) {
         return __awaiter(this, void 0, void 0, function () {
             var size_1;
@@ -153,7 +153,7 @@ var FileUtil = /** @class */ (function () {
                     case 1:
                         _a.sent();
                         return [2 /*return*/, size_1];
-                    case 2: return [2 /*return*/, null];
+                    case 2: return [2 /*return*/, undefined];
                 }
             });
         });

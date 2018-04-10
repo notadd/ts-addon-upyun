@@ -83,9 +83,9 @@ var AuthUtil = /** @class */ (function () {
             return __generator(this, function (_a) {
                 ori = "";
                 ori += method.toUpperCase() + "&";
-                ori += "/" + policy["bucket"] + "&";
+                ori += "/" + policy.bucket + "&";
                 ori += policy.date + "&";
-                //拼接上传参数json字符串的base64编码
+                // 拼接上传参数json字符串的base64编码
                 ori += Buffer.from(JSON.stringify(policy)).toString("base64");
                 if (policy["content-md5"] && policy["content-md5"] !== "") {
                     ori += "&" + policy["content-md5"];
