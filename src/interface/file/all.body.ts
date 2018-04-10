@@ -1,4 +1,4 @@
 
 export interface AllBody {
-    bucketName: string
+    bucketName: string;
 }

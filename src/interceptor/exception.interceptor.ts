@@ -11,13 +11,13 @@ export class ExceptionInterceptor implements NestInterceptor {
                 return Promise.resolve({
                     code: err.getStatus(),
                     message: err.getResponse()
-                })
+                });
             } else {
                 return Promise.resolve({
                     code: 500,
                     message: "出现了意外错误" + err.toString()
-                })
+                });
             }
-        })
+        });
     }
 }

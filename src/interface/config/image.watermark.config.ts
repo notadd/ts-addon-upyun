@@ -1,16 +1,16 @@
 
 export interface ImageWatermarkConfig {
-    name: string
+    name: string;
 
-    base64: string
+    base64: string;
 
-    gravity: string
+    gravity: string;
 
-    x: number
+    x: number;
 
-    y: number
+    y: number;
 
-    opacity: number
+    opacity: number;
 
-    ws: number
+    ws: number;
 }

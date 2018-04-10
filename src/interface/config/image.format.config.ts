@@ -1,4 +1,4 @@
 
 export interface ImageFormatConfig {
-    format: string
+    format: string;
 }

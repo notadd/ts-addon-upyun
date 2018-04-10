@@ -16,5 +16,5 @@ export interface BucketConfig {
 
     tokenSecretKey?: string;
 
-    tokenExpire?: number
+    tokenExpire?: number;
 }

@@ -1,6 +1,6 @@
 
 export interface VideoFormatConfig {
-    format: string
+    format: string;
 
-    resolution: string
+    resolution: string;
 }

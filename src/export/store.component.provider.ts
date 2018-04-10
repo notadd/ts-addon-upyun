@@ -97,7 +97,7 @@ export class StoreComponent {
                     status: "post"
                 });
                 const { width, height, frames } = await this.resufulUtil.uploadFile(bucket, file, uploadFile, imagePreProcessInfo);
-                const { file_size, file_md5 } = await this.resufulUtil.getFileInfo(bucket, file);
+                const { fileSize, fileMd5 } = await this.resufulUtil.getFileInfo(bucket, file);
                 file = this.imageRepository.create({
                     bucket,
                     rawName,
@@ -106,8 +106,8 @@ export class StoreComponent {
                     width,
                     height,
                     frames,
-                    size: file_size,
-                    md5: file_md5,
+                    size: fileSize,
+                    md5: fileMd5,
                     status: "post"
                 });
                 await this.imageRepository.save(file);

@@ -143,12 +143,12 @@ export class ConfigService {
             image.type = type;
             image.status = "post";
             const { width, height, frames } = await this.restfulUtil.uploadFile(buckets[ i ], image, file, undefined);
-            const { file_size, file_md5 } = await this.restfulUtil.getFileInfo(buckets[ i ], image);
+            const { fileSize, fileMd5 } = await this.restfulUtil.getFileInfo(buckets[ i ], image);
             image.width = width;
             image.height = height;
             image.frames = frames;
-            image.size = file_size;
-            image.md5 = file_md5;
+            image.size = fileSize;
+            image.md5 = fileMd5;
             try {
                 await this.imageRepository.save(image);
             } catch (err) {

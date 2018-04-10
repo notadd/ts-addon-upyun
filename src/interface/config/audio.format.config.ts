@@ -1,4 +1,4 @@
 
 export interface AudioFormatConfig {
-    format: string
+    format: string;
 }

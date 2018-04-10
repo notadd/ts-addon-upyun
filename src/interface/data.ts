@@ -1,6 +1,6 @@
 
 export interface Data {
-    code: number
+    code: number;
 
-    message: string
+    message: string;
 }

@@ -1,4 +1,4 @@
-s;
+
 import { HttpException, Inject, UseInterceptors } from "@nestjs/common";
 import { Mutation, Query, Resolver } from "@nestjs/graphql";
 import { InjectRepository } from "@nestjs/typeorm";

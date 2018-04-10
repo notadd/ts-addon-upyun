@@ -1,74 +1,74 @@
 
 export interface ResizeData {
-    scale: number
+    scale: number;
 
-    wscale: number
+    wscale: number;
 
-    hscale: number
+    hscale: number;
 
-    width: number
+    width: number;
 
-    height: number
+    height: number;
 
-    pixel: number
+    pixel: number;
 }
 
 export interface Resize {
-    mode: string
+    mode: string;
 
-    data: ResizeData
+    data: ResizeData;
 }
 
 export interface Tailor {
-    isBefore: boolean
+    isBefore: boolean;
 
-    width: number
+    width: number;
 
-    height: number
+    height: number;
 
-    x: number
+    x: number;
 
-    y: number
+    y: number;
 
-    gravity: string
+    gravity: string;
 }
 
 export interface Blur {
-    redius: number
+    redius: number;
 
-    sigma: number
+    sigma: number;
 }
 
 export interface ImagePreProcessInfo {
-    resize?: Resize
+    resize: Resize;
 
-    tailor?: Tailor
+    tailor: Tailor;
 
-    watermark?: boolean
+    watermark: boolean;
 
-    rotate?: number
+    rotate: number;
 }
 
 export class ImagePostProcessInfo {
-    resize?: Resize
+    resize: Resize;
 
-    tailor?: Tailor
+    tailor: Tailor;
 
-    watermark?: boolean
+    watermark: boolean;
 
-    rotate?: number
+    rotate: number;
 
-    blur?: Blur
+    blur: Blur;
 
-    sharpen?: boolean
+    sharpen: boolean;
 
-    format?: string
+    format: string;
 
-    lossless?: boolean
+    lossless: boolean;
 
-    quality?: number
+    quality: number;
 
-    progressive?: boolean
+    progressive: boolean;
 
-    strip?: boolean
+    strip: boolean;
 }

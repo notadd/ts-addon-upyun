@@ -1,17 +1,17 @@
 
 export interface UploadProcessData {
-    code: number
+    code: number;
 
-    message: string
+    message: string;
 
-    method: string
+    method: string;
 
-    url: string
+    url: string;
 
-    baseUrl: string
+    baseUrl: string;
 
     form: {
         policy: string
         authorization: string
-    }
+    };
 }

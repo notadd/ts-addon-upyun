@@ -132,9 +132,9 @@ export class FileService {
                 image.frames = body.imginfo.frames,
                 image.status = "post";
             // 从云存储获取预处理文件的md5与处理后大小
-            const { file_size, file_md5 } = await this.restfulUtil.getFileInfo(bucket, image);
-            image.size = file_size;
-            image.md5 = file_md5;
+            const { fileSize, fileMd5 } = await this.restfulUtil.getFileInfo(bucket, image);
+            image.size = fileSize;
+            image.md5 = fileMd5;
             try {
                 await this.imageRepository.updateById(image.id, image);
             } catch (err) {

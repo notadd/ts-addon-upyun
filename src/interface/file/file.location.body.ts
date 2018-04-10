@@ -1,8 +1,8 @@
 
 export interface FileLocationBody {
-    bucketName: string
+    bucketName: string;
 
-    name: string
+    name: string;
 
-    type: string
+    type: string;
 }

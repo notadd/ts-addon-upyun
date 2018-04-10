@@ -1,18 +1,18 @@
 
 export interface Policy {
-    "bucket": string
+    "bucket": string;
 
-    "save-key": string
+    "save-key": string;
 
-    "expiration": number
+    "expiration": number;
 
-    "date": string
+    "date": string;
 
-    "content-md5": string
+    "content-md5": string;
 
-    "notify-url": string
+    "notify-url": string;
 
-    "x-upyun-meta-ttl": number
+    "x-upyun-meta-ttl": number;
 
-    "ext-param": string
+    "ext-param": string;
 }

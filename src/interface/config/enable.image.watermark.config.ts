@@ -1,4 +1,4 @@
 
 export interface EnableImageWatermarkConfig {
-    enable: string | boolean
+    enable: string | boolean;
 }
