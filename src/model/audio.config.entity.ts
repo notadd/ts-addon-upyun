@@ -19,7 +19,7 @@ export class AudioConfig {
     @Column({
         name: "format",
         type: "varchar",
-        undefinedable: true
+        nullable: true
     })
     format: string;
 

@@ -15,7 +15,7 @@ const bucket_entity_1 = require("./bucket.entity");
 let Video = class Video extends abstract_file_1.AbstractFile {
 };
 __decorate([
-    typeorm_1.Column({ undefinedable: true }),
+    typeorm_1.Column({ nullable: true }),
     __metadata("design:type", Number)
 ], Video.prototype, "bucketId", void 0);
 __decorate([
@@ -23,7 +23,7 @@ __decorate([
         cascadeInsert: false,
         cascadeUpdate: false,
         cascadeRemove: false,
-        undefinedable: false,
+        nullable: false,
         lazy: false
     }),
     typeorm_1.JoinColumn(),

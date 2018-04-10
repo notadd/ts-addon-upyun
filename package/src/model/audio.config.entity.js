@@ -24,7 +24,7 @@ __decorate([
     typeorm_1.Column({
         name: "format",
         type: "varchar",
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", String)
 ], AudioConfig.prototype, "format", void 0);

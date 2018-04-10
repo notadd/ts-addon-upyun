@@ -27,7 +27,7 @@ export class Bucket {
         name: "publicOrPrivate",
         type: "varchar",
         length: 20,
-        undefinedable: false,
+        nullable: false,
         unique: true
     })
     publicOrPrivate: string;
@@ -37,7 +37,7 @@ export class Bucket {
         name: "name",
         type: "varchar",
         length: 50,
-        undefinedable: false,
+        nullable: false,
         unique: true
     })
     name: string;
@@ -47,7 +47,7 @@ export class Bucket {
         name: "operator",
         type: "varchar",
         length: 50,
-        undefinedable: false
+        nullable: false
     })
     operator: string;
 
@@ -56,7 +56,7 @@ export class Bucket {
         name: "password",
         type: "varchar",
         length: 50,
-        undefinedable: false
+        nullable: false
     })
     password: string;
 
@@ -65,7 +65,7 @@ export class Bucket {
         name: "directory",
         type: "varchar",
         length: 20,
-        undefinedable: false
+        nullable: false
     })
     directory: string;
 
@@ -73,7 +73,7 @@ export class Bucket {
     @Column({
         name: "requestExpire",
         type: "integer",
-        undefinedable: false
+        nullable: false
     })
     requestExpire: number;
 
@@ -82,7 +82,7 @@ export class Bucket {
         name: "baseUrl",
         type: "varchar",
         length: 50,
-        undefinedable: false,
+        nullable: false,
         unique: true
     })
     baseUrl: string;
@@ -92,7 +92,7 @@ export class Bucket {
         name: "tokenSecretKey",
         type: "varchar",
         length: 250,
-        undefinedable: true
+        nullable: true
     })
     tokenSecretKey: string;
 
@@ -100,7 +100,7 @@ export class Bucket {
     @Column({
         name: "tokenExpire",
         type: "integer",
-        undefinedable: true
+        nullable: true
     })
     tokenExpire: number;
 

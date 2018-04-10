@@ -24,7 +24,7 @@ __decorate([
     typeorm_1.Column({
         name: "format",
         type: "varchar",
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", String)
 ], ImageConfig.prototype, "format", void 0);
@@ -32,7 +32,7 @@ __decorate([
     typeorm_1.Column({
         name: "watermarkEnable",
         type: "smallint",
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", Number)
 ], ImageConfig.prototype, "watermarkEnable", void 0);
@@ -41,7 +41,7 @@ __decorate([
         name: "watermarkSaveKey",
         type: "varchar",
         length: 80,
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", String)
 ], ImageConfig.prototype, "watermarkSaveKey", void 0);
@@ -49,7 +49,7 @@ __decorate([
     typeorm_1.Column({
         name: "watermarkGravity",
         type: "varchar",
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", String)
 ], ImageConfig.prototype, "watermarkGravity", void 0);
@@ -57,7 +57,7 @@ __decorate([
     typeorm_1.Column({
         name: "watermarkX",
         type: "integer",
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", Number)
 ], ImageConfig.prototype, "watermarkX", void 0);
@@ -65,7 +65,7 @@ __decorate([
     typeorm_1.Column({
         name: "watermarkY",
         type: "integer",
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", Number)
 ], ImageConfig.prototype, "watermarkY", void 0);
@@ -73,7 +73,7 @@ __decorate([
     typeorm_1.Column({
         name: "watermarkOpacity",
         type: "integer",
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", Number)
 ], ImageConfig.prototype, "watermarkOpacity", void 0);
@@ -81,7 +81,7 @@ __decorate([
     typeorm_1.Column({
         name: "watermarkWs",
         type: "integer",
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", Number)
 ], ImageConfig.prototype, "watermarkWs", void 0);

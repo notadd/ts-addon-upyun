@@ -32,7 +32,7 @@ __decorate([
         name: "publicOrPrivate",
         type: "varchar",
         length: 20,
-        undefinedable: false,
+        nullable: false,
         unique: true
     }),
     __metadata("design:type", String)
@@ -42,7 +42,7 @@ __decorate([
         name: "name",
         type: "varchar",
         length: 50,
-        undefinedable: false,
+        nullable: false,
         unique: true
     }),
     __metadata("design:type", String)
@@ -52,7 +52,7 @@ __decorate([
         name: "operator",
         type: "varchar",
         length: 50,
-        undefinedable: false
+        nullable: false
     }),
     __metadata("design:type", String)
 ], Bucket.prototype, "operator", void 0);
@@ -61,7 +61,7 @@ __decorate([
         name: "password",
         type: "varchar",
         length: 50,
-        undefinedable: false
+        nullable: false
     }),
     __metadata("design:type", String)
 ], Bucket.prototype, "password", void 0);
@@ -70,7 +70,7 @@ __decorate([
         name: "directory",
         type: "varchar",
         length: 20,
-        undefinedable: false
+        nullable: false
     }),
     __metadata("design:type", String)
 ], Bucket.prototype, "directory", void 0);
@@ -78,7 +78,7 @@ __decorate([
     typeorm_1.Column({
         name: "requestExpire",
         type: "integer",
-        undefinedable: false
+        nullable: false
     }),
     __metadata("design:type", Number)
 ], Bucket.prototype, "requestExpire", void 0);
@@ -87,7 +87,7 @@ __decorate([
         name: "baseUrl",
         type: "varchar",
         length: 50,
-        undefinedable: false,
+        nullable: false,
         unique: true
     }),
     __metadata("design:type", String)
@@ -97,7 +97,7 @@ __decorate([
         name: "tokenSecretKey",
         type: "varchar",
         length: 250,
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", String)
 ], Bucket.prototype, "tokenSecretKey", void 0);
@@ -105,7 +105,7 @@ __decorate([
     typeorm_1.Column({
         name: "tokenExpire",
         type: "integer",
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", Number)
 ], Bucket.prototype, "tokenExpire", void 0);

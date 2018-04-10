@@ -19,7 +19,7 @@ export class VideoConfig {
     @Column({
         name: "format",
         type: "varchar",
-        undefinedable: true
+        nullable: true
     })
     format: string;
 
@@ -27,7 +27,7 @@ export class VideoConfig {
     @Column({
         name: "resolution",
         type: "varchar",
-        undefinedable: true
+        nullable: true
     })
     resolution: string;
 

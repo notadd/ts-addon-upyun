@@ -11,32 +11,32 @@ export class Image extends AbstractFile {
     @Column({
         name: "width",
         type: "integer",
-        undefinedable: true
+        nullable: true
     })
     width: number;
 
     @Column({
         name: "height",
         type: "integer",
-        undefinedable: true
+        nullable: true
     })
     height: number;
 
     @Column({
         name: "frames",
         type: "integer",
-        undefinedable: true
+        nullable: true
     })
     frames: number;
 
-    @Column({ undefinedable: true })
+    @Column({ nullable: true })
     bucketId: number;
 
     @ManyToOne(type => Bucket, bucket => bucket.images, {
         cascadeInsert: false,
         cascadeRemove: false,
         cascadeUpdate: false,
-        undefinedable: false,
+        nullable: false,
         lazy: false
     })
     @JoinColumn()

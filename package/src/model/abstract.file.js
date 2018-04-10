@@ -24,7 +24,7 @@ __decorate([
         name: "rawName",
         type: "varchar",
         length: 50,
-        undefinedable: false
+        nullable: false
     }),
     __metadata("design:type", String)
 ], AbstractFile.prototype, "rawName", void 0);
@@ -33,7 +33,7 @@ __decorate([
         name: "name",
         type: "varchar",
         length: 50,
-        undefinedable: false,
+        nullable: false,
         unique: true
     }),
     __metadata("design:type", String)
@@ -42,7 +42,7 @@ __decorate([
     typeorm_1.Column({
         name: "tags",
         type: "simple-array",
-        undefinedable: true,
+        nullable: true,
     }),
     __metadata("design:type", Array)
 ], AbstractFile.prototype, "tags", void 0);
@@ -51,7 +51,7 @@ __decorate([
         name: "md5",
         type: "varchar",
         length: 50,
-        undefinedable: false
+        nullable: false
     }),
     __metadata("design:type", String)
 ], AbstractFile.prototype, "md5", void 0);
@@ -60,7 +60,7 @@ __decorate([
         name: "type",
         type: "varchar",
         length: 20,
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", String)
 ], AbstractFile.prototype, "type", void 0);
@@ -68,7 +68,7 @@ __decorate([
     typeorm_1.Column({
         name: "size",
         type: "integer",
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", Number)
 ], AbstractFile.prototype, "size", void 0);
@@ -77,7 +77,7 @@ __decorate([
         name: "contentSecret",
         type: "varchar",
         length: "50",
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", String)
 ], AbstractFile.prototype, "contentSecret", void 0);
@@ -85,7 +85,7 @@ __decorate([
     typeorm_1.Column({
         name: "status",
         type: "varchar",
-        undefinedable: false
+        nullable: false
     }),
     __metadata("design:type", String)
 ], AbstractFile.prototype, "status", void 0);

@@ -18,7 +18,7 @@ __decorate([
     typeorm_1.Column({
         name: "width",
         type: "integer",
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", Number)
 ], Image.prototype, "width", void 0);
@@ -26,7 +26,7 @@ __decorate([
     typeorm_1.Column({
         name: "height",
         type: "integer",
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", Number)
 ], Image.prototype, "height", void 0);
@@ -34,12 +34,12 @@ __decorate([
     typeorm_1.Column({
         name: "frames",
         type: "integer",
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", Number)
 ], Image.prototype, "frames", void 0);
 __decorate([
-    typeorm_1.Column({ undefinedable: true }),
+    typeorm_1.Column({ nullable: true }),
     __metadata("design:type", Number)
 ], Image.prototype, "bucketId", void 0);
 __decorate([
@@ -47,7 +47,7 @@ __decorate([
         cascadeInsert: false,
         cascadeRemove: false,
         cascadeUpdate: false,
-        undefinedable: false,
+        nullable: false,
         lazy: false
     }),
     typeorm_1.JoinColumn(),

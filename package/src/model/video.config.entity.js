@@ -24,7 +24,7 @@ __decorate([
     typeorm_1.Column({
         name: "format",
         type: "varchar",
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", String)
 ], VideoConfig.prototype, "format", void 0);
@@ -32,7 +32,7 @@ __decorate([
     typeorm_1.Column({
         name: "resolution",
         type: "varchar",
-        undefinedable: true
+        nullable: true
     }),
     __metadata("design:type", String)
 ], VideoConfig.prototype, "resolution", void 0);

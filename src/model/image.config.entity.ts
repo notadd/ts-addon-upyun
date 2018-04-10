@@ -19,7 +19,7 @@ export class ImageConfig {
     @Column({
         name: "format",
         type: "varchar",
-        undefinedable: true
+        nullable: true
     })
     format: string;
 
@@ -27,7 +27,7 @@ export class ImageConfig {
     @Column({
         name: "watermarkEnable",
         type: "smallint",
-        undefinedable: true
+        nullable: true
     })
     watermarkEnable: number;
 
@@ -36,7 +36,7 @@ export class ImageConfig {
         name: "watermarkSaveKey",
         type: "varchar",
         length: 80,
-        undefinedable: true
+        nullable: true
     })
     watermarkSaveKey: string;
 
@@ -44,7 +44,7 @@ export class ImageConfig {
     @Column({
         name: "watermarkGravity",
         type: "varchar",
-        undefinedable: true
+        nullable: true
     })
     watermarkGravity: string;
 
@@ -52,7 +52,7 @@ export class ImageConfig {
     @Column({
         name: "watermarkX",
         type: "integer",
-        undefinedable: true
+        nullable: true
     })
     watermarkX: number;
 
@@ -60,7 +60,7 @@ export class ImageConfig {
     @Column({
         name: "watermarkY",
         type: "integer",
-        undefinedable: true
+        nullable: true
     })
     watermarkY: number;
 
@@ -68,7 +68,7 @@ export class ImageConfig {
     @Column({
         name: "watermarkOpacity",
         type: "integer",
-        undefinedable: true
+        nullable: true
     })
     watermarkOpacity: number;
 
@@ -76,7 +76,7 @@ export class ImageConfig {
     @Column({
         name: "watermarkWs",
         type: "integer",
-        undefinedable: true
+        nullable: true
     })
     watermarkWs: number;
 
