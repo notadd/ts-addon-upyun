@@ -1,29 +1,29 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { AbstractFile } from './abstract.file'
-import { Bucket } from './bucket.entity'
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { AbstractFile } from "./abstract.file"
+import { Bucket } from "./bucket.entity"
 
 @Entity({
-    name: 'image'
+    name: "image"
 })
 export class Image extends AbstractFile {
 
     @Column({
-        name: 'width',
-        type: 'integer',
+        name: "width",
+        type: "integer",
         nullable: true
     })
     width: number;
 
     @Column({
-        name: 'height',
-        type: 'integer',
+        name: "height",
+        type: "integer",
         nullable: true
     })
     height: number;
 
     @Column({
-        name: 'frames',
-        type: 'integer',
+        name: "frames",
+        type: "integer",
         nullable: true
     })
     frames: number;

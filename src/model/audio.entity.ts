@@ -1,9 +1,9 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { AbstractFile } from './abstract.file'
-import { Bucket } from './bucket.entity'
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { AbstractFile } from "./abstract.file"
+import { Bucket } from "./bucket.entity"
 
 @Entity({
-    name: 'audio'
+    name: "audio"
 })
 export class Audio extends AbstractFile {
 

@@ -1,6 +1,6 @@
-import { ExecutionContext, HttpException, Interceptor, NestInterceptor } from '@nestjs/common';
-import 'rxjs/add/operator/catch';
-import { Observable } from 'rxjs/observable';
+import { ExecutionContext, HttpException, Interceptor, NestInterceptor } from "@nestjs/common";
+import "rxjs/add/operator/catch";
+import { Observable } from "rxjs/observable";
 
 @Interceptor()
 export class ExceptionInterceptor implements NestInterceptor {
@@ -14,7 +14,7 @@ export class ExceptionInterceptor implements NestInterceptor {
             } else {
                 return Promise.resolve({
                     code: 500,
-                    message: '出现了意外错误' + err.toString()
+                    message: "出现了意外错误" + err.toString()
                 })
             }
         })

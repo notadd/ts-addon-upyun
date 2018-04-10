@@ -1,4 +1,4 @@
-import { Component, HttpException } from '@nestjs/common';
+import { Component, HttpException } from "@nestjs/common";
 
 /* Promise工具 */
 @Component()

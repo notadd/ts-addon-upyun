@@ -1,30 +1,30 @@
-import { Column, Entity, OneToMany, OneToOne, PrimaryColumn } from 'typeorm';
-import { Audio } from './audio.entity'
-import { AudioConfig } from './audio.config.entity'
-import { Document } from './document.entity'
-import { File } from './file.entity'
-import { Image } from './image.entity'
-import { ImageConfig } from './image.config.entity'
-import { Video } from './video.entity'
-import { VideoConfig } from './video.config.entity'
+import { Column, Entity, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
+import { Audio } from "./audio.entity"
+import { AudioConfig } from "./audio.config.entity"
+import { Document } from "./document.entity"
+import { File } from "./file.entity"
+import { Image } from "./image.entity"
+import { ImageConfig } from "./image.config.entity"
+import { Video } from "./video.entity"
+import { VideoConfig } from "./video.config.entity"
 
 /* 后台配置实体类 */
 @Entity({
-    name: 'bucket'
+    name: "bucket"
 })
 export class Bucket {
 
     //主键，需要设置插入，1默认为公有空间配置，2默认为私有空间配置
     @PrimaryColumn({
-        name: 'id',
-        type: 'integer'
+        name: "id",
+        type: "integer"
     })
     id: number;
 
     //公有还是私有空间，值为public、private
     @Column({
-        name: 'public_or_private',
-        type: 'varchar',
+        name: "public_or_private",
+        type: "varchar",
         length: 20,
         nullable: false,
         unique: true
@@ -33,8 +33,8 @@ export class Bucket {
 
     //空间名
     @Column({
-        name: 'name',
-        type: 'varchar',
+        name: "name",
+        type: "varchar",
         length: 50,
         nullable: false,
         unique: true
@@ -43,8 +43,8 @@ export class Bucket {
 
     //操作员名
     @Column({
-        name: 'operator',
-        type: 'varchar',
+        name: "operator",
+        type: "varchar",
         length: 50,
         nullable: false
     })
@@ -52,8 +52,8 @@ export class Bucket {
 
     //操作员密码的md5
     @Column({
-        name: 'password',
-        type: 'varchar',
+        name: "password",
+        type: "varchar",
         length: 50,
         nullable: false
     })
@@ -61,8 +61,8 @@ export class Bucket {
 
     //此空间下所有文件都存储于这个目录里,与虚拟目录无关
     @Column({
-        name: 'directory',
-        type: 'varchar',
+        name: "directory",
+        type: "varchar",
         length: 20,
         nullable: false
     })
@@ -70,16 +70,16 @@ export class Bucket {
 
     //请求过期时间，单位秒
     @Column({
-        name: 'request_expire',
-        type: 'integer',
+        name: "request_expire",
+        type: "integer",
         nullable: false
     })
     request_expire: number;
 
     //基本url
     @Column({
-        name: 'base_url',
-        type: 'varchar',
+        name: "base_url",
+        type: "varchar",
         length: 50,
         nullable: false,
         unique: true
@@ -88,8 +88,8 @@ export class Bucket {
 
     //token密钥
     @Column({
-        name: 'token_secret_key',
-        type: 'varchar',
+        name: "token_secret_key",
+        type: "varchar",
         length: 250,
         nullable: true
     })
@@ -97,8 +97,8 @@ export class Bucket {
 
     //token过期时间，单位秒
     @Column({
-        name: 'token_expire',
-        type: 'integer',
+        name: "token_expire",
+        type: "integer",
         nullable: true
     })
     token_expire: number;

@@ -1,20 +1,20 @@
-import * as crypto from 'crypto';
-import * as os from 'os';
-import { Repository } from 'typeorm';
-import { HttpException, Inject } from '@nestjs/common';
-import { ImagePostProcessInfo, ImagePreProcessInfo } from '../interface/file/image.process.info';
-import { Audio } from '../model/audio.entity';
-import { Bucket } from '../model/bucket.entity';
-import { Document } from '../model/document.entity';
-import { File } from '../model/file.entity';
-import { Image } from '../model/image.entity';
-import { Video } from '../model/video.entity';
-import { FileService } from '../service/file.service';
-import { AuthUtil } from '../util/auth.util';
-import { FileUtil } from '../util/file.util';
-import { KindUtil } from '../util/kind.util';
-import { ProcessStringUtil } from '../util/process.string.util';
-import { RestfulUtil } from '../util/restful.util';
+import * as crypto from "crypto";
+import * as os from "os";
+import { Repository } from "typeorm";
+import { HttpException, Inject } from "@nestjs/common";
+import { ImagePostProcessInfo, ImagePreProcessInfo } from "../interface/file/image.process.info";
+import { Audio } from "../model/audio.entity";
+import { Bucket } from "../model/bucket.entity";
+import { Document } from "../model/document.entity";
+import { File } from "../model/file.entity";
+import { Image } from "../model/image.entity";
+import { Video } from "../model/video.entity";
+import { FileService } from "../service/file.service";
+import { AuthUtil } from "../util/auth.util";
+import { FileUtil } from "../util/file.util";
+import { KindUtil } from "../util/kind.util";
+import { ProcessStringUtil } from "../util/process.string.util";
+import { RestfulUtil } from "../util/restful.util";
 
 export class StoreComponent {
 
@@ -25,27 +25,27 @@ export class StoreComponent {
         @Inject(RestfulUtil) private readonly resufulUtil: RestfulUtil,
         @Inject(FileService) private readonly fileService: FileService,
         @Inject(ProcessStringUtil) private readonly processStringUtil: ProcessStringUtil,
-        @Inject('UpyunModule.ImageRepository') private readonly imageRepository: Repository<Image>,
-        @Inject('UpyunModule.BucketRepository') private readonly bucketRepository: Repository<Bucket>
+        @Inject("UpyunModule.ImageRepository") private readonly imageRepository: Repository<Image>,
+        @Inject("UpyunModule.BucketRepository") private readonly bucketRepository: Repository<Bucket>
     ) {
     }
 
     async delete(bucketName: string, name: string, type: string): Promise<void> {
         //验证参数
         if (!bucketName || !name || !type) {
-            throw new HttpException('缺少参数', 400)
+            throw new HttpException("缺少参数", 400)
         }
         let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
         if (!bucket) {
-            throw new HttpException('指定空间' + bucketName + '不存在', 401)
+            throw new HttpException("指定空间" + bucketName + "不存在", 401)
         }
         //根据文件种类，查找、删除数据库
         let file: Image | Audio | Video | Document | File
         let kind = this.kindUtil.getKind(type)
-        if (kind === 'image') {
+        if (kind === "image") {
             file = await this.imageRepository.findOne({ name, bucketId: bucket.id })
             if (!file) {
-                throw new HttpException('文件' + name + '不存在于数据库中', 404)
+                throw new HttpException("文件" + name + "不存在于数据库中", 404)
             }
             await this.imageRepository.deleteById(file.id)
         } else {
@@ -64,37 +64,37 @@ export class StoreComponent {
     ): Promise<{ bucketName: string, name: string, type: string }> {
 
         if (!bucketName || !rawName || !base64) {
-            throw new HttpException('缺少参数', 400)
+            throw new HttpException("缺少参数", 400)
         }
 
-        let bucket: Bucket = await this.bucketRepository.createQueryBuilder('bucket')
-            .leftJoinAndSelect('bucket.image_config', 'image_config')
-            .where('bucket.name = :name', { name: bucketName })
+        let bucket: Bucket = await this.bucketRepository.createQueryBuilder("bucket")
+            .leftJoinAndSelect("bucket.image_config", "image_config")
+            .where("bucket.name = :name", { name: bucketName })
             .getOne()
         if (!bucket) {
-            throw new HttpException('指定空间' + bucketName + '不存在', 401)
+            throw new HttpException("指定空间" + bucketName + "不存在", 401)
         }
-        let buffer: Buffer = Buffer.from(base64, 'base64')
-        let md5 = crypto.createHash('md5').update(buffer).digest('hex')
-        let name = md5 + '_' + (+new Date())
-        let tempPath = os.tmpdir + '/' + rawName
+        let buffer: Buffer = Buffer.from(base64, "base64")
+        let md5 = crypto.createHash("md5").update(buffer).digest("hex")
+        let name = md5 + "_" + (+new Date())
+        let tempPath = os.tmpdir + "/" + rawName
         await this.fileUtil.write(tempPath, buffer)
         let file: Image | Audio | Video | Document | File
         let uploadFile = { path: tempPath }
-        let type: string = rawName.substring(rawName.lastIndexOf('.') + 1)
-        if (bucket.image_config.format === 'webp_damage' || bucket.image_config.format === 'webp_undamage') {
-            type = 'webp'
+        let type: string = rawName.substring(rawName.lastIndexOf(".") + 1)
+        if (bucket.image_config.format === "webp_damage" || bucket.image_config.format === "webp_undamage") {
+            type = "webp"
         }
         let kind: string = this.kindUtil.getKind(type)
         try {
-            if (kind === 'image') {
+            if (kind === "image") {
                 file = this.imageRepository.create({
                     bucket,
                     raw_name: rawName,
                     name,
                     type,
                     md5,
-                    status: 'post'
+                    status: "post"
                 })
                 let { width, height, frames } = await this.resufulUtil.uploadFile(bucket, file, uploadFile, imagePreProcessInfo)
                 let { file_size, file_md5 } = await this.resufulUtil.getFileInfo(bucket, file)
@@ -108,7 +108,7 @@ export class StoreComponent {
                     frames,
                     size: file_size,
                     md5: file_md5,
-                    status: 'post'
+                    status: "post"
                 })
                 await this.imageRepository.save(file)
             } else {
@@ -127,23 +127,23 @@ export class StoreComponent {
     async getUrl(req: any, bucketName: string, name: string, type: string, imagePostProcessInfo: ImagePostProcessInfo): Promise<string> {
         //验证参数
         if (!bucketName || !name || !type) {
-            throw new HttpException('缺少参数', 400)
+            throw new HttpException("缺少参数", 400)
         }
-        let bucket: Bucket = await this.bucketRepository.createQueryBuilder('bucket')
-            .leftJoinAndSelect('bucket.image_config', 'image_config')
-            .where('bucket.name = :name', { name: bucketName })
+        let bucket: Bucket = await this.bucketRepository.createQueryBuilder("bucket")
+            .leftJoinAndSelect("bucket.image_config", "image_config")
+            .where("bucket.name = :name", { name: bucketName })
             .getOne()
         if (!bucket) {
-            throw new HttpException('指定空间' + bucketName + '不存在', 401)
+            throw new HttpException("指定空间" + bucketName + "不存在", 401)
         }
         let url: string
         //根据文件种类，查找、删除数据库
         let file: Image | Audio | Video | Document | File
         let kind = this.kindUtil.getKind(type)
-        if (kind === 'image') {
+        if (kind === "image") {
             file = await this.imageRepository.findOne({ name, bucketId: bucket.id })
             if (!file) {
-                throw new HttpException('指定图片' + name + '.' + type + '不存在', 404)
+                throw new HttpException("指定图片" + name + "." + type + "不存在", 404)
             }
         } else {
             //其他类型暂不支持
@@ -155,7 +155,7 @@ export class StoreComponent {
 }
 
 export const StoreComponentProvider = {
-    provide: 'StoreComponentToken',
+    provide: "StoreComponentToken",
     useFactory: (
         kindUtil: KindUtil,
         fileUtil: FileUtil,
@@ -184,7 +184,7 @@ export const StoreComponentProvider = {
         RestfulUtil,
         FileService,
         ProcessStringUtil,
-        'ImageRepository',
-        'BucketRepository',
+        "ImageRepository",
+        "BucketRepository",
     ],
 };

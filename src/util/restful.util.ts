@@ -1,24 +1,24 @@
-import { Component, HttpException, Inject } from '@nestjs/common';
-import * as fs from 'fs';
-import * as mime from 'mime';
-import * as request from 'request';
-import { ImagePreProcessInfo } from '../interface/file/image.process.info';
-import { Audio } from '../model/audio.entity';
-import { Bucket } from '../model/bucket.entity';
-import { Document } from '../model/document.entity';
-import { File } from '../model/file.entity';
-import { Image } from '../model/image.entity';
-import { Video } from '../model/video.entity';
-import { AuthUtil } from '../util/auth.util';
-import { ProcessStringUtil } from './process.string.util';
-import { PromiseUtil } from './promise.util';
+import { Component, HttpException, Inject } from "@nestjs/common";
+import * as fs from "fs";
+import * as mime from "mime";
+import * as request from "request";
+import { ImagePreProcessInfo } from "../interface/file/image.process.info";
+import { Audio } from "../model/audio.entity";
+import { Bucket } from "../model/bucket.entity";
+import { Document } from "../model/document.entity";
+import { File } from "../model/file.entity";
+import { Image } from "../model/image.entity";
+import { Video } from "../model/video.entity";
+import { AuthUtil } from "../util/auth.util";
+import { ProcessStringUtil } from "./process.string.util";
+import { PromiseUtil } from "./promise.util";
 
 /* 包含了restfulAPI的各种功能
    删除文件、创建目录、删除目录、获取文件信息、获取目录文件列表、获取服务使用量
 */
 @Component()
 export class RestfulUtil {
-    private readonly apihost = 'https://v0.api.upyun.com'
+    private readonly apihost = "https://v0.api.upyun.com"
 
     constructor(
         @Inject(AuthUtil) private readonly authUtil: AuthUtil,
@@ -30,41 +30,41 @@ export class RestfulUtil {
     //上传文件，其中文件信息来自于formidable解析得到的File对象
     async uploadFile(bucket: Bucket, file: File | Image | Video | Audio | Document, uploadFile: any, imagePreProcessInfo: ImagePreProcessInfo): Promise<{ width: number, height: number, frames: number }> {
         let contentMd5 = file.md5
-        let save_key = '/' + bucket.directory + '/' + file.name + '.' + file.type
-        let requestUrl = this.apihost + '/' + bucket.name + save_key
-        let url = '/' + bucket.name + save_key
+        let save_key = "/" + bucket.directory + "/" + file.name + "." + file.type
+        let requestUrl = this.apihost + "/" + bucket.name + save_key
+        let url = "/" + bucket.name + save_key
         let date: string = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
-        let Authorization = await this.authUtil.getHeaderAuth(bucket, 'PUT', url, date, contentMd5)
-        let format = bucket.image_config.format || 'raw'
+        let Authorization = await this.authUtil.getHeaderAuth(bucket, "PUT", url, date, contentMd5)
+        let format = bucket.image_config.format || "raw"
         let x_gmkerl_thumb = this.processStringUtil.makeImageProcessString(bucket, imagePreProcessInfo)
-        if (format === 'raw') {
-            x_gmkerl_thumb += '/scale/100'
-        } else if (format === 'webp_damage') {
-            x_gmkerl_thumb += '/format/webp/strip/true'
+        if (format === "raw") {
+            x_gmkerl_thumb += "/scale/100"
+        } else if (format === "webp_damage") {
+            x_gmkerl_thumb += "/format/webp/strip/true"
         } else {
-            x_gmkerl_thumb += '/format/webp/lossless/true/strip/true'
+            x_gmkerl_thumb += "/format/webp/lossless/true/strip/true"
         }
         let height, width, frames
         await this.promiseUtil.do((resolve, reject) => {
             fs.createReadStream(uploadFile.path).pipe(request.put({
                 url: requestUrl,
                 headers: {
-                    'Content-Type': mime.getType(file.name),
-                    'Content-Length': file.size,
-                    'Content-MD5': contentMd5,
+                    "Content-Type": mime.getType(file.name),
+                    "Content-Length": file.size,
+                    "Content-MD5": contentMd5,
                     Authorization,
                     Date: date,
-                    'x-gmkerl-thumb': x_gmkerl_thumb
+                    "x-gmkerl-thumb": x_gmkerl_thumb
                 }
             }, (err, res, body) => {
                 if (err) {
-                    reject(new HttpException('文件上传失败,网络错误', 402))
+                    reject(new HttpException("文件上传失败,网络错误", 402))
                     return
                 }
                 if (res.statusCode === 200) {
-                    width = res.headers[ 'x-upyun-width' ]
-                    height = res.headers[ 'x-upyun-height' ]
-                    frames = res.headers[ 'x-upyun-frames' ]
+                    width = res.headers[ "x-upyun-width" ]
+                    height = res.headers[ "x-upyun-height" ]
+                    frames = res.headers[ "x-upyun-frames" ]
                     resolve()
                     return
                 }
@@ -73,10 +73,10 @@ export class RestfulUtil {
                         let { msg, code, id } = JSON.parse(body)
                         reject(new HttpException(msg, code))
                     } catch (err) {
-                        reject(new HttpException('响应体解析错误', 402))
+                        reject(new HttpException("响应体解析错误", 402))
                     }
                 } else {
-                    reject(new HttpException('响应体不存在', 402))
+                    reject(new HttpException("响应体不存在", 402))
                 }
                 return
             }))
@@ -88,10 +88,10 @@ export class RestfulUtil {
         @Param bucket：目录所属空间
     */
     async createDirectory(bucket: Bucket): Promise<void> {
-        let requestUrl = this.apihost + '/' + bucket.name + '/' + bucket.directory
-        let url = '/' + bucket.name + '/' + bucket.directory
+        let requestUrl = this.apihost + "/" + bucket.name + "/" + bucket.directory
+        let url = "/" + bucket.name + "/" + bucket.directory
         let date: string = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
-        let Authorization = await this.authUtil.getHeaderAuth(bucket, 'POST', url, date, null)
+        let Authorization = await this.authUtil.getHeaderAuth(bucket, "POST", url, date, null)
         await this.promiseUtil.do((resolve, reject) => {
             request.post({
                     url: requestUrl,
@@ -103,7 +103,7 @@ export class RestfulUtil {
                 },
                 (err, res, body) => {
                     if (err) {
-                        reject(new HttpException('目录创建失败，网络错误', 402))
+                        reject(new HttpException("目录创建失败，网络错误", 402))
                         return
                     }
                     if (res.statusCode === 200) {
@@ -115,10 +115,10 @@ export class RestfulUtil {
                             let { msg, code, id } = JSON.parse(body)
                             reject(new HttpException(msg, code))
                         } catch (err) {
-                            reject(new HttpException('响应体解析错误', 402))
+                            reject(new HttpException("响应体解析错误", 402))
                         }
                     } else {
-                        reject(new HttpException('响应体不存在', 402))
+                        reject(new HttpException("响应体不存在", 402))
                     }
                     return
                 })
@@ -131,11 +131,11 @@ export class RestfulUtil {
        @Param file：文件对象
      */
     async deleteFile(bucket: Bucket, file: File | Image | Video | Audio | Document): Promise<void> {
-        let save_key = '/' + bucket.directory + '/' + file.name + '.' + file.type
-        let requestUrl = this.apihost + '/' + bucket.name + save_key
-        let url = '/' + bucket.name + save_key
+        let save_key = "/" + bucket.directory + "/" + file.name + "." + file.type
+        let requestUrl = this.apihost + "/" + bucket.name + save_key
+        let url = "/" + bucket.name + save_key
         let date: string = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
-        let Authorization = await this.authUtil.getHeaderAuth(bucket, 'DELETE', url, date, '')
+        let Authorization = await this.authUtil.getHeaderAuth(bucket, "DELETE", url, date, "")
         await this.promiseUtil.do((resolve, reject) => {
             request.delete({
                 url: requestUrl,
@@ -145,7 +145,7 @@ export class RestfulUtil {
                 }
             }, (err, res, body) => {
                 if (err) {
-                    reject(new HttpException('删除文件失败', 402))
+                    reject(new HttpException("删除文件失败", 402))
                     return
                 }
                 if (res.statusCode == 200) {
@@ -157,10 +157,10 @@ export class RestfulUtil {
                         let { msg, code, id } = JSON.parse(body)
                         reject(new HttpException(msg, code))
                     } catch (err) {
-                        reject(new HttpException('响应体解析错误', 402))
+                        reject(new HttpException("响应体解析错误", 402))
                     }
                 } else {
-                    reject(new HttpException('响应体不存在', 402))
+                    reject(new HttpException("响应体不存在", 402))
                 }
                 return
             });
@@ -171,11 +171,11 @@ export class RestfulUtil {
     /* 获取指定文件的保存信息
      */
     async getFileInfo(bucket: Bucket, file: File | Image | Video | Audio | Document): Promise<{ file_size: number, file_date: any, file_md5: string }> {
-        let save_key = '/' + bucket.directory + '/' + file.name + '.' + file.type
-        let requestUrl = this.apihost + '/' + bucket.name + save_key
-        let url = '/' + bucket.name + save_key
+        let save_key = "/" + bucket.directory + "/" + file.name + "." + file.type
+        let requestUrl = this.apihost + "/" + bucket.name + save_key
+        let url = "/" + bucket.name + save_key
         let date: string = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
-        let Authorization = await this.authUtil.getHeaderAuth(bucket, 'HEAD', url, date, '')
+        let Authorization = await this.authUtil.getHeaderAuth(bucket, "HEAD", url, date, "")
         let file_size, file_date, file_md5
         await this.promiseUtil.do((resolve, reject) => {
             request.head({
@@ -186,13 +186,13 @@ export class RestfulUtil {
                 }
             }, (err, res, body) => {
                 if (err) {
-                    reject(new HttpException('获取文件信息失败', 402))
+                    reject(new HttpException("获取文件信息失败", 402))
                     return
                 }
                 if (res.statusCode == 200) {
-                    file_size = +res.headers[ 'x-upyun-file-size' ]
-                    file_date = +res.headers[ 'x-upyun-file-date' ]
-                    file_md5 = res.headers[ 'content-md5' ]
+                    file_size = +res.headers[ "x-upyun-file-size" ]
+                    file_date = +res.headers[ "x-upyun-file-date" ]
+                    file_md5 = res.headers[ "content-md5" ]
                     resolve()
                     return
                 }
@@ -201,10 +201,10 @@ export class RestfulUtil {
                         let { msg, code, id } = JSON.parse(body)
                         reject(new HttpException(msg, code))
                     } catch (err) {
-                        reject(new HttpException('响应体解析错误', 402))
+                        reject(new HttpException("响应体解析错误", 402))
                     }
                 } else {
-                    reject(new HttpException('响应体不存在', 402))
+                    reject(new HttpException("响应体不存在", 402))
                 }
                 return
             });
@@ -218,11 +218,11 @@ export class RestfulUtil {
        文件名/目录名  类型(N表示文件、F标志目录) 大小 最后修改时间
      */
     async getFileList(bucket: Bucket): Promise<any> {
-        let save_key = '/' + bucket.directory
-        let requestUrl = this.apihost + '/' + bucket.name + save_key
-        let url = '/' + bucket.name + save_key
+        let save_key = "/" + bucket.directory
+        let requestUrl = this.apihost + "/" + bucket.name + save_key
+        let url = "/" + bucket.name + save_key
         let date: string = new Date(+new Date() + bucket.request_expire * 1000).toUTCString()
-        let Authorization = await this.authUtil.getHeaderAuth(bucket, 'GET', url, date, '')
+        let Authorization = await this.authUtil.getHeaderAuth(bucket, "GET", url, date, "")
         let info
         await this.promiseUtil.do((resolve, reject) => {
             request.get({
@@ -233,15 +233,15 @@ export class RestfulUtil {
                 }
             }, (err, res, body) => {
                 if (err) {
-                    reject(new HttpException('获取文件信息失败', 402))
+                    reject(new HttpException("获取文件信息失败", 402))
                     return
                 }
                 if (res.statusCode == 200) {
-                    info = body.split('\n').map((value, index, raw) => {
-                        let temp = value.split('\t')
+                    info = body.split("\n").map((value, index, raw) => {
+                        let temp = value.split("\t")
                         return {
                             name: temp[ 0 ],
-                            isDirectory: (temp[ 1 ] === 'N' ? false : true),
+                            isDirectory: (temp[ 1 ] === "N" ? false : true),
                             size: parseInt(temp[ 2 ]),
                             timestamp: parseInt(temp[ 3 ])
                         }
@@ -249,7 +249,7 @@ export class RestfulUtil {
                     resolve()
                     return
                 }
-                reject(new HttpException('获取文件列表失败', 402))
+                reject(new HttpException("获取文件列表失败", 402))
                 return
             });
         })
