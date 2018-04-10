@@ -37,8 +37,8 @@ export class ConfigResolver {
     /* 配置空间基本信息 */
     @Mutation("bucket")
     async bucket(req: IncomingMessage, body: BucketConfig): Promise<Data> {
-        let { isPublic, name, operator, password, directory, base_url, requestExpire } = body;
-        if (isPublic === undefined || !name || !operator || !password || !directory || !base_url || !requestExpire) {
+        let { isPublic, name, operator, password, directory, baseUrl, requestExpire } = body;
+        if (isPublic === undefined || !name || !operator || !password || !directory || !baseUrl || !requestExpire) {
             throw new HttpException("缺少参数", 400)
         }
         if (isPublic !== true && isPublic !== false && isPublic !== "true" && isPublic !== "false") {

@@ -6,7 +6,7 @@ type Mutation{
         operator:String
         password:String
         directory:String
-        base_url:String
+        baseUrl:String
         requestExpire:Int
         tokenExpire:Int
         tokenSecretKey:String):ConfigData

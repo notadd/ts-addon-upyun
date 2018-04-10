@@ -79,7 +79,7 @@ export class Bucket {
 
     // 基本url
     @Column({
-        name: "base_url",
+        name: "baseUrl",
         type: "varchar",
         length: 50,
         nullable: false,

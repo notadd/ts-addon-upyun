@@ -12,7 +12,7 @@ export interface BucketConfig {
 
     requestExpire: number;
 
-    base_url: string;
+    baseUrl: string;
 
     tokenSecretKey?: string;
 

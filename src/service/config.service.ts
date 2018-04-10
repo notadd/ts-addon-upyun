@@ -40,7 +40,7 @@ export class ConfigService {
             operator: body.operator,
             password: crypto.createHash("md5").update(body.password).digest("hex"),
             directory: body.directory,
-            baseUrl: body.base_url,
+            baseUrl: body.baseUrl,
             requestExpire: body.requestExpire
         });
         if (body.isPublic) {

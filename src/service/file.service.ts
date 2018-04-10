@@ -161,7 +161,7 @@ export class FileService {
         if (bucket.publicOrPrivate == "private") {
             url += "?_upt=" + await this.authUtil.getToken(bucket, url)
         }
-        url = bucket.base_url.concat(url)
+        url = bucket.baseUrl.concat(url)
         return url
     }
 
