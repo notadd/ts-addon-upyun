@@ -8,12 +8,12 @@ export class PromiseUtil {
        直接在.catch方法中抛出异常会出现意外状况
     */
     async do(fn: (resolve, reject) => any) {
-        let ex: HttpException
+        let ex: HttpException;
         await new Promise(fn).catch(err => {
-            ex = err
-        })
+            ex = err;
+        });
         if (ex) {
-            throw ex
+            throw ex;
         }
     }
 }

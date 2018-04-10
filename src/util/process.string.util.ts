@@ -194,8 +194,8 @@ export class ProcessStringUtil {
         }
         let str = "";
         if (enable) {
-            if (bucket.imageConfig.watermark_save_key) {
-                str += "/watermark/url/" + Buffer.from(bucket.imageConfig.watermark_save_key).toString("base64");
+            if (bucket.imageConfig.watermarkSaveKey) {
+                str += "/watermark/url/" + Buffer.from(bucket.imageConfig.watermarkSaveKey).toString("base64");
             } else {
                 throw new HttpException("水印图片url不存在", 405);
             }

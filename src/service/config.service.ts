@@ -156,7 +156,7 @@ export class ConfigService {
             }
             try {
                 await this.imageConfigRepository.updateById(buckets[ i ].imageConfig.id, {
-                    watermark_save_key: "/" + buckets[ i ].directory + "/" + image.name + "." + image.type,
+                    watermarkSaveKey: "/" + buckets[ i ].directory + "/" + image.name + "." + image.type,
                     watermarkGravity: obj.gravity,
                     watermarkOpacity: obj.opacity,
                     watermarkWs: obj.ws,

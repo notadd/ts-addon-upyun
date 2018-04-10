@@ -33,7 +33,7 @@ export class ImageConfig {
 
     // 水印图片保存的save_key，每个空间图片加水印使用自己空间下的水印图片，所以水印图片要保存两次
     @Column({
-        name: "watermark_save_key",
+        name: "watermarkSaveKey",
         type: "varchar",
         length: 80,
         undefinedable: true
