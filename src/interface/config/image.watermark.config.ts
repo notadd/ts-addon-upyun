@@ -1,3 +1,4 @@
+
 export interface ImageWatermarkConfig {
     name: string
 

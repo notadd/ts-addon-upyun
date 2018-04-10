@@ -1,14 +1,15 @@
+
 export interface DownloadProcessData {
-    code: number
+    code: number;
 
-    message: string
+    message: string;
 
-    method: string
+    method: string;
 
-    url: string
+    url: string;
 
     headers: {
         authorization: string
         date: string
-    }
+    };
 }

@@ -1,3 +1,4 @@
+
 import { Body, Controller, Headers, HttpException, Inject, Post, Request, Response, UseFilters } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import * as  path from "path";
@@ -33,71 +34,71 @@ export class FileController {
     */
     @Post("notify")
     async asyncNotify(@Body() body, @Request() req, @Headers() headers, @Response() res): Promise<any> {
-        let content_type = headers[ "content-type" ]
-        let contentMd5 = headers[ "content-md5" ]
-        let auth = headers[ "authorization" ]
-        let date = headers[ "date" ]
-        console.log(body)
-        //接收到默认MIME类型，说明是上传回调
-        if (content_type === "application/x-www-form-urlencoded") {
-            let code = +body.code
-            //上传不成功时，要返回200,提示云存储不再发送回调请求
+        const contentType = headers[ "content-type" ];
+        const contentMd5 = headers[ "content-md5" ];
+        const auth = headers.authorization;
+        const date = headers.date;
+        console.log(body);
+        // 接收到默认MIME类型，说明是上传回调
+        if (contentType === "application/x-www-form-urlencoded") {
+            const code = +body.code;
+            // 上传不成功时，要返回200,提示云存储不再发送回调请求
             if (code !== 200) {
-                throw new HttpException("上传失败,返回200告诉又拍云不要再发送回调信息", 200)
+                throw new HttpException("上传失败,返回200告诉又拍云不要再发送回调信息", 200);
             }
-            //解析出原图文件名
-            let name = path.parse(body.url).name
-            //文件扩展名，不包含.
-            let type = path.parse(body.url).ext.substr(1)
-            let kind = this.kindUtil.getKind(type)
-            //从扩展参数中获取空间名
-            let bucketName = body[ "ext-param" ]
-            //查找指定空间
-            let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
+            // 解析出原图文件名
+            const name = path.parse(body.url).name;
+            // 文件扩展名，不包含.
+            const type = path.parse(body.url).ext.substr(1);
+            const kind = this.kindUtil.getKind(type);
+            // 从扩展参数中获取空间名
+            const bucketName = body[ "ext-param" ];
+            // 查找指定空间
+            const bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName });
             if (!bucket) {
-                throw new HttpException("空间不存在，说明是内部错误,返回200告诉又拍云不要再发送回调信息", 200)
+                throw new HttpException("空间不存在，说明是内部错误,返回200告诉又拍云不要再发送回调信息", 200);
             }
-            //验签获取结果
-            let pass = await this.authUtil.notifyVerify(auth, bucket, "POST", "/upyun/file/notify", date, contentMd5, body)
-            //验签不成功，要返回400,提示云存储继续发送回调请求
+            // 验签获取结果
+            const pass = await this.authUtil.notifyVerify(auth, bucket, "POST", "/upyun/file/notify", date, contentMd5, body);
+            // 验签不成功，要返回400,提示云存储继续发送回调请求
             if (!pass) {
-                throw new HttpException("验签失败,返回400告诉又拍云继续发送回调信息", 400)
+                throw new HttpException("验签失败,返回400告诉又拍云继续发送回调信息", 400);
             }
             if (kind === "image") {
-                let image = new Image()
-                image.name = name
-                image.type = type
-                await this.restfulUtil.deleteFile(bucket, image)
+                const image = new Image();
+                image.name = name;
+                image.type = type;
+                await this.restfulUtil.deleteFile(bucket, image);
             } else {
-                //暂不支持
+                // 暂不支持
             }
         }
-        //如果请求MIME为json类型，说吗为异步预处理回调信息，只有图片保存格式不是原图时采用这种方式
-        else if (content_type === "application/json") {
-            let code = body.status_code
-            //预处理不成功时，要返回200,提示云存储不再发送回调请求
+        // 如果请求MIME为json类型，说吗为异步预处理回调信息，只有图片保存格式不是原图时采用这种方式
+        else if (contentType === "application/json") {
+            const code = body.status_code;
+            // 预处理不成功时，要返回200,提示云存储不再发送回调请求
             if (code !== 200) {
-                throw new HttpException("预处理失败,返回200告诉又拍云不要再发送回调信息", 200)
+                throw new HttpException("预处理失败,返回200告诉又拍云不要再发送回调信息", 200);
             }
-            //响应体中空间名
-            let bucketName = body.bucket_name
-            //解析出文件名，根据它查找数据库保存文件
-            let name = path.parse(body.imginfo.path).name
-            //文件扩展名，不包含.，不是原图时为webp
-            let type = path.parse(body.imginfo.path).ext.substr(1)
-            let kind = this.kindUtil.getKind(type)
-            //查找指定空间
-            let bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName })
-            //验签获取结果
-            let pass = await this.authUtil.taskNotifyVerify(auth, bucket, "POST", "/upyun/file/notify", date, contentMd5, body)
-            //验签不成功，要返回400,提示云存储继续发送回调请求
+            // 响应体中空间名
+            const bucketName = body.bucket_name;
+            // 解析出文件名，根据它查找数据库保存文件
+            const name = path.parse(body.imginfo.path).name;
+            // 文件扩展名，不包含.，不是原图时为webp
+            const type = path.parse(body.imginfo.path).ext.substr(1);
+            const kind = this.kindUtil.getKind(type);
+            // 查找指定空间
+            const bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName });
+            // 验签获取结果
+            const pass = await this.authUtil.taskNotifyVerify(auth, bucket, "POST", "/upyun/file/notify", date, contentMd5, body);
+            // 验签不成功，要返回400,提示云存储继续发送回调请求
             if (!pass) {
-                throw new HttpException("验签失败,返回400告诉又拍云继续发送回调信息", 400)
+                throw new HttpException("验签失败,返回400告诉又拍云继续发送回调信息", 400);
             }
-            await this.fileService.postSaveTask(bucket, name, body, kind)
+            await this.fileService.postSaveTask(bucket, name, body, kind);
         }
-        res.sendStatus(200)
-        res.end()
-        return
+        res.sendStatus(200);
+        res.end();
+        return;
     }
 }

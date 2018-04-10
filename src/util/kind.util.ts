@@ -1,3 +1,4 @@
+
 import { Component } from "@nestjs/common";
 
 const allowExtension = require("../allowExtension.json")

@@ -1,3 +1,4 @@
+
 export interface BucketConfig {
     isPublic: boolean;
 

@@ -1,6 +1,7 @@
+
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
-import { AbstractFile } from "./abstract.file"
-import { Bucket } from "./bucket.entity"
+import { AbstractFile } from "./abstract.file";
+import { Bucket } from "./bucket.entity";
 
 @Entity({
     name: "image"
@@ -29,7 +30,7 @@ export class Image extends AbstractFile {
     frames: number;
 
     @Column({ nullable: true })
-    bucketId: number
+    bucketId: number;
 
     @ManyToOne(type => Bucket, bucket => bucket.images, {
         cascadeInsert: false,
@@ -39,5 +40,5 @@ export class Image extends AbstractFile {
         lazy: false
     })
     @JoinColumn()
-    bucket: Bucket
+    bucket: Bucket;
 }

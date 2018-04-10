@@ -1,3 +1,4 @@
+
 export interface AllData {
     code: number
 
