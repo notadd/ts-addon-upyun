@@ -1,4 +1,4 @@
-
+s;
 import { HttpException, Inject, UseInterceptors } from "@nestjs/common";
 import { Mutation, Query, Resolver } from "@nestjs/graphql";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -23,7 +23,7 @@ import { RestfulUtil } from "../../util/restful.util";
 @UseInterceptors(ExceptionInterceptor)
 export class ConfigResolver {
 
-    private readonly gravity: Set<string> = new Set([ "northwest", "north", "northeast", "west", "center", "east", "southwest", "south", "southeast" ])
+    private readonly gravity: Set<string> = new Set([ "northwest", "north", "northeast", "west", "center", "east", "southwest", "south", "southeast" ]);
 
     constructor(
         @Inject(FileUtil) private readonly fileUtil: FileUtil,
@@ -37,19 +37,19 @@ export class ConfigResolver {
     /* 配置空间基本信息 */
     @Mutation("bucket")
     async bucket(req: IncomingMessage, body: BucketConfig): Promise<Data> {
-        let { isPublic, name, operator, password, directory, baseUrl, requestExpire } = body;
+        const { isPublic, name, operator, password, directory, baseUrl, requestExpire } = body;
         if (isPublic === undefined || !name || !operator || !password || !directory || !baseUrl || !requestExpire) {
-            throw new HttpException("缺少参数", 400)
+            throw new HttpException("缺少参数", 400);
         }
         if (isPublic !== true && isPublic !== false && isPublic !== "true" && isPublic !== "false") {
-            throw new HttpException("isPublic参数不正确", 400)
+            throw new HttpException("isPublic参数不正确", 400);
         }
         if (!Number.isInteger(body.requestExpire)) {
-            throw new HttpException("请求超时参数为非整数", 400)
+            throw new HttpException("请求超时参数为非整数", 400);
         } else if (body.requestExpire < 0) {
-            throw new HttpException("请求超时参数小于0", 400)
+            throw new HttpException("请求超时参数小于0", 400);
         } else if (body.requestExpire > 1800) {
-            throw new HttpException("请求超时参数大于1800", 400)
+            throw new HttpException("请求超时参数大于1800", 400);
         }
         if (!isPublic) {
             if (!Number.isInteger(body.tokenExpire)) {
@@ -57,20 +57,20 @@ export class ConfigResolver {
             } else if (body.tokenExpire < 0) {
                 throw new HttpException("token超时参数小于0", 400);
             } else if (body.tokenExpire > 1800) {
-                throw new HttpException("token超时参数大于1800", 400)
+                throw new HttpException("token超时参数大于1800", 400);
             }
         }
         // 保存配置，如果已存在就更新它
-        let bucket: Bucket = await this.configService.saveBucketConfig(body);
-        await this.restfulUtil.createDirectory(bucket)
-        return { code: 200, message: "空间配置成功" }
+        const bucket: Bucket = await this.configService.saveBucketConfig(body);
+        await this.restfulUtil.createDirectory(bucket);
+        return { code: 200, message: "空间配置成功" };
     }
 
     /* 图片保存格式配置，目前公有空间、私有空间采用一个保存格式，会在两个配置信息中各保存一次 */
     @Mutation("imageFormat")
     async imageFormat(req: IncomingMessage, body: ImageFormatConfig): Promise<Data> {
         const format = body.format;
-        if (format == undefined || format.length == 0) {
+        if (format === undefined || format.length === 0) {
             throw new HttpException("缺少参数", 400);
         }
         // 保存格式
@@ -82,7 +82,7 @@ export class ConfigResolver {
     async enableImageWatermark(req: IncomingMessage, body: EnableImageWatermarkConfig): Promise<Data> {
         // 这里在schema中定义为枚举值，接受到参数为string
         const { enable } = body;
-        if (enable === null || enable === undefined) {
+        if (enable === undefined || enable === undefined) {
             throw new HttpException("缺少参数", 400);
         }
         // enable参数错误
@@ -176,8 +176,8 @@ export class ConfigResolver {
 
     /* 获取所有空间信息字段 */
     @Query("buckets")
-    async buckets(): Promise<Data & { buckets: Bucket[] }> {
-        const buckets: Bucket[] = await this.bucketRepository.createQueryBuilder("bucket")
+    async buckets(): Promise<Data & { buckets: Array<Bucket> }> {
+        const buckets: Array<Bucket> = await this.bucketRepository.createQueryBuilder("bucket")
             .select([ "bucket.id", "bucket.publicOrPrivate", "bucket.name" ])
             .getMany();
         if (buckets.length !== 2) {

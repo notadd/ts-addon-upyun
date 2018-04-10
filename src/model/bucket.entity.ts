@@ -27,7 +27,7 @@ export class Bucket {
         name: "publicOrPrivate",
         type: "varchar",
         length: 20,
-        nullable: false,
+        undefinedable: false,
         unique: true
     })
     publicOrPrivate: string;
@@ -37,7 +37,7 @@ export class Bucket {
         name: "name",
         type: "varchar",
         length: 50,
-        nullable: false,
+        undefinedable: false,
         unique: true
     })
     name: string;
@@ -47,7 +47,7 @@ export class Bucket {
         name: "operator",
         type: "varchar",
         length: 50,
-        nullable: false
+        undefinedable: false
     })
     operator: string;
 
@@ -56,7 +56,7 @@ export class Bucket {
         name: "password",
         type: "varchar",
         length: 50,
-        nullable: false
+        undefinedable: false
     })
     password: string;
 
@@ -65,7 +65,7 @@ export class Bucket {
         name: "directory",
         type: "varchar",
         length: 20,
-        nullable: false
+        undefinedable: false
     })
     directory: string;
 
@@ -73,7 +73,7 @@ export class Bucket {
     @Column({
         name: "requestExpire",
         type: "integer",
-        nullable: false
+        undefinedable: false
     })
     requestExpire: number;
 
@@ -82,7 +82,7 @@ export class Bucket {
         name: "baseUrl",
         type: "varchar",
         length: 50,
-        nullable: false,
+        undefinedable: false,
         unique: true
     })
     baseUrl: string;
@@ -92,7 +92,7 @@ export class Bucket {
         name: "tokenSecretKey",
         type: "varchar",
         length: 250,
-        nullable: true
+        undefinedable: true
     })
     tokenSecretKey: string;
 
@@ -100,7 +100,7 @@ export class Bucket {
     @Column({
         name: "tokenExpire",
         type: "integer",
-        nullable: true
+        undefinedable: true
     })
     tokenExpire: number;
 
@@ -137,33 +137,33 @@ export class Bucket {
         cascadeUpdate: true,
         lazy: true
     })
-    files: Promise<File[]>;
+    files: Promise<Array<File>>;
 
     @OneToMany(type => Image, image => image.bucket, {
         cascadeInsert: true,
         cascadeUpdate: true,
         lazy: true
     })
-    images: Promise<Image[]>;
+    images: Promise<Array<Image>>;
 
     @OneToMany(type => Audio, audio => audio.bucket, {
         cascadeInsert: true,
         cascadeUpdate: true,
         lazy: true
     })
-    audios: Promise<Audio[]>;
+    audios: Promise<Array<Audio>>;
 
     @OneToMany(type => Video, video => video.bucket, {
         cascadeInsert: true,
         cascadeUpdate: true,
         lazy: true
     })
-    videos: Promise<Video[]>;
+    videos: Promise<Array<Video>>;
 
     @OneToMany(type => Document, document => document.bucket, {
         cascadeInsert: true,
         cascadeUpdate: true,
         lazy: true
     })
-    documents: Promise<Document[]>;
+    documents: Promise<Array<Document>>;
 }

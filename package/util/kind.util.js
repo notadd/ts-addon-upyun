@@ -5,38 +5,35 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const common_1 = require("@nestjs/common");
-const allowExtension = require('../allowExtension.json');
-let KindUtil = class KindUtil {
-    constructor() {
+exports.__esModule = true;
+var common_1 = require("@nestjs/common");
+var allowExtension = require("../allowExtension.json");
+var KindUtil = /** @class */ (function () {
+    function KindUtil() {
     }
-    getKind(type) {
+    KindUtil.prototype.getKind = function (type) {
         if (allowExtension.image.includes(type)) {
-            return 'image';
+            return "image";
         }
         else if (allowExtension.audio.includes(type)) {
-            return 'audio';
+            return "audio";
         }
         else if (allowExtension.video.includes(type)) {
-            return 'video';
+            return "video";
         }
         else if (allowExtension.document.includes(type)) {
-            return 'document';
+            return "document";
         }
         else {
-            return 'file';
+            return "file";
         }
-    }
-    isImage(type) {
+    };
+    KindUtil.prototype.isImage = function (type) {
         return allowExtension.image.includes(type);
-    }
-};
-KindUtil = __decorate([
-    common_1.Component(),
-    __metadata("design:paramtypes", [])
-], KindUtil);
+    };
+    KindUtil = __decorate([
+        common_1.Component()
+    ], KindUtil);
+    return KindUtil;
+}());
 exports.KindUtil = KindUtil;

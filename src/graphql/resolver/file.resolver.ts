@@ -102,8 +102,8 @@ export class FileResolver {
         // 查询空间配置，关联查询图片、音频、视频配置，处理文件需要这些信息
         const bucket: Bucket = await this.bucketRepository.createQueryBuilder("bucket")
             .leftJoinAndSelect("bucket.imageConfig", "imageConfig")
-            .leftJoinAndSelect("bucket.audio_config", "audio_config")
-            .leftJoinAndSelect("bucket.video_config", "video_config")
+            .leftJoinAndSelect("bucket.audioConfig", "audioConfig")
+            .leftJoinAndSelect("bucket.videoConfig", "videoConfig")
             .where("bucket.name = :name", { name: bucketName })
             .getOne();
         if (!bucket) {
@@ -152,8 +152,8 @@ export class FileResolver {
         }
         const bucket: Bucket = await this.bucketRepository.createQueryBuilder("bucket")
             .leftJoinAndSelect("bucket.imageConfig", "imageConfig")
-            .leftJoinAndSelect("bucket.audio_config", "audio_config")
-            .leftJoinAndSelect("bucket.video_config", "video_config")
+            .leftJoinAndSelect("bucket.audioConfig", "audioConfig")
+            .leftJoinAndSelect("bucket.videoConfig", "videoConfig")
             .where("bucket.name = :name", { name: bucketName })
             .getOne();
         if (!bucket) {

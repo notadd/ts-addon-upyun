@@ -19,7 +19,7 @@ import { PromiseUtil } from "./promise.util";
 */
 @Component()
 export class RestfulUtil {
-    private readonly apihost = "https://v0.api.upyun.com"
+    private readonly apihost = "https://v0.api.upyun.com";
 
     constructor(
         @Inject(AuthUtil) private readonly authUtil: AuthUtil,
@@ -28,24 +28,24 @@ export class RestfulUtil {
     ) {
     }
 
-    //上传文件，其中文件信息来自于formidable解析得到的File对象
+    // 上传文件，其中文件信息来自于formidable解析得到的File对象
     async uploadFile(bucket: Bucket, file: File | Image | Video | Audio | Document, uploadFile: any, imagePreProcessInfo: ImagePreProcessInfo): Promise<{ width: number, height: number, frames: number }> {
-        let contentMd5 = file.md5
-        let save_key = "/" + bucket.directory + "/" + file.name + "." + file.type
-        let requestUrl = this.apihost + "/" + bucket.name + save_key
-        let url = "/" + bucket.name + save_key
-        let date: string = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString()
-        let Authorization = await this.authUtil.getHeaderAuth(bucket, "PUT", url, date, contentMd5)
-        let format = bucket.imageConfig.format || "raw"
-        let x_gmkerl_thumb = this.processStringUtil.makeImageProcessString(bucket, imagePreProcessInfo)
+        const contentMd5 = file.md5;
+        const saveKey = "/" + bucket.directory + "/" + file.name + "." + file.type;
+        const requestUrl = this.apihost + "/" + bucket.name + saveKey;
+        const url = "/" + bucket.name + saveKey;
+        const date: string = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
+        const Authorization = await this.authUtil.getHeaderAuth(bucket, "PUT", url, date, contentMd5);
+        const format = bucket.imageConfig.format || "raw";
+        let xGmkerlThumb = this.processStringUtil.makeImageProcessString(bucket, imagePreProcessInfo);
         if (format === "raw") {
-            x_gmkerl_thumb += "/scale/100"
+            xGmkerlThumb += "/scale/100";
         } else if (format === "webp_damage") {
-            x_gmkerl_thumb += "/format/webp/strip/true"
+            xGmkerlThumb += "/format/webp/strip/true";
         } else {
-            x_gmkerl_thumb += "/format/webp/lossless/true/strip/true"
+            xGmkerlThumb += "/format/webp/lossless/true/strip/true";
         }
-        let height, width, frames
+        let height, width, frames;
         await this.promiseUtil.do((resolve, reject) => {
             fs.createReadStream(uploadFile.path).pipe(request.put({
                 url: requestUrl,
@@ -54,45 +54,45 @@ export class RestfulUtil {
                     "Content-Length": file.size,
                     "Content-MD5": contentMd5,
                     Authorization,
-                    Date: date,
-                    "x-gmkerl-thumb": x_gmkerl_thumb
+                    "Date": date,
+                    "x-gmkerl-thumb": xGmkerlThumb
                 }
             }, (err, res, body) => {
                 if (err) {
-                    reject(new HttpException("文件上传失败,网络错误", 402))
-                    return
+                    reject(new HttpException("文件上传失败,网络错误", 402));
+                    return;
                 }
                 if (res.statusCode === 200) {
-                    width = res.headers[ "x-upyun-width" ]
-                    height = res.headers[ "x-upyun-height" ]
-                    frames = res.headers[ "x-upyun-frames" ]
-                    resolve()
-                    return
+                    width = res.headers[ "x-upyun-width" ];
+                    height = res.headers[ "x-upyun-height" ];
+                    frames = res.headers[ "x-upyun-frames" ];
+                    resolve();
+                    return;
                 }
                 if (body) {
                     try {
-                        let { msg, code, id } = JSON.parse(body)
-                        reject(new HttpException(msg, code))
+                        const { msg, code, id } = JSON.parse(body);
+                        reject(new HttpException(msg, code));
                     } catch (err) {
-                        reject(new HttpException("响应体解析错误", 402))
+                        reject(new HttpException("响应体解析错误", 402));
                     }
                 } else {
-                    reject(new HttpException("响应体不存在", 402))
+                    reject(new HttpException("响应体不存在", 402));
                 }
-                return
-            }))
-        })
-        return { width, height, frames }
+                return;
+            }));
+        });
+        return { width, height, frames };
     }
 
     /*创建指定空间里的指定目录，空间下唯一目录在配置中指定
         @Param bucket：目录所属空间
     */
     async createDirectory(bucket: Bucket): Promise<void> {
-        let requestUrl = this.apihost + "/" + bucket.name + "/" + bucket.directory
-        let url = "/" + bucket.name + "/" + bucket.directory
-        let date: string = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString()
-        let Authorization = await this.authUtil.getHeaderAuth(bucket, "POST", url, date, null)
+        const requestUrl = this.apihost + "/" + bucket.name + "/" + bucket.directory;
+        const url = "/" + bucket.name + "/" + bucket.directory;
+        const date: string = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
+        const Authorization = await this.authUtil.getHeaderAuth(bucket, "POST", url, date, undefined);
         await this.promiseUtil.do((resolve, reject) => {
             request.post({
                     url: requestUrl,
@@ -104,27 +104,27 @@ export class RestfulUtil {
                 },
                 (err, res, body) => {
                     if (err) {
-                        reject(new HttpException("目录创建失败，网络错误", 402))
-                        return
+                        reject(new HttpException("目录创建失败，网络错误", 402));
+                        return;
                     }
                     if (res.statusCode === 200) {
-                        resolve()
-                        return
+                        resolve();
+                        return;
                     }
                     if (body) {
                         try {
-                            let { msg, code, id } = JSON.parse(body)
-                            reject(new HttpException(msg, code))
+                            const { msg, code, id } = JSON.parse(body);
+                            reject(new HttpException(msg, code));
                         } catch (err) {
-                            reject(new HttpException("响应体解析错误", 402))
+                            reject(new HttpException("响应体解析错误", 402));
                         }
                     } else {
-                        reject(new HttpException("响应体不存在", 402))
+                        reject(new HttpException("响应体不存在", 402));
                     }
-                    return
-                })
-        })
-        return
+                    return;
+                });
+        });
+        return;
     }
 
     /* 删除指定空间指定文件
@@ -132,11 +132,11 @@ export class RestfulUtil {
        @Param file：文件对象
      */
     async deleteFile(bucket: Bucket, file: File | Image | Video | Audio | Document): Promise<void> {
-        let save_key = "/" + bucket.directory + "/" + file.name + "." + file.type
-        let requestUrl = this.apihost + "/" + bucket.name + save_key
-        let url = "/" + bucket.name + save_key
-        let date: string = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString()
-        let Authorization = await this.authUtil.getHeaderAuth(bucket, "DELETE", url, date, "")
+        const savekey = "/" + bucket.directory + "/" + file.name + "." + file.type;
+        const requestUrl = this.apihost + "/" + bucket.name + savekey;
+        const url = "/" + bucket.name + savekey;
+        const date: string = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
+        const Authorization = await this.authUtil.getHeaderAuth(bucket, "DELETE", url, date, "");
         await this.promiseUtil.do((resolve, reject) => {
             request.delete({
                 url: requestUrl,
@@ -146,38 +146,38 @@ export class RestfulUtil {
                 }
             }, (err, res, body) => {
                 if (err) {
-                    reject(new HttpException("删除文件失败", 402))
-                    return
+                    reject(new HttpException("删除文件失败", 402));
+                    return;
                 }
-                if (res.statusCode == 200) {
-                    resolve()
-                    return
+                if (res.statusCode === 200) {
+                    resolve();
+                    return;
                 }
                 if (body) {
                     try {
-                        let { msg, code, id } = JSON.parse(body)
-                        reject(new HttpException(msg, code))
+                        const { msg, code, id } = JSON.parse(body);
+                        reject(new HttpException(msg, code));
                     } catch (err) {
-                        reject(new HttpException("响应体解析错误", 402))
+                        reject(new HttpException("响应体解析错误", 402));
                     }
                 } else {
-                    reject(new HttpException("响应体不存在", 402))
+                    reject(new HttpException("响应体不存在", 402));
                 }
-                return
+                return;
             });
-        })
-        return
+        });
+        return;
     }
 
     /* 获取指定文件的保存信息
      */
-    async getFileInfo(bucket: Bucket, file: File | Image | Video | Audio | Document): Promise<{ file_size: number, file_date: any, file_md5: string }> {
-        let save_key = "/" + bucket.directory + "/" + file.name + "." + file.type
-        let requestUrl = this.apihost + "/" + bucket.name + save_key
-        let url = "/" + bucket.name + save_key
-        let date: string = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString()
-        let Authorization = await this.authUtil.getHeaderAuth(bucket, "HEAD", url, date, "")
-        let file_size, file_date, file_md5
+    async getFileInfo(bucket: Bucket, file: File | Image | Video | Audio | Document): Promise<{ fileSize: number, fileDate: any, fileMd5: string }> {
+        const savekey = "/" + bucket.directory + "/" + file.name + "." + file.type;
+        const requestUrl = this.apihost + "/" + bucket.name + savekey;
+        const url = "/" + bucket.name + savekey;
+        const date: string = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
+        const Authorization = await this.authUtil.getHeaderAuth(bucket, "HEAD", url, date, "");
+        let fileSize, fileDate, fileMd5;
         await this.promiseUtil.do((resolve, reject) => {
             request.head({
                 url: requestUrl,
@@ -187,30 +187,30 @@ export class RestfulUtil {
                 }
             }, (err, res, body) => {
                 if (err) {
-                    reject(new HttpException("获取文件信息失败", 402))
-                    return
+                    reject(new HttpException("获取文件信息失败", 402));
+                    return;
                 }
-                if (res.statusCode == 200) {
-                    file_size = +res.headers[ "x-upyun-file-size" ]
-                    file_date = +res.headers[ "x-upyun-file-date" ]
-                    file_md5 = res.headers[ "content-md5" ]
-                    resolve()
-                    return
+                if (res.statusCode === 200) {
+                    fileSize = +res.headers[ "x-upyun-file-size" ];
+                    fileDate = +res.headers[ "x-upyun-file-date" ];
+                    fileMd5 = res.headers[ "content-md5" ];
+                    resolve();
+                    return;
                 }
                 if (body) {
                     try {
-                        let { msg, code, id } = JSON.parse(body)
-                        reject(new HttpException(msg, code))
+                        const { msg, code, id } = JSON.parse(body);
+                        reject(new HttpException(msg, code));
                     } catch (err) {
-                        reject(new HttpException("响应体解析错误", 402))
+                        reject(new HttpException("响应体解析错误", 402));
                     }
                 } else {
-                    reject(new HttpException("响应体不存在", 402))
+                    reject(new HttpException("响应体不存在", 402));
                 }
-                return
+                return;
             });
-        })
-        return { file_size, file_date, file_md5 }
+        });
+        return { fileSize, fileDate, fileMd5 };
     }
 
     /* 获取指定空间下文件\目录列表
@@ -219,12 +219,12 @@ export class RestfulUtil {
        文件名/目录名  类型(N表示文件、F标志目录) 大小 最后修改时间
      */
     async getFileList(bucket: Bucket): Promise<any> {
-        let save_key = "/" + bucket.directory
-        let requestUrl = this.apihost + "/" + bucket.name + save_key
-        let url = "/" + bucket.name + save_key
-        let date: string = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString()
-        let Authorization = await this.authUtil.getHeaderAuth(bucket, "GET", url, date, "")
-        let info
+        const saveKey = "/" + bucket.directory;
+        const requestUrl = this.apihost + "/" + bucket.name + saveKey;
+        const url = "/" + bucket.name + saveKey;
+        const date: string = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
+        const Authorization = await this.authUtil.getHeaderAuth(bucket, "GET", url, date, "");
+        let info;
         await this.promiseUtil.do((resolve, reject) => {
             request.get({
                 url: requestUrl,
@@ -234,27 +234,27 @@ export class RestfulUtil {
                 }
             }, (err, res, body) => {
                 if (err) {
-                    reject(new HttpException("获取文件信息失败", 402))
-                    return
+                    reject(new HttpException("获取文件信息失败", 402));
+                    return;
                 }
-                if (res.statusCode == 200) {
+                if (res.statusCode === 200) {
                     info = body.split("\n").map((value, index, raw) => {
-                        let temp = value.split("\t")
+                        const temp = value.split("\t");
                         return {
                             name: temp[ 0 ],
                             isDirectory: (temp[ 1 ] === "N" ? false : true),
                             size: parseInt(temp[ 2 ]),
                             timestamp: parseInt(temp[ 3 ])
-                        }
-                    })
-                    resolve()
-                    return
+                        };
+                    });
+                    resolve();
+                    return;
                 }
-                reject(new HttpException("获取文件列表失败", 402))
-                return
+                reject(new HttpException("获取文件列表失败", 402));
+                return;
             });
-        })
+        });
 
-        return info
+        return info;
     }
 }

@@ -1,5 +1,8 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-class ImagePostProcessInfo {
-}
+exports.__esModule = true;
+var ImagePostProcessInfo = /** @class */ (function () {
+    function ImagePostProcessInfo() {
+    }
+    return ImagePostProcessInfo;
+}());
 exports.ImagePostProcessInfo = ImagePostProcessInfo;

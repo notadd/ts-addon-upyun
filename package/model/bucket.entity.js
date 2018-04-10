@@ -5,180 +5,163 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const typeorm_1 = require("typeorm");
-const audio_entity_1 = require("./audio.entity");
-const audio_config_entity_1 = require("./audio.config.entity");
-const document_entity_1 = require("./document.entity");
-const file_entity_1 = require("./file.entity");
-const image_entity_1 = require("./image.entity");
-const image_config_entity_1 = require("./image.config.entity");
-const video_entity_1 = require("./video.entity");
-const video_config_entity_1 = require("./video.config.entity");
-let Bucket = class Bucket {
-};
-__decorate([
-    typeorm_1.PrimaryColumn({
-        name: 'id',
-        type: 'integer'
-    }),
-    __metadata("design:type", Number)
-], Bucket.prototype, "id", void 0);
-__decorate([
-    typeorm_1.Column({
-        name: 'public_or_private',
-        type: 'varchar',
-        length: 20,
-        nullable: false,
-        unique: true
-    }),
-    __metadata("design:type", String)
-], Bucket.prototype, "public_or_private", void 0);
-__decorate([
-    typeorm_1.Column({
-        name: 'name',
-        type: 'varchar',
-        length: 50,
-        nullable: false,
-        unique: true
-    }),
-    __metadata("design:type", String)
-], Bucket.prototype, "name", void 0);
-__decorate([
-    typeorm_1.Column({
-        name: 'operator',
-        type: 'varchar',
-        length: 50,
-        nullable: false
-    }),
-    __metadata("design:type", String)
-], Bucket.prototype, "operator", void 0);
-__decorate([
-    typeorm_1.Column({
-        name: 'password',
-        type: 'varchar',
-        length: 50,
-        nullable: false
-    }),
-    __metadata("design:type", String)
-], Bucket.prototype, "password", void 0);
-__decorate([
-    typeorm_1.Column({
-        name: 'directory',
-        type: 'varchar',
-        length: 20,
-        nullable: false
-    }),
-    __metadata("design:type", String)
-], Bucket.prototype, "directory", void 0);
-__decorate([
-    typeorm_1.Column({
-        name: 'request_expire',
-        type: 'integer',
-        nullable: false
-    }),
-    __metadata("design:type", Number)
-], Bucket.prototype, "request_expire", void 0);
-__decorate([
-    typeorm_1.Column({
-        name: 'base_url',
-        type: 'varchar',
-        length: 50,
-        nullable: false,
-        unique: true
-    }),
-    __metadata("design:type", String)
-], Bucket.prototype, "base_url", void 0);
-__decorate([
-    typeorm_1.Column({
-        name: 'token_secret_key',
-        type: 'varchar',
-        length: 250,
-        nullable: true
-    }),
-    __metadata("design:type", String)
-], Bucket.prototype, "token_secret_key", void 0);
-__decorate([
-    typeorm_1.Column({
-        name: 'token_expire',
-        type: 'integer',
-        nullable: true
-    }),
-    __metadata("design:type", Number)
-], Bucket.prototype, "token_expire", void 0);
-__decorate([
-    typeorm_1.OneToOne(type => image_config_entity_1.ImageConfig, imageConfig => imageConfig.bucket, {
-        cascadeInsert: true,
-        cascadeUpdate: true,
-        cascadeRemove: true,
-        lazy: false
-    }),
-    __metadata("design:type", image_config_entity_1.ImageConfig)
-], Bucket.prototype, "image_config", void 0);
-__decorate([
-    typeorm_1.OneToOne(type => audio_config_entity_1.AudioConfig, audioConfig => audioConfig.bucket, {
-        cascadeInsert: true,
-        cascadeUpdate: true,
-        cascadeRemove: true,
-        lazy: false
-    }),
-    __metadata("design:type", audio_config_entity_1.AudioConfig)
-], Bucket.prototype, "audio_config", void 0);
-__decorate([
-    typeorm_1.OneToOne(type => video_config_entity_1.VideoConfig, videoConfig => videoConfig.bucket, {
-        cascadeInsert: true,
-        cascadeUpdate: true,
-        cascadeRemove: true,
-        lazy: false
-    }),
-    __metadata("design:type", video_config_entity_1.VideoConfig)
-], Bucket.prototype, "video_config", void 0);
-__decorate([
-    typeorm_1.OneToMany(type => file_entity_1.File, file => file.bucket, {
-        cascadeInsert: true,
-        cascadeUpdate: true,
-        lazy: true
-    }),
-    __metadata("design:type", Promise)
-], Bucket.prototype, "files", void 0);
-__decorate([
-    typeorm_1.OneToMany(type => image_entity_1.Image, image => image.bucket, {
-        cascadeInsert: true,
-        cascadeUpdate: true,
-        lazy: true
-    }),
-    __metadata("design:type", Promise)
-], Bucket.prototype, "images", void 0);
-__decorate([
-    typeorm_1.OneToMany(type => audio_entity_1.Audio, audio => audio.bucket, {
-        cascadeInsert: true,
-        cascadeUpdate: true,
-        lazy: true
-    }),
-    __metadata("design:type", Promise)
-], Bucket.prototype, "audios", void 0);
-__decorate([
-    typeorm_1.OneToMany(type => video_entity_1.Video, video => video.bucket, {
-        cascadeInsert: true,
-        cascadeUpdate: true,
-        lazy: true
-    }),
-    __metadata("design:type", Promise)
-], Bucket.prototype, "videos", void 0);
-__decorate([
-    typeorm_1.OneToMany(type => document_entity_1.Document, document => document.bucket, {
-        cascadeInsert: true,
-        cascadeUpdate: true,
-        lazy: true
-    }),
-    __metadata("design:type", Promise)
-], Bucket.prototype, "documents", void 0);
-Bucket = __decorate([
-    typeorm_1.Entity({
-        name: 'bucket'
-    })
-], Bucket);
+exports.__esModule = true;
+var typeorm_1 = require("typeorm");
+var audio_entity_1 = require("./audio.entity");
+var audio_config_entity_1 = require("./audio.config.entity");
+var document_entity_1 = require("./document.entity");
+var file_entity_1 = require("./file.entity");
+var image_entity_1 = require("./image.entity");
+var image_config_entity_1 = require("./image.config.entity");
+var video_entity_1 = require("./video.entity");
+var video_config_entity_1 = require("./video.config.entity");
+/* 后台配置实体类 */
+var Bucket = /** @class */ (function () {
+    function Bucket() {
+    }
+    __decorate([
+        typeorm_1.PrimaryColumn({
+            name: "id",
+            type: "integer"
+        })
+    ], Bucket.prototype, "id");
+    __decorate([
+        typeorm_1.Column({
+            name: "publicOrPrivate",
+            type: "varchar",
+            length: 20,
+            nullable: false,
+            unique: true
+        })
+    ], Bucket.prototype, "publicOrPrivate");
+    __decorate([
+        typeorm_1.Column({
+            name: "name",
+            type: "varchar",
+            length: 50,
+            nullable: false,
+            unique: true
+        })
+    ], Bucket.prototype, "name");
+    __decorate([
+        typeorm_1.Column({
+            name: "operator",
+            type: "varchar",
+            length: 50,
+            nullable: false
+        })
+    ], Bucket.prototype, "operator");
+    __decorate([
+        typeorm_1.Column({
+            name: "password",
+            type: "varchar",
+            length: 50,
+            nullable: false
+        })
+    ], Bucket.prototype, "password");
+    __decorate([
+        typeorm_1.Column({
+            name: "directory",
+            type: "varchar",
+            length: 20,
+            nullable: false
+        })
+    ], Bucket.prototype, "directory");
+    __decorate([
+        typeorm_1.Column({
+            name: "requestExpire",
+            type: "integer",
+            nullable: false
+        })
+    ], Bucket.prototype, "requestExpire");
+    __decorate([
+        typeorm_1.Column({
+            name: "baseUrl",
+            type: "varchar",
+            length: 50,
+            nullable: false,
+            unique: true
+        })
+    ], Bucket.prototype, "baseUrl");
+    __decorate([
+        typeorm_1.Column({
+            name: "tokenSecretKey",
+            type: "varchar",
+            length: 250,
+            nullable: true
+        })
+    ], Bucket.prototype, "tokenSecretKey");
+    __decorate([
+        typeorm_1.Column({
+            name: "tokenExpire",
+            type: "integer",
+            nullable: true
+        })
+    ], Bucket.prototype, "tokenExpire");
+    __decorate([
+        typeorm_1.OneToOne(function (type) { return image_config_entity_1.ImageConfig; }, function (imageConfig) { return imageConfig.bucket; }, {
+            cascadeInsert: true,
+            cascadeUpdate: true,
+            cascadeRemove: true,
+            lazy: false
+        })
+    ], Bucket.prototype, "imageConfig");
+    __decorate([
+        typeorm_1.OneToOne(function (type) { return audio_config_entity_1.AudioConfig; }, function (audioConfig) { return audioConfig.bucket; }, {
+            cascadeInsert: true,
+            cascadeUpdate: true,
+            cascadeRemove: true,
+            lazy: false
+        })
+    ], Bucket.prototype, "audioConfig");
+    __decorate([
+        typeorm_1.OneToOne(function (type) { return video_config_entity_1.VideoConfig; }, function (videoConfig) { return videoConfig.bucket; }, {
+            cascadeInsert: true,
+            cascadeUpdate: true,
+            cascadeRemove: true,
+            lazy: false
+        })
+    ], Bucket.prototype, "videoConfig");
+    __decorate([
+        typeorm_1.OneToMany(function (type) { return file_entity_1.File; }, function (file) { return file.bucket; }, {
+            cascadeInsert: true,
+            cascadeUpdate: true,
+            lazy: true
+        })
+    ], Bucket.prototype, "files");
+    __decorate([
+        typeorm_1.OneToMany(function (type) { return image_entity_1.Image; }, function (image) { return image.bucket; }, {
+            cascadeInsert: true,
+            cascadeUpdate: true,
+            lazy: true
+        })
+    ], Bucket.prototype, "images");
+    __decorate([
+        typeorm_1.OneToMany(function (type) { return audio_entity_1.Audio; }, function (audio) { return audio.bucket; }, {
+            cascadeInsert: true,
+            cascadeUpdate: true,
+            lazy: true
+        })
+    ], Bucket.prototype, "audios");
+    __decorate([
+        typeorm_1.OneToMany(function (type) { return video_entity_1.Video; }, function (video) { return video.bucket; }, {
+            cascadeInsert: true,
+            cascadeUpdate: true,
+            lazy: true
+        })
+    ], Bucket.prototype, "videos");
+    __decorate([
+        typeorm_1.OneToMany(function (type) { return document_entity_1.Document; }, function (document) { return document.bucket; }, {
+            cascadeInsert: true,
+            cascadeUpdate: true,
+            lazy: true
+        })
+    ], Bucket.prototype, "documents");
+    Bucket = __decorate([
+        typeorm_1.Entity({
+            name: "bucket"
+        })
+    ], Bucket);
+    return Bucket;
+}());
 exports.Bucket = Bucket;

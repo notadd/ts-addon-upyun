@@ -5,12 +5,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-const common_1 = require("@nestjs/common");
+exports.__esModule = true;
+var common_1 = require("@nestjs/common");
 require("rxjs/add/operator/catch");
-let ExceptionInterceptor = class ExceptionInterceptor {
-    intercept(dataOrRequest, context, stream$) {
-        return stream$.catch((err, caught) => {
+var ExceptionInterceptor = /** @class */ (function () {
+    function ExceptionInterceptor() {
+    }
+    ExceptionInterceptor.prototype.intercept = function (dataOrRequest, context, stream$) {
+        return stream$["catch"](function (err, caught) {
             if (err instanceof common_1.HttpException) {
                 return Promise.resolve({
                     code: err.getStatus(),
@@ -20,13 +22,14 @@ let ExceptionInterceptor = class ExceptionInterceptor {
             else {
                 return Promise.resolve({
                     code: 500,
-                    message: '出现了意外错误' + err.toString()
+                    message: "出现了意外错误" + err.toString()
                 });
             }
         });
-    }
-};
-ExceptionInterceptor = __decorate([
-    common_1.Interceptor()
-], ExceptionInterceptor);
+    };
+    ExceptionInterceptor = __decorate([
+        common_1.Interceptor()
+    ], ExceptionInterceptor);
+    return ExceptionInterceptor;
+}());
 exports.ExceptionInterceptor = ExceptionInterceptor;

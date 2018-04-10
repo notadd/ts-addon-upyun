@@ -13,7 +13,7 @@ export class AbstractFile {
         name: "rawName",
         type: "varchar",
         length: 50,
-        nullable: false
+        undefinedable: false
     })
     rawName: string;
 
@@ -21,7 +21,7 @@ export class AbstractFile {
         name: "name",
         type: "varchar",
         length: 50,
-        nullable: false,
+        undefinedable: false,
         unique: true
     })
     name: string;
@@ -29,7 +29,7 @@ export class AbstractFile {
     @Column({
         name: "tags",
         type: "simple-array",
-        nullable: true,
+        undefinedable: true,
     })
     tags: Array<string>;
 
@@ -37,7 +37,7 @@ export class AbstractFile {
         name: "md5",
         type: "varchar",
         length: 50,
-        nullable: false
+        undefinedable: false
     })
     md5: string;
 
@@ -46,14 +46,14 @@ export class AbstractFile {
         type: "varchar",
         length: 20,
         // File可以没有扩展名
-        nullable: true
+        undefinedable: true
     })
     type: string;
 
     @Column({
         name: "size",
         type: "integer",
-        nullable: true
+        undefinedable: true
     })
     size: number;
 
@@ -62,14 +62,14 @@ export class AbstractFile {
         name: "contentSecret",
         type: "varchar",
         length: "50",
-        nullable: true
+        undefinedable: true
     })
     contentSecret: string;
 
     @Column({
         name: "status",
         type: "varchar",
-        nullable: false
+        undefinedable: false
     })
     status: string;
 

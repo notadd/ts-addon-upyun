@@ -5,94 +5,85 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const typeorm_1 = require("typeorm");
-const bucket_entity_1 = require("./bucket.entity");
-let ImageConfig = class ImageConfig {
-};
-__decorate([
-    typeorm_1.PrimaryColumn({
-        name: 'id',
-        type: 'integer'
-    }),
-    __metadata("design:type", Number)
-], ImageConfig.prototype, "id", void 0);
-__decorate([
-    typeorm_1.Column({
-        name: 'format',
-        type: 'varchar',
-        nullable: true
-    }),
-    __metadata("design:type", String)
-], ImageConfig.prototype, "format", void 0);
-__decorate([
-    typeorm_1.Column({
-        name: 'watermark_enable',
-        type: 'smallint',
-        nullable: true
-    }),
-    __metadata("design:type", Number)
-], ImageConfig.prototype, "watermark_enable", void 0);
-__decorate([
-    typeorm_1.Column({
-        name: 'watermark_save_key',
-        type: 'varchar',
-        length: 80,
-        nullable: true
-    }),
-    __metadata("design:type", String)
-], ImageConfig.prototype, "watermark_save_key", void 0);
-__decorate([
-    typeorm_1.Column({
-        name: 'watermark_gravity',
-        type: 'varchar',
-        nullable: true
-    }),
-    __metadata("design:type", String)
-], ImageConfig.prototype, "watermark_gravity", void 0);
-__decorate([
-    typeorm_1.Column({
-        name: 'watermark_x',
-        type: 'integer',
-        nullable: true
-    }),
-    __metadata("design:type", Number)
-], ImageConfig.prototype, "watermark_x", void 0);
-__decorate([
-    typeorm_1.Column({
-        name: 'watermark_y',
-        type: 'integer',
-        nullable: true
-    }),
-    __metadata("design:type", Number)
-], ImageConfig.prototype, "watermark_y", void 0);
-__decorate([
-    typeorm_1.Column({
-        name: 'watermark_opacity',
-        type: 'integer',
-        nullable: true
-    }),
-    __metadata("design:type", Number)
-], ImageConfig.prototype, "watermark_opacity", void 0);
-__decorate([
-    typeorm_1.Column({
-        name: 'watermark_ws',
-        type: 'integer',
-        nullable: true
-    }),
-    __metadata("design:type", Number)
-], ImageConfig.prototype, "watermark_ws", void 0);
-__decorate([
-    typeorm_1.OneToOne(type => bucket_entity_1.Bucket, bucket => bucket.image_config),
-    typeorm_1.JoinColumn(),
-    __metadata("design:type", bucket_entity_1.Bucket)
-], ImageConfig.prototype, "bucket", void 0);
-ImageConfig = __decorate([
-    typeorm_1.Entity({
-        name: 'image_config'
-    })
-], ImageConfig);
+exports.__esModule = true;
+var typeorm_1 = require("typeorm");
+var bucket_entity_1 = require("./bucket.entity");
+/* 图片配置实体类 */
+var ImageConfig = /** @class */ (function () {
+    function ImageConfig() {
+    }
+    __decorate([
+        typeorm_1.PrimaryColumn({
+            name: "id",
+            type: "integer"
+        })
+    ], ImageConfig.prototype, "id");
+    __decorate([
+        typeorm_1.Column({
+            name: "format",
+            type: "varchar",
+            nullable: true
+        })
+    ], ImageConfig.prototype, "format");
+    __decorate([
+        typeorm_1.Column({
+            name: "watermarkEnable",
+            type: "smallint",
+            nullable: true
+        })
+    ], ImageConfig.prototype, "watermarkEnable");
+    __decorate([
+        typeorm_1.Column({
+            name: "watermark_save_key",
+            type: "varchar",
+            length: 80,
+            nullable: true
+        })
+    ], ImageConfig.prototype, "watermarkSaveKey");
+    __decorate([
+        typeorm_1.Column({
+            name: "watermarkGravity",
+            type: "varchar",
+            nullable: true
+        })
+    ], ImageConfig.prototype, "watermarkGravity");
+    __decorate([
+        typeorm_1.Column({
+            name: "watermarkX",
+            type: "integer",
+            nullable: true
+        })
+    ], ImageConfig.prototype, "watermarkX");
+    __decorate([
+        typeorm_1.Column({
+            name: "watermarkY",
+            type: "integer",
+            nullable: true
+        })
+    ], ImageConfig.prototype, "watermarkY");
+    __decorate([
+        typeorm_1.Column({
+            name: "watermarkOpacity",
+            type: "integer",
+            nullable: true
+        })
+    ], ImageConfig.prototype, "watermarkOpacity");
+    __decorate([
+        typeorm_1.Column({
+            name: "watermarkWs",
+            type: "integer",
+            nullable: true
+        })
+    ], ImageConfig.prototype, "watermarkWs");
+    __decorate([
+        typeorm_1.OneToOne(function (type) { return bucket_entity_1.Bucket; }, function (bucket) { return bucket.imageConfig; }),
+        typeorm_1.JoinColumn()
+    ], ImageConfig.prototype, "bucket");
+    ImageConfig = __decorate([
+        typeorm_1.Entity({
+            name: "imageConfig"
+        })
+    ], ImageConfig);
+    return ImageConfig;
+}());
 exports.ImageConfig = ImageConfig;

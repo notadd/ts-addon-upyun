@@ -5,23 +5,23 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-const common_1 = require("@nestjs/common");
-const image_process_info_1 = require("../interface/file/image.process.info");
-const kind_util_1 = require("./kind.util");
-let ProcessStringUtil = class ProcessStringUtil {
-    constructor(kindUtil) {
+exports.__esModule = true;
+var common_1 = require("@nestjs/common");
+var image_process_info_1 = require("../interface/file/image.process.info");
+var kind_util_1 = require("./kind.util");
+/* URL做图处理字符串服务，可以根据请求体参数，拼接URL处理字符串 */
+var ProcessStringUtil = /** @class */ (function () {
+    function ProcessStringUtil(kindUtil) {
         this.kindUtil = kindUtil;
-        this.gravity = new Set(['northwest', 'north', 'northeast', 'west', 'center', 'east', 'southwest', 'south', 'southeast']);
+        this.gravity = new Set(["northwest", "north", "northeast", "west", "center", "east", "southwest", "south", "southeast"]);
     }
-    makeImageProcessString(bucket, imageProcessInfo) {
-        let processString = '';
+    //根据请求体参数生成处理字符串
+    ProcessStringUtil.prototype.makeImageProcessString = function (bucket, imageProcessInfo) {
+        //分别获取缩放、裁剪、水印、旋转、圆角、高斯模糊、锐化、输出格式、图片质量、是否渐进显示、是否去除元信息等参数
+        var processString = "";
         if (!imageProcessInfo || !bucket) {
             return processString;
         }
@@ -39,126 +39,164 @@ let ProcessStringUtil = class ProcessStringUtil {
                 processString += this.outputString(imageProcessInfo.sharpen, imageProcessInfo.format, imageProcessInfo.lossless, imageProcessInfo.quality, imageProcessInfo.progressive, imageProcessInfo.strip);
         }
         return processString;
-    }
-    resizeString(resize) {
+    };
+    /*生成缩放字符串
+      支持的缩放模式有：
+      scale：  指定比例，长宽等比例缩放
+      wscale:  指定比例，只缩放宽度，高度不变
+      hscale:  指定比例，只缩放高度，宽度不变
+      both：   指定宽高值，强制缩放不裁剪
+      fw：     指定宽度，等比缩放
+      fh：     指定高度，等比缩放
+      fp：     指定像素积，等比缩放
+      fwfh：   限定宽高最大值，宽高都不足时，不缩放，应该是让图片等比缩放到可以完全放进指定矩形的意思
+      fwfh2：  限定宽高最小值，宽高都大于指定值时，不缩放，应该是让图片等比缩放到可以完全包含指定矩形的意思
+      其中fw、fh、fp等，在有拍云中原意是限定宽度最大值，即只缩小不放大，加上/force/true的意思应该是指定而不是限定，需要验证
+      如果需要限定最大值功能，后面再加，因为七牛云大部分都是指定值
+    */
+    ProcessStringUtil.prototype.resizeString = function (resize) {
+        //不存在直接返回，不抛出错误，进行下一步
         if (!resize) {
-            return '';
+            return "";
         }
-        let mode = resize.mode;
-        let info = resize.data;
-        if (mode == 'scale') {
+        //缩放模式
+        var mode = resize.mode;
+        //缩放数据
+        var info = resize.data;
+        if (mode == "scale") {
             if (info.scale && Number.isInteger(info.scale) && info.scale >= 1 && info.scale <= 1000) {
-                return '/scale/' + info.scale + '/force/true';
+                //这里的/force是为了保险
+                return "/scale/" + info.scale + "/force/true";
             }
-            throw new common_1.HttpException('比例参数不正确', 405);
+            throw new common_1.HttpException("比例参数不正确", 405);
         }
-        else if (mode == 'wscale') {
+        else if (mode == "wscale") {
             if (info.wscale && Number.isInteger(info.wscale) && info.wscale >= 1 && info.wscale <= 1000) {
-                return '/wscale/' + info.wscale + '/force/true';
+                //为了保险，经验证这里可以不加/force/true
+                return "/wscale/" + info.wscale + "/force/true";
             }
-            throw new common_1.HttpException('宽度比例参数不正确', 405);
+            throw new common_1.HttpException("宽度比例参数不正确", 405);
         }
-        else if (mode == 'hscale') {
+        else if (mode == "hscale") {
             if (info.hscale && Number.isInteger(info.hscale) && info.hscale >= 1 && info.hscale <= 1000) {
-                return '/hscale/' + info.hscale + '/force/true';
+                //为了保险，经验证这里可以不加/force/true
+                return "/hscale/" + info.hscale + "/force/true";
             }
-            throw new common_1.HttpException('高度比例参数不正确', 405);
+            throw new common_1.HttpException("高度比例参数不正确", 405);
         }
-        else if (mode == 'both') {
+        else if (mode == "both") {
             if (info.width && Number.isInteger(info.width) && info.height && Number.isInteger(info.height)) {
-                return '/both/' + info.width + 'x' + info.height + '/force/true';
+                //指定force强制缩放，否则宽高不足时会居中裁剪后缩放
+                //经验证不加/force/true图片边缘处有变化，这个居中裁剪后缩放不是字面意思
+                return "/both/" + info.width + "x" + info.height + "/force/true";
             }
-            throw new common_1.HttpException('宽高参数不正确', 405);
+            throw new common_1.HttpException("宽高参数不正确", 405);
         }
-        else if (mode == 'fw') {
+        else if (mode == "fw") {
             if (info.width && Number.isInteger(info.width)) {
-                return '/fw/' + info.width + '/force/true';
+                //强制指定可以放大，经验证这个必须加上/force/true才能放大
+                return "/fw/" + info.width + "/force/true";
             }
-            throw new common_1.HttpException('宽度参数不正确', 405);
+            throw new common_1.HttpException("宽度参数不正确", 405);
         }
-        else if (mode == 'fh') {
+        else if (mode == "fh") {
             if (info.height && Number.isInteger(info.height)) {
-                return '/fh/' + info.height + '/force/true';
+                //强制指定可以放大，经验证这个必须加上/force/true才能放大
+                return "/fh/" + info.height + "/force/true";
             }
-            throw new common_1.HttpException('高度参数不正确', 405);
+            throw new common_1.HttpException("高度参数不正确", 405);
         }
-        else if (mode == 'fp') {
+        else if (mode == "fp") {
             if (info.pixel && Number.isInteger(info.pixel) && info.pixel >= 1 && info.pixel <= 25000000) {
-                return '/fp/' + info.pixel + '/force/true';
+                //强制指定可以放大，经验证这个必须加上/force/true才能放大
+                return "/fp/" + info.pixel + "/force/true";
             }
-            throw new common_1.HttpException('像素参数不正确', 405);
+            throw new common_1.HttpException("像素参数不正确", 405);
         }
-        else if (mode == 'fwfh') {
+        else if (mode == "fwfh") {
             if (info.width && Number.isInteger(info.width) && info.height && Number.isInteger(info.height)) {
-                return '/fwfh/' + info.width + 'x' + info.height + '/force/true';
+                //加上force，代表可以放大缩小，但是缩放后必须可以被指定矩形完全包含
+                return "/fwfh/" + info.width + "x" + info.height + "/force/true";
             }
-            throw new common_1.HttpException('宽高参数不正确', 405);
+            throw new common_1.HttpException("宽高参数不正确", 405);
         }
-        else if (mode == 'fwfh2') {
+        else if (mode == "fwfh2") {
             if (info.width && Number.isInteger(info.width) && info.height && Number.isInteger(info.height)) {
-                return '/fwfh2/' + info.width + 'x' + info.height + '/force/true';
+                //加上force，代表可以放大缩小，但是缩放后必须可以完全包含指定矩形
+                return "/fwfh2/" + info.width + "x" + info.height + "/force/true";
             }
-            throw new common_1.HttpException('宽高参数不正确', 405);
+            throw new common_1.HttpException("宽高参数不正确", 405);
         }
         else {
-            throw new common_1.HttpException('缩放模式不正确', 405);
+            throw new common_1.HttpException("缩放模式不正确", 405);
         }
-    }
-    tailorString(tailor) {
+    };
+    /* 生成裁剪字符串，可以在缩放之前或之后裁剪
+       暂定坐标都只能为整数，a为正向(即向东南/右下偏移)，s为负向(即向西北/左上偏移)
+       但是在七牛云中，可以使用-x来代表为指定宽度减去指定值，这里有歧义，七牛云的坐标不知道可不可以为负值，反正七牛云中没有a、s之说
+     */
+    ProcessStringUtil.prototype.tailorString = function (tailor) {
         if (!tailor) {
-            return '';
+            return "";
         }
-        let { isBefore, width, height, x, y, gravity } = tailor;
-        let str = '';
+        var isBefore = tailor.isBefore, width = tailor.width, height = tailor.height, x = tailor.x, y = tailor.y, gravity = tailor.gravity;
+        var str = "";
         if (isBefore !== null && isBefore !== undefined && isBefore === true) {
-            str += '/crop';
+            str += "/crop";
         }
         else if (isBefore !== null && isBefore !== undefined && isBefore === false) {
-            str += '/clip';
+            str += "/clip";
         }
         else if (isBefore === null && isBefore === undefined) {
-            str += '/clip';
+            //默认为缩放之后裁剪
+            str += "/clip";
         }
         else {
-            throw new common_1.HttpException('裁剪顺序指定错误', 405);
+            throw new common_1.HttpException("裁剪顺序指定错误", 405);
         }
         if (width && Number.isInteger(width) && height && Number.isInteger(height) && x && Number.isInteger(x) && y && Number.isInteger(y)) {
-            str += '/' + width + 'x' + height;
+            str += "/" + width + "x" + height;
         }
         else {
-            throw new common_1.HttpException('裁剪宽高参数不正确', 405);
+            throw new common_1.HttpException("裁剪宽高参数不正确", 405);
         }
         if (x && Number.isInteger(x) && x >= 0) {
-            str += 'a' + x;
+            str += "a" + x;
         }
         else if (x && Number.isInteger(x) && x < 0) {
-            str += 's' + x;
+            str += "s" + x;
         }
         else {
-            throw new common_1.HttpException('x参数不正确', 405);
+            throw new common_1.HttpException("x参数不正确", 405);
         }
         if (y && Number.isInteger(y) && y >= 0) {
-            str += 'a' + y;
+            str += "a" + y;
         }
         else if (y && Number.isInteger(y) && y < 0) {
-            str += 's' + y;
+            str += "s" + y;
         }
         else {
-            throw new common_1.HttpException('y参数不正确', 405);
+            throw new common_1.HttpException("y参数不正确", 405);
         }
         if (gravity && this.gravity.has(gravity)) {
-            str += '/gravity/' + gravity;
+            str += "/gravity/" + gravity;
         }
         else if (!gravity) {
-            str += '/gravity/northwest';
+            //默认为西北角
+            str += "/gravity/northwest";
         }
         else {
-            throw new common_1.HttpException('裁剪重心参数不正确', 405);
+            throw new common_1.HttpException("裁剪重心参数不正确", 405);
         }
         return str;
-    }
-    watermarkString(watermark, bucket) {
-        let enable;
+    };
+    /* 生成水印字符串
+       水印配置只有全局一个
+       默认情况下全局启用水印，所有图片都打水印
+       可以通过参数覆盖全局启用配置
+    */
+    ProcessStringUtil.prototype.watermarkString = function (watermark, bucket) {
+        var enable;
         if (watermark === true) {
             enable = true;
         }
@@ -166,10 +204,10 @@ let ProcessStringUtil = class ProcessStringUtil {
             enable = false;
         }
         else if (watermark === null || watermark === undefined) {
-            if (bucket.image_config.watermark_enable === 1) {
+            if (bucket.imageConfig.watermarkEnable === 1) {
                 enable = true;
             }
-            else if (bucket.image_config.watermark_enable === 0) {
+            else if (bucket.imageConfig.watermarkEnable === 0) {
                 enable = false;
             }
             else {
@@ -177,136 +215,142 @@ let ProcessStringUtil = class ProcessStringUtil {
             }
         }
         else {
-            throw new common_1.HttpException('水印参数不正确', 405);
+            throw new common_1.HttpException("水印参数不正确", 405);
         }
-        let str = '';
+        var str = "";
         if (enable) {
-            if (bucket.image_config.watermark_save_key) {
-                str += '/watermark/url/' + Buffer.from(bucket.image_config.watermark_save_key).toString('base64');
+            if (bucket.imageConfig.watermark_save_key) {
+                str += "/watermark/url/" + Buffer.from(bucket.imageConfig.watermark_save_key).toString("base64");
             }
             else {
-                throw new common_1.HttpException('水印图片url不存在', 405);
+                throw new common_1.HttpException("水印图片url不存在", 405);
             }
-            if (bucket.image_config.watermark_gravity && !this.gravity.has(bucket.image_config.watermark_gravity)) {
-                throw new common_1.HttpException('水印重心参数不正确', 405);
-            }
-            else {
-                str += '/align/' + bucket.image_config.watermark_gravity;
-            }
-            if ((bucket.image_config.watermark_x && !Number.isInteger(bucket.image_config.watermark_x)) || (bucket.image_config.watermark_y && !Number.isInteger(bucket.image_config.watermark_y))) {
-                throw new common_1.HttpException('偏移参数不正确', 405);
-            }
-            else if (!bucket.image_config.watermark_x && !bucket.image_config.watermark_y) {
-                str += '/margin/20x20';
-            }
-            else if (!bucket.image_config.watermark_x && bucket.image_config.watermark_y) {
-                str += '/margin/20x' + bucket.image_config.watermark_y;
-            }
-            else if (bucket.image_config.watermark_x && !bucket.image_config.watermark_y) {
-                str += '/margin/' + bucket.image_config.watermark_x + 'x20';
+            if (bucket.imageConfig.watermarkGravity && !this.gravity.has(bucket.imageConfig.watermarkGravity)) {
+                throw new common_1.HttpException("水印重心参数不正确", 405);
             }
             else {
-                str += '/margin/' + bucket.image_config.watermark_x + 'x' + bucket.image_config.watermark_y;
+                str += "/align/" + bucket.imageConfig.watermarkGravity;
             }
-            if (bucket.image_config.watermark_opacity && !Number.isInteger(bucket.image_config.watermark_opacity)) {
-                throw new common_1.HttpException('透明度参数不正确', 405);
+            if ((bucket.imageConfig.watermarkX && !Number.isInteger(bucket.imageConfig.watermarkX)) || (bucket.imageConfig.watermarkY && !Number.isInteger(bucket.imageConfig.watermarkY))) {
+                throw new common_1.HttpException("偏移参数不正确", 405);
             }
-            else if (!bucket.image_config.watermark_opacity) {
+            else if (!bucket.imageConfig.watermarkX && !bucket.imageConfig.watermarkY) {
+                str += "/margin/20x20";
+            }
+            else if (!bucket.imageConfig.watermarkX && bucket.imageConfig.watermarkY) {
+                str += "/margin/20x" + bucket.imageConfig.watermarkY;
+            }
+            else if (bucket.imageConfig.watermarkX && !bucket.imageConfig.watermarkY) {
+                str += "/margin/" + bucket.imageConfig.watermarkX + "x20";
             }
             else {
-                str += '/opacity/' + bucket.image_config.watermark_opacity;
+                str += "/margin/" + bucket.imageConfig.watermarkX + "x" + bucket.imageConfig.watermarkY;
             }
-            if (bucket.image_config.watermark_ws && Number.isInteger(bucket.image_config.watermark_ws) && bucket.image_config.watermark_ws >= 1 && bucket.image_config.watermark_ws <= 100) {
-                str += '/percent/' + bucket.image_config.watermark_ws;
+            if (bucket.imageConfig.watermarkOpacity && !Number.isInteger(bucket.imageConfig.watermarkOpacity)) {
+                throw new common_1.HttpException("透明度参数不正确", 405);
             }
-            else if (!bucket.image_config.watermark_ws) {
+            else if (!bucket.imageConfig.watermarkOpacity) {
+                //默认为100，不用管
             }
             else {
-                throw new common_1.HttpException('短边自适应参数不正确', 405);
+                str += "/opacity/" + bucket.imageConfig.watermarkOpacity;
+            }
+            if (bucket.imageConfig.watermarkWs && Number.isInteger(bucket.imageConfig.watermarkWs) && bucket.imageConfig.watermarkWs >= 1 && bucket.imageConfig.watermarkWs <= 100) {
+                str += "/percent/" + bucket.imageConfig.watermarkWs;
+            }
+            else if (!bucket.imageConfig.watermarkWs) {
+                //默认为0，不用管
+            }
+            else {
+                throw new common_1.HttpException("短边自适应参数不正确", 405);
             }
         }
         return str;
-    }
-    rotateString(rotate) {
+    };
+    ProcessStringUtil.prototype.rotateString = function (rotate) {
         if (!rotate) {
-            return '';
+            return "";
         }
         if (Number.isInteger(rotate)) {
-            return '/rotate/' + rotate;
+            return "/rotate/" + rotate;
         }
         else {
-            throw new common_1.HttpException('旋转角度不正确', 405);
+            throw new common_1.HttpException("旋转角度不正确", 405);
         }
-    }
-    blurString(blur) {
+    };
+    ProcessStringUtil.prototype.blurString = function (blur) {
         if (!blur) {
-            return '';
+            return "";
         }
-        let { redius, sigma } = blur;
+        var redius = blur.redius, sigma = blur.sigma;
         if (!redius || !Number.isInteger(redius) || redius < 0 || redius > 50) {
-            throw new common_1.HttpException('模糊半径不正确', 405);
+            throw new common_1.HttpException("模糊半径不正确", 405);
         }
         if (!sigma || !Number.isInteger(sigma)) {
-            throw new common_1.HttpException('标准差不正确', 405);
+            throw new common_1.HttpException("标准差不正确", 405);
         }
-        return '/gaussblur/' + redius + 'x' + sigma;
-    }
-    outputString(sharpen, format, lossless, quality, progressive, strip) {
-        let str = '';
+        return "/gaussblur/" + redius + "x" + sigma;
+    };
+    ProcessStringUtil.prototype.outputString = function (sharpen, format, lossless, quality, progressive, strip) {
+        var str = "";
         if (sharpen === true) {
-            str += '/unsharp/true';
+            str += "/unsharp/true";
         }
         else if (sharpen) {
-            throw new common_1.HttpException('锐化参数不正确', 405);
+            throw new common_1.HttpException("锐化参数不正确", 405);
         }
         else {
+            //false或者不存在都不管
         }
         if (format && this.kindUtil.isImage(format)) {
-            str += '/format/' + format;
+            str += "/format/" + format;
         }
         else if (format && !this.kindUtil.isImage(format)) {
-            throw new common_1.HttpException('格式参数不正确', 405);
+            throw new common_1.HttpException("格式参数不正确", 405);
         }
         else {
         }
         if (lossless === true) {
-            str += '/lossless/true';
+            str += "/lossless/true";
         }
         else if (sharpen) {
-            throw new common_1.HttpException('无损参数不正确', 405);
+            throw new common_1.HttpException("无损参数不正确", 405);
         }
         else {
+            //false或者不存在都不管
         }
         if (quality && Number.isInteger(quality) && quality >= 1 && quality <= 99) {
-            str += '/quality/' + quality;
+            str += "/quality/" + quality;
         }
         else if (!quality) {
         }
         else {
-            throw new common_1.HttpException('图片质量参数不正确', 405);
+            throw new common_1.HttpException("图片质量参数不正确", 405);
         }
         if (progressive === true) {
-            str += '/progressive/true';
+            str += "/progressive/true";
         }
         else if (progressive) {
-            throw new common_1.HttpException('渐进参数不正确', 405);
+            throw new common_1.HttpException("渐进参数不正确", 405);
         }
         else {
+            //false或者不存在都不管
         }
         if (strip === true) {
-            str += '/strip/true';
+            str += "/strip/true";
         }
         else if (strip) {
-            throw new common_1.HttpException('去除元信息参数不正确', 405);
+            throw new common_1.HttpException("去除元信息参数不正确", 405);
         }
         else {
+            //false或者不存在都不管
         }
         return str;
-    }
-};
-ProcessStringUtil = __decorate([
-    common_1.Component(),
-    __param(0, common_1.Inject(kind_util_1.KindUtil)),
-    __metadata("design:paramtypes", [kind_util_1.KindUtil])
-], ProcessStringUtil);
+    };
+    ProcessStringUtil = __decorate([
+        common_1.Component(),
+        __param(0, common_1.Inject(kind_util_1.KindUtil))
+    ], ProcessStringUtil);
+    return ProcessStringUtil;
+}());
 exports.ProcessStringUtil = ProcessStringUtil;

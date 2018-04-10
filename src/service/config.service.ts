@@ -58,8 +58,8 @@ export class ConfigService {
             }
             return newBucket;
         }
-        const audio_config = new AudioConfig();
-        const video_config = new VideoConfig();
+        const audioConfig = new AudioConfig();
+        const videoConfig = new VideoConfig();
         const imageConfig = new ImageConfig();
         if (body.isPublic) {
             newBucket.id = 1;
@@ -68,11 +68,11 @@ export class ConfigService {
             newBucket.id = 2;
             newBucket.publicOrPrivate = "private";
         }
-        audio_config.id = newBucket.id;
-        video_config.id = newBucket.id;
+        audioConfig.id = newBucket.id;
+        videoConfig.id = newBucket.id;
         imageConfig.id = newBucket.id;
-        newBucket.audioConfig = audio_config;
-        newBucket.videoConfig = video_config;
+        newBucket.audioConfig = audioConfig;
+        newBucket.videoConfig = videoConfig;
         newBucket.imageConfig = imageConfig;
         try {
             await this.bucketRepository.save(newBucket);
@@ -88,7 +88,7 @@ export class ConfigService {
         if (format !== "raw" && format !== "webp_damage" && format !== "webp_undamage") {
             throw new HttpException("图片保存格式不正确", 400);
         }
-        const buckets: Bucket[] = await this.bucketRepository.find({ relations: [ "imageConfig" ] });
+        const buckets: Array<Bucket> = await this.bucketRepository.find({ relations: [ "imageConfig" ] });
         if (buckets.length !== 2) {
             throw new HttpException("空间配置不存在", 401);
         }
@@ -103,7 +103,7 @@ export class ConfigService {
     }
 
     async saveEnableImageWatermarkConfig(body: EnableImageWatermarkConfig): Promise<void> {
-        const buckets: Bucket[] = await this.bucketRepository.find({ relations: [ "imageConfig" ] });
+        const buckets: Array<Bucket> = await this.bucketRepository.find({ relations: [ "imageConfig" ] });
         if (buckets.length !== 2) {
             throw new HttpException("空间配置不存在", 401);
         }
@@ -123,7 +123,7 @@ export class ConfigService {
     }
 
     async saveImageWatermarkConfig(file: any, obj: any): Promise<void> {
-        const buckets: Bucket[] = await this.bucketRepository.find({ relations: [ "imageConfig" ] });
+        const buckets: Array<Bucket> = await this.bucketRepository.find({ relations: [ "imageConfig" ] });
         let type = file.name.substr(file.name.lastIndexOf(".") + 1).toLowerCase();
         if (buckets.length !== 2) {
             throw new HttpException("空间配置不存在", 401);
@@ -142,7 +142,7 @@ export class ConfigService {
             image.name = md5 + "_" + (+new Date());
             image.type = type;
             image.status = "post";
-            const { width, height, frames } = await this.restfulUtil.uploadFile(buckets[ i ], image, file, null);
+            const { width, height, frames } = await this.restfulUtil.uploadFile(buckets[ i ], image, file, undefined);
             const { file_size, file_md5 } = await this.restfulUtil.getFileInfo(buckets[ i ], image);
             image.width = width;
             image.height = height;
@@ -176,7 +176,7 @@ export class ConfigService {
         if (format !== "raw" && format !== "mp3" && format !== "aac") {
             throw new HttpException("音频保存格式不正确", 400);
         }
-        const buckets: Bucket[] = await this.bucketRepository.find({ relations: [ "audio_config" ] });
+        const buckets: Array<Bucket> = await this.bucketRepository.find({ relations: [ "audioConfig" ] });
         if (buckets.length !== 2) {
             throw new HttpException("空间配置不存在", 401);
         }
@@ -200,7 +200,7 @@ export class ConfigService {
             throw new HttpException("视频分辨率格式不正确", 400);
         }
 
-        const buckets: Bucket[] = await this.bucketRepository.find({ relations: [ "video_config" ] });
+        const buckets: Array<Bucket> = await this.bucketRepository.find({ relations: [ "videoConfig" ] });
         if (buckets.length !== 2) {
             throw new HttpException("空间配置不存在", 401);
         }

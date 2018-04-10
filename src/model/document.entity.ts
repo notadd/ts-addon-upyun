@@ -8,14 +8,14 @@ import { Bucket } from "./bucket.entity";
 })
 export class Document extends AbstractFile {
 
-    @Column({ nullable: true })
+    @Column({ undefinedable: true })
     bucketId: number;
 
     @ManyToOne(type => Bucket, bucket => bucket.documents, {
         cascadeInsert: false,
         cascadeUpdate: false,
         cascadeRemove: false,
-        nullable: false,
+        undefinedable: false,
         lazy: false
     })
     @JoinColumn()
