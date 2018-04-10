@@ -1,7 +1,7 @@
 import { Module,MiddlewaresConsumer,NestModule,RequestMethod,Inject } from '@nestjs/common';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 import { GraphQLModule , GraphQLFactory} from '@nestjs/graphql';
-import { UpyunModule } from '../src/UpyunModule';
+import { UpyunModule } from '../src/upyun.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 
@@ -17,7 +17,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     synchronize: true,
     dropSchema: true,
     logger: 'simple-console',
-    logging: null,
+    logging: 'all',
     entities: ['../**/*.entity.ts']
   })],
   controllers: [],
