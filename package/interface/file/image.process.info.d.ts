@@ -23,21 +23,21 @@ export interface Blur {
     sigma: number;
 }
 export interface ImagePreProcessInfo {
-    resize?: Resize;
-    tailor?: Tailor;
-    watermark?: boolean;
-    rotate?: number;
+    resize: Resize;
+    tailor: Tailor;
+    watermark: boolean;
+    rotate: number;
 }
 export declare class ImagePostProcessInfo {
-    resize?: Resize;
-    tailor?: Tailor;
-    watermark?: boolean;
-    rotate?: number;
-    blur?: Blur;
-    sharpen?: boolean;
-    format?: string;
-    lossless?: boolean;
-    quality?: number;
-    progressive?: boolean;
-    strip?: boolean;
+    resize: Resize;
+    tailor: Tailor;
+    watermark: boolean;
+    rotate: number;
+    blur: Blur;
+    sharpen: boolean;
+    format: string;
+    lossless: boolean;
+    quality: number;
+    progressive: boolean;
+    strip: boolean;
 }

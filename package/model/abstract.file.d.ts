@@ -1,13 +1,13 @@
 export declare class AbstractFile {
     id: number;
-    raw_name: string;
+    rawName: string;
     name: string;
-    tags: string[];
+    tags: Array<string>;
     md5: string;
     type: string;
     size: number;
-    content_secret: string;
+    contentSecret: string;
     status: string;
-    create_date: Date;
-    update_date: Date;
+    createDate: Date;
+    updateDate: Date;
 }

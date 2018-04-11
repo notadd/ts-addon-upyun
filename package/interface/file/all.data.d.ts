@@ -2,9 +2,9 @@ export interface AllData {
     code: number;
     message: string;
     baseUrl: string;
-    files: any[];
-    images: any[];
-    audios: any[];
-    videos: any[];
-    documents: any[];
+    files: Array<any>;
+    images: Array<any>;
+    audios: Array<any>;
+    videos: Array<any>;
+    documents: Array<any>;
 }

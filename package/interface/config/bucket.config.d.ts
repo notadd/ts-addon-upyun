@@ -4,8 +4,8 @@ export interface BucketConfig {
     operator: string;
     password: string;
     directory: string;
-    request_expire: number;
-    base_url: string;
-    token_secret_key?: string;
-    token_expire?: number;
+    requestExpire: number;
+    baseUrl: string;
+    tokenSecretKey?: string;
+    tokenExpire?: number;
 }
