@@ -1,6 +1,6 @@
-import { ImagePostProcessInfo, ImagePreProcessInfo } from '../interface/file/image.process.info';
-import { Bucket } from '../model/bucket.entity';
-import { KindUtil } from './kind.util';
+import { ImagePostProcessInfo, ImagePreProcessInfo } from "../interface/file/image.process.info";
+import { Bucket } from "../model/bucket.entity";
+import { KindUtil } from "./kind.util";
 export declare class ProcessStringUtil {
     private readonly kindUtil;
     private readonly gravity;

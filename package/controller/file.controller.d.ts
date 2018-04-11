@@ -1,11 +1,11 @@
-import { Repository } from 'typeorm';
-import { Bucket } from '../model/bucket.entity';
-import { File } from '../model/file.entity';
-import { Image } from '../model/image.entity';
-import { FileService } from '../service/file.service';
-import { AuthUtil } from '../util/auth.util';
-import { KindUtil } from '../util/kind.util';
-import { RestfulUtil } from '../util/restful.util';
+import { Repository } from "typeorm";
+import { Bucket } from "../model/bucket.entity";
+import { File } from "../model/file.entity";
+import { Image } from "../model/image.entity";
+import { FileService } from "../service/file.service";
+import { AuthUtil } from "../util/auth.util";
+import { KindUtil } from "../util/kind.util";
+import { RestfulUtil } from "../util/restful.util";
 export declare class FileController {
     private readonly authUtil;
     private readonly kindUtil;

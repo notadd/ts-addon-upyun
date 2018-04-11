@@ -1,4 +1,3 @@
-
 import { Global, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { FileController } from "./controller/file.controller";
