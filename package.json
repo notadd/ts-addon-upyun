@@ -8,7 +8,8 @@
         "publish": "node ./node_modules/lerna/bin/lerna.js publish -m \"chore(release): publish %s\"",
         "start": "node index.js",
         "start:watch": "nodemon",
-        "start:prod": "node dist/server.js"
+        "start:prod": "node dist/server.js",
+        "check":"tslint -p tsconfig.json -c tslint.json"
     },
     "repository": {
         "type": "git",

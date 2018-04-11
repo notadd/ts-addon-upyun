@@ -22,30 +22,30 @@ let ApplicationModule = class ApplicationModule {
         this.graphQLFactory = graphQLFactory;
     }
     configure(consumer) {
-        const typeDefs = this.graphQLFactory.mergeTypesByPaths('./src/graphql/type/**/*.types.graphql');
+        const typeDefs = this.graphQLFactory.mergeTypesByPaths("./src/graphql/type/**/*.types.graphql");
         const schema = this.graphQLFactory.createSchema({ typeDefs });
         consumer
-            .apply(apollo_server_express_1.graphiqlExpress({ endpointURL: '/graphql' }))
-            .forRoutes({ path: '/graphiql', method: common_1.RequestMethod.GET })
+            .apply(apollo_server_express_1.graphiqlExpress({ endpointURL: "/graphql" }))
+            .forRoutes({ path: "/graphiql", method: common_1.RequestMethod.GET })
             .apply(apollo_server_express_1.graphqlExpress(req => ({ schema, rootValue: req })))
-            .forRoutes({ path: '/graphql', method: common_1.RequestMethod.ALL });
+            .forRoutes({ path: "/graphql", method: common_1.RequestMethod.ALL });
     }
 };
 ApplicationModule = __decorate([
     common_1.Module({
         modules: [upyun_module_1.UpyunModule, graphql_1.GraphQLModule, typeorm_1.TypeOrmModule.forRoot({
-                name: 'upyun',
-                type: 'postgres',
-                host: 'localhost',
+                name: "upyun",
+                type: "postgres",
+                host: "localhost",
                 port: 5433,
-                username: 'postgres',
-                password: '123456',
+                username: "postgres",
+                password: "123456",
                 database: "upyun",
                 synchronize: true,
                 dropSchema: true,
-                logger: 'simple-console',
-                logging: 'all',
-                entities: ['../**/*.entity.ts']
+                logger: "simple-console",
+                logging: "all",
+                entities: ["../**/*.entity.ts"]
             })],
         controllers: [],
         components: []
