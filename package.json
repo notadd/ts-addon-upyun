@@ -9,7 +9,7 @@
         "start": "node ./starter/index.js",
         "start:watch": "nodemon",
         "start:prod": "node dist/server.js",
-        "check":"tslint -p tsconfig.json -c tslint.json"
+        "check": "tslint -p tsconfig.json -c tslint.json"
     },
     "repository": {
         "type": "git",

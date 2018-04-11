@@ -13,7 +13,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
     port: 5433,
     username: "postgres",
     password: "123456",
-    database: "upyun",
+    database: "postgres",
     synchronize: true,
     dropSchema: true,
     logger: "simple-console",
