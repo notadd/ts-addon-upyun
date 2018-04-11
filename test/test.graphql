@@ -6,8 +6,8 @@ mutation config{
     operator:"caozuoyuan",
     password:"a12345678",
     directory:"mulu1",
-    base_url:"http://benchu1.test.upcdn.net",
-    request_expire:1800
+    baseUrl:"http://benchu1.test.upcdn.net",
+    requestExpire:1800
   ){
     code
     message
@@ -19,10 +19,10 @@ mutation config{
     operator:"caozuoyuan",
     password:"a12345678",
     directory:"mulu2",
-    base_url:"http://benchu2.test.upcdn.net",
-    request_expire:1800,
-    token_expire:1800,
-    token_secret_key:"dBpyszVlsmo4GHMkmr"
+    baseUrl:"http://benchu2.test.upcdn.net",
+    requestExpire:1800,
+    tokenExpire:1800,
+    tokenSecretKey:"dBpyszVlsmo4GHMkmr"
   ){
     code
     message
@@ -68,7 +68,7 @@ query buckets{
     message
     buckets{
 			id
-      public_or_private
+      publicOrPrivate
       name
     }
   }
@@ -150,11 +150,11 @@ query allFile{
     }
     images{
       id
-      raw_name
+      rawName
       name
       type
-      create_date
-      update_date
+      createDate
+      updateDate
       width
       height
     }
