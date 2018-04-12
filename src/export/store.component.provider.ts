@@ -2,7 +2,9 @@
 import * as crypto from "crypto";
 import * as os from "os";
 import { Repository } from "typeorm";
+import {  } from "@nestjs/typeorm";
 import { HttpException, Inject } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
 import { ImagePostProcessInfo, ImagePreProcessInfo } from "../interface/file/image.process.info";
 import { Audio } from "../model/audio.entity";
 import { Bucket } from "../model/bucket.entity";
@@ -82,12 +84,12 @@ export class StoreComponent {
         let file: Image | Audio | Video | Document | File;
         const uploadFile = { path: tempPath };
         let type: string = rawName.substring(rawName.lastIndexOf(".") + 1);
-        if (bucket.imageConfig.format === "webp_damage" || bucket.imageConfig.format === "webp_undamage") {
-            type = "webp";
-        }
         const kind: string = this.kindUtil.getKind(type);
         try {
             if (kind === "image") {
+                if (bucket.imageConfig.format === "webp_damage" || bucket.imageConfig.format === "webp_undamage") {
+                    type = "webp";
+                }
                 file = this.imageRepository.create({
                     bucket,
                     rawName,
