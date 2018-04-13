@@ -85,12 +85,12 @@ let StoreComponent = class StoreComponent {
             let file;
             const uploadFile = { path: tempPath };
             let type = rawName.substring(rawName.lastIndexOf(".") + 1);
-            if (bucket.imageConfig.format === "webp_damage" || bucket.imageConfig.format === "webp_undamage") {
-                type = "webp";
-            }
             const kind = this.kindUtil.getKind(type);
             try {
                 if (kind === "image") {
+                    if (bucket.imageConfig.format === "webp_damage" || bucket.imageConfig.format === "webp_undamage") {
+                        type = "webp";
+                    }
                     file = this.imageRepository.create({
                         bucket,
                         rawName,

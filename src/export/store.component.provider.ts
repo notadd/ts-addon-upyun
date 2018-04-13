@@ -1,10 +1,7 @@
-
 import * as crypto from "crypto";
 import * as os from "os";
 import { Repository } from "typeorm";
-import {  } from "@nestjs/typeorm";
 import { HttpException, Inject } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
 import { ImagePostProcessInfo, ImagePreProcessInfo } from "../interface/file/image.process.info";
 import { Audio } from "../model/audio.entity";
 import { Bucket } from "../model/bucket.entity";
