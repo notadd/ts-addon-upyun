@@ -1,0 +1,24 @@
+{
+    "name": "@notadd/addon-upyun",
+    "version": "2.0.0",
+    "description": "Package Open in Browser for already.",
+    "main": "index.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/notadd/ts-addon-upyun.git"
+    },
+    "keywords": [
+        "Notadd",
+        "Storage",
+        "Browser"
+    ],
+    "author": "notadd",
+    "license": "Apache-2.0",
+    "dependencies": {
+        "@notadd/injection": "^2.3.23"
+    },
+    "bugs": {
+        "url": "https://github.com/notadd/ts-addon-upyun/issues"
+    },
+    "homepage": "https://github.com/notadd/ts-addon-upyun#readme"
+}
