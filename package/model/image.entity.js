@@ -16,30 +16,26 @@ let Image = class Image extends abstract_file_1.AbstractFile {
 };
 __decorate([
     typeorm_1.Column({
-        name: "width",
-        type: "integer",
-        nullable: true
+        nullable: true,
     }),
     __metadata("design:type", Number)
 ], Image.prototype, "width", void 0);
 __decorate([
     typeorm_1.Column({
-        name: "height",
-        type: "integer",
-        nullable: true
+        nullable: true,
     }),
     __metadata("design:type", Number)
 ], Image.prototype, "height", void 0);
 __decorate([
     typeorm_1.Column({
-        name: "frames",
-        type: "integer",
-        nullable: true
+        nullable: true,
     }),
     __metadata("design:type", Number)
 ], Image.prototype, "frames", void 0);
 __decorate([
-    typeorm_1.Column({ nullable: true }),
+    typeorm_1.Column({
+        nullable: true,
+    }),
     __metadata("design:type", Number)
 ], Image.prototype, "bucketId", void 0);
 __decorate([
@@ -48,14 +44,14 @@ __decorate([
         cascadeRemove: false,
         cascadeUpdate: false,
         nullable: false,
-        lazy: false
+        lazy: false,
     }),
     typeorm_1.JoinColumn(),
     __metadata("design:type", bucket_entity_1.Bucket)
 ], Image.prototype, "bucket", void 0);
 Image = __decorate([
     typeorm_1.Entity({
-        name: "image"
+        name: "image",
     })
 ], Image);
 exports.Image = Image;

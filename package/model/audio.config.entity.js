@@ -14,17 +14,12 @@ const bucket_entity_1 = require("./bucket.entity");
 let AudioConfig = class AudioConfig {
 };
 __decorate([
-    typeorm_1.PrimaryColumn({
-        name: "id",
-        type: "integer"
-    }),
+    typeorm_1.PrimaryColumn(),
     __metadata("design:type", Number)
 ], AudioConfig.prototype, "id", void 0);
 __decorate([
     typeorm_1.Column({
-        name: "format",
-        type: "varchar",
-        nullable: true
+        nullable: true,
     }),
     __metadata("design:type", String)
 ], AudioConfig.prototype, "format", void 0);
@@ -35,7 +30,7 @@ __decorate([
 ], AudioConfig.prototype, "bucket", void 0);
 AudioConfig = __decorate([
     typeorm_1.Entity({
-        name: "audioConfig"
+        name: "audioConfig",
     })
 ], AudioConfig);
 exports.AudioConfig = AudioConfig;

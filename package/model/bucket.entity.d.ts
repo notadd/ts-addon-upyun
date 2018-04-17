@@ -1,11 +1,11 @@
-import { Audio } from "./audio.entity";
 import { AudioConfig } from "./audio.config.entity";
+import { Audio } from "./audio.entity";
 import { Document } from "./document.entity";
 import { File } from "./file.entity";
-import { Image } from "./image.entity";
 import { ImageConfig } from "./image.config.entity";
-import { Video } from "./video.entity";
+import { Image } from "./image.entity";
 import { VideoConfig } from "./video.config.entity";
+import { Video } from "./video.entity";
 export declare class Bucket {
     id: number;
     publicOrPrivate: string;

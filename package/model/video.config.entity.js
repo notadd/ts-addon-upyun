@@ -14,25 +14,18 @@ const bucket_entity_1 = require("./bucket.entity");
 let VideoConfig = class VideoConfig {
 };
 __decorate([
-    typeorm_1.PrimaryColumn({
-        name: "id",
-        type: "integer"
-    }),
+    typeorm_1.PrimaryColumn(),
     __metadata("design:type", Number)
 ], VideoConfig.prototype, "id", void 0);
 __decorate([
     typeorm_1.Column({
-        name: "format",
-        type: "varchar",
-        nullable: true
+        nullable: true,
     }),
     __metadata("design:type", String)
 ], VideoConfig.prototype, "format", void 0);
 __decorate([
     typeorm_1.Column({
-        name: "resolution",
-        type: "varchar",
-        nullable: true
+        nullable: true,
     }),
     __metadata("design:type", String)
 ], VideoConfig.prototype, "resolution", void 0);
@@ -43,7 +36,7 @@ __decorate([
 ], VideoConfig.prototype, "bucket", void 0);
 VideoConfig = __decorate([
     typeorm_1.Entity({
-        name: "videoConfig"
+        name: "videoConfig",
     })
 ], VideoConfig);
 exports.VideoConfig = VideoConfig;
