@@ -50,8 +50,7 @@ export class RestfulUtil {
             fs.createReadStream(uploadFile.path).pipe(request.put({
                 url: requestUrl,
                 headers: {
-                    "Content-Type": mime.getType(file.name),
-                    "Content-Length": file.size,
+                    "Content-Type": mime.getType(uploadFile.path),
                     "Content-MD5": contentMd5,
                     Authorization,
                     "Date": date,
