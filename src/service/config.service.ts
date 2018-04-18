@@ -141,6 +141,7 @@ export class ConfigService {
             // 图片文件名为md5_时间戳
             image.name = md5 + "_" + (+new Date());
             image.type = type;
+            image.md5 = md5;
             image.status = "post";
             const { width, height, frames } = await this.restfulUtil.uploadFile(buckets[ i ], image, file, undefined);
             const { fileSize, fileMd5 } = await this.restfulUtil.getFileInfo(buckets[ i ], image);
