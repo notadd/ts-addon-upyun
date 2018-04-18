@@ -1,5 +1,14 @@
 ```
-StoreComponent是又拍云模块提供的供其他模块使用的存储组件，其方法如下：
+StoreComponent是又拍云模块提供的供其他模块使用的存储组件,可以通过如下方法注入这个组件：
+```
+```
+@Inject("StoreComponentToken") private readonly storeComponent: StoreComponent
+```
+```
+这个组件与本地存储模块中StoreComponent是可以互相替代的，注入的token同为StoreComponentToken，其方法参数、返回值都是一样的
+```
+```
+又拍云中StoreComponent组件方法为：
 ```
 ```
 upload(bucketName: string,rawName: string,base64: string,imagePreProcessInfo: ImagePreProcessInfo,): Promise<{ bucketName: string, name: string, type: string }>
