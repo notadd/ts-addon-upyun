@@ -1,14 +1,23 @@
+```
 type Query{
-    #get url to visit file , you can specify the postprocessing info of image
-    one(bucketName:String,name:String,type:String,imagePostProcessInfo:ImagePostProcessInfo):OneData
-}
 
+    #获取指定文件的url，可以传递图片后处理参数，以访问临时处理后的图片
+    one(bucketName:String,name:String,type:String,imagePostProcessInfo:ImagePostProcessInfo):OneData
+
+}
+```
+```
 #return data
 type OneData{
-    #error code
+
+    #错误码
     code:Int
-    #error message
+
+    #错误信息
     message:String
-    #url to visit file with token and postprocessing info if specify
+
+    #访问图片的url
     url:String
+
 }
+```
