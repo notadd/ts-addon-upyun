@@ -148,7 +148,6 @@ export class StoreComponent {
             // 其他类型暂不支持
         }
         url = await this.fileService.makeUrl(bucket, file, { imagePostProcessInfo }, kind);
-
         return url;
     }
 }
