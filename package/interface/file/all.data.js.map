@@ -1,0 +1,1 @@
+{"version":3,"sources":["interface/file/all.data.ts"],"names":[],"mappings":"","file":"all.data.js","sourcesContent":["\nexport interface AllData {\n    code: number;\n\n    message: string;\n\n    baseUrl: string;\n\n    files: Array<any>;\n\n    images: Array<any>;\n\n    audios: Array<any>;\n\n    videos: Array<any>;\n\n    documents: Array<any>;\n}\n"]}

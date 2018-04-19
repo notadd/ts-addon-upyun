@@ -190,3 +190,5 @@ exports.StoreComponentProvider = {
         "BucketRepository",
     ],
 };
+
+//# sourceMappingURL=store.component.provider.js.map

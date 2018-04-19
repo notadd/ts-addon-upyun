@@ -37,3 +37,5 @@ Video = __decorate([
     })
 ], Video);
 exports.Video = Video;
+
+//# sourceMappingURL=video.entity.js.map

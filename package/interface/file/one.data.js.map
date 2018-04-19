@@ -1,0 +1,1 @@
+{"version":3,"sources":["interface/file/one.data.ts"],"names":[],"mappings":"","file":"one.data.js","sourcesContent":["\nexport interface OneData {\n    code: number;\n\n    message: string;\n\n    url: string;\n}\n"]}

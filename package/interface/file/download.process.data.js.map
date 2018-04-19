@@ -1,0 +1,1 @@
+{"version":3,"sources":["interface/file/download.process.data.ts"],"names":[],"mappings":"","file":"download.process.data.js","sourcesContent":["\nexport interface DownloadProcessData {\n    code: number;\n\n    message: string;\n\n    method: string;\n\n    url: string;\n\n    headers: {\n        authorization: string\n        date: string\n    };\n}\n"]}

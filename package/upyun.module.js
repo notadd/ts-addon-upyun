@@ -46,3 +46,5 @@ UpyunModule = __decorate([
     })
 ], UpyunModule);
 exports.UpyunModule = UpyunModule;
+
+//# sourceMappingURL=upyun.module.js.map

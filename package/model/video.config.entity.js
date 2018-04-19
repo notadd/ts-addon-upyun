@@ -40,3 +40,5 @@ VideoConfig = __decorate([
     })
 ], VideoConfig);
 exports.VideoConfig = VideoConfig;
+
+//# sourceMappingURL=video.config.entity.js.map

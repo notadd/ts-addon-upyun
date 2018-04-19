@@ -123,3 +123,5 @@ FileController = __decorate([
         typeorm_2.Repository])
 ], FileController);
 exports.FileController = FileController;
+
+//# sourceMappingURL=file.controller.js.map

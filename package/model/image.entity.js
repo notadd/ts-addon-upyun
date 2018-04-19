@@ -55,3 +55,5 @@ Image = __decorate([
     })
 ], Image);
 exports.Image = Image;
+
+//# sourceMappingURL=image.entity.js.map

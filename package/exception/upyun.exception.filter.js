@@ -23,3 +23,5 @@ UpyunExceptionFilter = __decorate([
     common_1.Catch(common_1.HttpException)
 ], UpyunExceptionFilter);
 exports.UpyunExceptionFilter = UpyunExceptionFilter;
+
+//# sourceMappingURL=upyun.exception.filter.js.map

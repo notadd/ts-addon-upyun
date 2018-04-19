@@ -37,3 +37,5 @@ File = __decorate([
     })
 ], File);
 exports.File = File;
+
+//# sourceMappingURL=file.entity.js.map

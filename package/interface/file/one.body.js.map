@@ -1,0 +1,1 @@
+{"version":3,"sources":["interface/file/one.body.ts"],"names":[],"mappings":"","file":"one.body.js","sourcesContent":["\nimport { ImagePostProcessInfo } from \"./image.process.info\";\n\nexport interface OneBody {\n    bucketName: string;\n\n    name: string;\n\n    type: string;\n\n    imagePostProcessInfo: ImagePostProcessInfo;\n}\n"]}

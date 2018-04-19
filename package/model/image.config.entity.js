@@ -77,3 +77,5 @@ ImageConfig = __decorate([
     })
 ], ImageConfig);
 exports.ImageConfig = ImageConfig;
+
+//# sourceMappingURL=image.config.entity.js.map

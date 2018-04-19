@@ -1,0 +1,1 @@
+{"version":3,"sources":["interface/config/image.watermark.config.ts"],"names":[],"mappings":"","file":"image.watermark.config.js","sourcesContent":["\nexport interface ImageWatermarkConfig {\n    name: string;\n\n    base64: string;\n\n    gravity: string;\n\n    x: number;\n\n    y: number;\n\n    opacity: number;\n\n    ws: number;\n}\n"]}

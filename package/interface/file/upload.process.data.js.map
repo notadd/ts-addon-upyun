@@ -1,0 +1,1 @@
+{"version":3,"sources":["interface/file/upload.process.data.ts"],"names":[],"mappings":"","file":"upload.process.data.js","sourcesContent":["\nexport interface UploadProcessData {\n    code: number;\n\n    message: string;\n\n    method: string;\n\n    url: string;\n\n    baseUrl: string;\n\n    form: {\n        policy: string\n        authorization: string\n    };\n}\n"]}

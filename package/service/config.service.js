@@ -158,6 +158,7 @@ let ConfigService = class ConfigService {
                 image.rawName = file.name;
                 image.name = md5 + "_" + (+new Date());
                 image.type = type;
+                image.md5 = md5;
                 image.status = "post";
                 const { width, height, frames } = yield this.restfulUtil.uploadFile(buckets[i], image, file, undefined);
                 const { fileSize, fileMd5 } = yield this.restfulUtil.getFileInfo(buckets[i], image);
@@ -255,3 +256,5 @@ ConfigService = __decorate([
         typeorm_2.Repository])
 ], ConfigService);
 exports.ConfigService = ConfigService;
+
+//# sourceMappingURL=config.service.js.map

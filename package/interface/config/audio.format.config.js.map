@@ -1,0 +1,1 @@
+{"version":3,"sources":["interface/config/audio.format.config.ts"],"names":[],"mappings":"","file":"audio.format.config.js","sourcesContent":["\nexport interface AudioFormatConfig {\n    format: string;\n}\n"]}

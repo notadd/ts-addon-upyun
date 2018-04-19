@@ -17,10 +17,16 @@ let ExceptionInterceptor = class ExceptionInterceptor {
                     message: err.getResponse()
                 });
             }
+            else if (err instanceof Error) {
+                return Promise.resolve({
+                    code: 500,
+                    message: "出现了意外错误:" + err.name + "\n" + err.message + "\n" + err.stack
+                });
+            }
             else {
                 return Promise.resolve({
                     code: 500,
-                    message: "出现了意外错误" + err.toString()
+                    message: "出现了意外错误:" + err.toString()
                 });
             }
         });
@@ -30,3 +36,5 @@ ExceptionInterceptor = __decorate([
     common_1.Interceptor()
 ], ExceptionInterceptor);
 exports.ExceptionInterceptor = ExceptionInterceptor;
+
+//# sourceMappingURL=exception.interceptor.js.map

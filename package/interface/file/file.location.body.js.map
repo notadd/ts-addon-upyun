@@ -1,0 +1,1 @@
+{"version":3,"sources":["interface/file/file.location.body.ts"],"names":[],"mappings":"","file":"file.location.body.js","sourcesContent":["\nexport interface FileLocationBody {\n    bucketName: string;\n\n    name: string;\n\n    type: string;\n}\n"]}

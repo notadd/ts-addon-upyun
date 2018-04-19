@@ -58,8 +58,7 @@ let RestfulUtil = class RestfulUtil {
                 fs.createReadStream(uploadFile.path).pipe(request.put({
                     url: requestUrl,
                     headers: {
-                        "Content-Type": mime.getType(file.name),
-                        "Content-Length": file.size,
+                        "Content-Type": mime.getType(uploadFile.path),
                         "Content-MD5": contentMd5,
                         Authorization,
                         "Date": date,
@@ -273,3 +272,5 @@ RestfulUtil = __decorate([
         process_string_util_1.ProcessStringUtil])
 ], RestfulUtil);
 exports.RestfulUtil = RestfulUtil;
+
+//# sourceMappingURL=restful.util.js.map

@@ -79,3 +79,5 @@ __decorate([
     __metadata("design:type", Date)
 ], AbstractFile.prototype, "updateDate", void 0);
 exports.AbstractFile = AbstractFile;
+
+//# sourceMappingURL=abstract.file.js.map

@@ -1,0 +1,1 @@
+{"version":3,"sources":["interface/config/enable.image.watermark.config.ts"],"names":[],"mappings":"","file":"enable.image.watermark.config.js","sourcesContent":["\nexport interface EnableImageWatermarkConfig {\n    enable: string | boolean;\n}\n"]}

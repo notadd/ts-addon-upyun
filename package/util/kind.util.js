@@ -40,3 +40,5 @@ KindUtil = __decorate([
     __metadata("design:paramtypes", [])
 ], KindUtil);
 exports.KindUtil = KindUtil;
+
+//# sourceMappingURL=kind.util.js.map

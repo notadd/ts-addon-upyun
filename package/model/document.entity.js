@@ -37,3 +37,5 @@ Document = __decorate([
     })
 ], Document);
 exports.Document = Document;
+
+//# sourceMappingURL=document.entity.js.map
