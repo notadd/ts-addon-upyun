@@ -25,16 +25,20 @@ let ProcessStringUtil = class ProcessStringUtil {
         if (!imageProcessInfo || !bucket) {
             return processString;
         }
-        if (imageProcessInfo.resize)
+        if (imageProcessInfo.resize) {
             processString += this.resizeString(imageProcessInfo.resize);
-        if (imageProcessInfo.tailor)
+        }
+        if (imageProcessInfo.tailor) {
             processString += this.tailorString(imageProcessInfo.tailor);
+        }
         processString += this.watermarkString(imageProcessInfo.watermark, bucket);
-        if (imageProcessInfo.rotate)
+        if (imageProcessInfo.rotate) {
             processString += this.rotateString(imageProcessInfo.rotate);
+        }
         if (imageProcessInfo instanceof image_process_info_1.ImagePostProcessInfo) {
-            if (imageProcessInfo.blur)
+            if (imageProcessInfo.blur) {
                 processString += this.blurString(imageProcessInfo.blur);
+            }
             if (imageProcessInfo.sharpen || imageProcessInfo.format || imageProcessInfo.lossless || imageProcessInfo.quality || imageProcessInfo.progressive || imageProcessInfo.strip) {
                 processString += this.outputString(imageProcessInfo.sharpen, imageProcessInfo.format, imageProcessInfo.lossless, imageProcessInfo.quality, imageProcessInfo.progressive, imageProcessInfo.strip);
             }

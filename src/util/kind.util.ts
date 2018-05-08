@@ -27,4 +27,3 @@ export class KindUtil {
         return allowExtension.image.includes(type);
     }
 }
-

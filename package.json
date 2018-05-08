@@ -4,12 +4,12 @@
     "description": "基于nestjs又拍云存储插件",
     "scripts": {
         "build": "node --max_old_space_size=4096 ./node_modules/gulp/bin/gulp.js build",
+        "fix": "tslint -p tsconfig.json -c tslint.json --fix",
         "prepublish": "node --max_old_space_size=4096 ./node_modules/gulp/bin/gulp.js build",
         "publish": "node ./node_modules/lerna/bin/lerna.js publish -m \"chore(release): publish %s\"",
         "start": "node ./starter/index.js",
         "start:watch": "nodemon",
-        "start:prod": "node dist/server.js",
-        "check": "tslint -p tsconfig.json -c tslint.json"
+        "start:prod": "node dist/server.js"
     },
     "repository": {
         "type": "git",

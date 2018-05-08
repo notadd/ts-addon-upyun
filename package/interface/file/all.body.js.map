@@ -1,1 +1,1 @@
-{"version":3,"sources":["interface/file/all.body.ts"],"names":[],"mappings":"","file":"all.body.js","sourcesContent":["\nexport interface AllBody {\n    bucketName: string;\n}"]}
+{"version":3,"sources":["interface/file/all.body.ts"],"names":[],"mappings":"","file":"all.body.js","sourcesContent":["\nexport interface AllBody {\n    bucketName: string;\n}\n"]}
