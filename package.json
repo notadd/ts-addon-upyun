@@ -35,7 +35,6 @@
         "typeorm": "^0.1.9"
     },
     "devDependencies": {
-        "@notadd/addon-upyun": "^2.0.0",
         "@notadd/gulp-typescript": "^4.0.2",
         "@types/express": "^4.11.1",
         "@types/node": "^8.0.28",
