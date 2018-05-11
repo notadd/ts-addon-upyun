@@ -1,1 +1,1 @@
-{"version":3,"sources":["index.ts"],"names":[],"mappings":";;AAAA,+CAA6C;AAApC,qCAAA,WAAW,CAAA","file":"index.js","sourcesContent":["export { UpyunModule } from \"./upyun.module\";\n"]}
+{"version":3,"sources":["index.ts"],"names":[],"mappings":";;AAAA,+CAA6C;AAApC,qCAAA,WAAW,CAAA;AACpB,8EAAwF;AAA/E,oDAAA,cAAc,CAAA;AAAE,yDAAA,mBAAmB,CAAA","file":"index.js","sourcesContent":["export { UpyunModule } from \"./upyun.module\";\nexport { StoreComponent, StoreComponentToken } from \"./export/store.component.provider\";\n"]}

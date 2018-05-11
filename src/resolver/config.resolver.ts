@@ -4,19 +4,19 @@ import { Mutation, Query, Resolver } from "@nestjs/graphql";
 import { InjectRepository } from "@nestjs/typeorm";
 import { IncomingMessage } from "http";
 import { Repository } from "typeorm";
-import { ExceptionInterceptor } from "../../interceptor/exception.interceptor";
-import { AudioFormatConfig } from "../../interface/config/audio.format.config";
-import { BucketConfig } from "../../interface/config/bucket.config";
-import { EnableImageWatermarkConfig } from "../../interface/config/enable.image.watermark.config";
-import { ImageFormatConfig } from "../../interface/config/image.format.config";
-import { ImageWatermarkConfig } from "../../interface/config/image.watermark.config";
-import { VideoFormatConfig } from "../../interface/config/video.format.config";
-import { Data } from "../../interface/data";
-import { Bucket } from "../../model/bucket.entity";
-import { ConfigService } from "../../service/config.service";
-import { FileUtil } from "../../util/file.util";
-import { KindUtil } from "../../util/kind.util";
-import { RestfulUtil } from "../../util/restful.util";
+import { ExceptionInterceptor } from "../interceptor/exception.interceptor";
+import { AudioFormatConfig } from "../interface/config/audio.format.config";
+import { BucketConfig } from "../interface/config/bucket.config";
+import { EnableImageWatermarkConfig } from "../interface/config/enable.image.watermark.config";
+import { ImageFormatConfig } from "../interface/config/image.format.config";
+import { ImageWatermarkConfig } from "../interface/config/image.watermark.config";
+import { VideoFormatConfig } from "../interface/config/video.format.config";
+import { Data } from "../interface/data";
+import { Bucket } from "../model/bucket.entity";
+import { ConfigService } from "../service/config.service";
+import { FileUtil } from "../util/file.util";
+import { KindUtil } from "../util/kind.util";
+import { RestfulUtil } from "../util/restful.util";
 
 /* 空间基本配置的resolver */
 @Resolver("Config")

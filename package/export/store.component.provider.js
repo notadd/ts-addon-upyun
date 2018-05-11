@@ -24,6 +24,9 @@ const crypto = require("crypto");
 const os = require("os");
 const typeorm_1 = require("typeorm");
 const common_1 = require("@nestjs/common");
+const typeorm_utils_1 = require("@nestjs/typeorm/typeorm.utils");
+const bucket_entity_1 = require("../model/bucket.entity");
+const image_entity_1 = require("../model/image.entity");
 const file_service_1 = require("../service/file.service");
 const auth_util_1 = require("../util/auth.util");
 const file_util_1 = require("../util/file.util");
@@ -174,8 +177,9 @@ StoreComponent = __decorate([
         typeorm_1.Repository])
 ], StoreComponent);
 exports.StoreComponent = StoreComponent;
+exports.StoreComponentToken = "StoreComponentToken";
 exports.StoreComponentProvider = {
-    provide: "StoreComponentToken",
+    provide: exports.StoreComponentToken,
     useFactory: (kindUtil, fileUtil, authUtil, restfulUtil, fileService, processStringUtil, imageRepository, bucketRepository) => {
         return new StoreComponent(kindUtil, fileUtil, authUtil, restfulUtil, fileService, processStringUtil, imageRepository, bucketRepository);
     },
@@ -186,8 +190,8 @@ exports.StoreComponentProvider = {
         restful_util_1.RestfulUtil,
         file_service_1.FileService,
         process_string_util_1.ProcessStringUtil,
-        "ImageRepository",
-        "BucketRepository",
+        typeorm_utils_1.getRepositoryToken(image_entity_1.Image),
+        typeorm_utils_1.getRepositoryToken(bucket_entity_1.Bucket),
     ],
 };
 

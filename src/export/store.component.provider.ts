@@ -2,6 +2,7 @@ import * as crypto from "crypto";
 import * as os from "os";
 import { Repository } from "typeorm";
 import { HttpException, Inject } from "@nestjs/common";
+import { getRepositoryToken } from "@nestjs/typeorm/typeorm.utils";
 import { ImagePostProcessInfo, ImagePreProcessInfo } from "../interface/file/image.process.info";
 import { Audio } from "../model/audio.entity";
 import { Bucket } from "../model/bucket.entity";
@@ -152,8 +153,10 @@ export class StoreComponent {
     }
 }
 
+export const StoreComponentToken = "StoreComponentToken";
+
 export const StoreComponentProvider = {
-    provide: "StoreComponentToken",
+    provide: StoreComponentToken,
     useFactory: (
         kindUtil: KindUtil,
         fileUtil: FileUtil,
@@ -182,7 +185,7 @@ export const StoreComponentProvider = {
         RestfulUtil,
         FileService,
         ProcessStringUtil,
-        "ImageRepository",
-        "BucketRepository",
+        getRepositoryToken(Image),
+        getRepositoryToken(Bucket),
     ],
 };
