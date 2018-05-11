@@ -34,6 +34,7 @@ __decorate([
 __decorate([
     typeorm_1.Column({
         nullable: true,
+        type: "simple-array"
     }),
     __metadata("design:type", Array)
 ], AbstractFile.prototype, "tags", void 0);

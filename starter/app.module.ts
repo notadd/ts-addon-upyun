@@ -17,8 +17,8 @@ import { TypeOrmModule } from "@nestjs/typeorm";
     synchronize: true,
     dropSchema: true,
     logger: "simple-console",
-    logging: "all",
-    entities: ["../**/*.entity.ts"]
+    logging: null,
+    entities: ["./**/*.entity.ts"]
   })],
   controllers: [],
   components: []
@@ -32,7 +32,7 @@ export class ApplicationModule implements NestModule {
   ) {}
 
   configure(consumer: MiddlewaresConsumer) {
-    const typeDefs = this.graphQLFactory.mergeTypesByPaths("./src/graphql/type/**/*.types.graphql");
+    const typeDefs = this.graphQLFactory.mergeTypesByPaths("./**/*.types.graphql");
     const schema = this.graphQLFactory.createSchema({ typeDefs });
     consumer
       .apply(graphiqlExpress({ endpointURL: "/graphql" }))
