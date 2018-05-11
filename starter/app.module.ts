@@ -17,7 +17,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
     synchronize: true,
     dropSchema: true,
     logger: "simple-console",
-    logging: null,
+    logging: false,
     entities: ["./**/*.entity.ts"]
   })],
   controllers: [],
