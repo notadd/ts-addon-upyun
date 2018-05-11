@@ -42,12 +42,15 @@ gulp.task("build", function (cb) {
 
 function tasks() {
     modules.forEach(module => {
+        console.log(module)
         watchGraphql(source, module);
         watchTypescript(source, module);
     });
 }
 
 function watchGraphql(source, module) {
+    console.log(source)
+    console.log(module)
     gulp.watch(
         [
             `${source}/${module}/**/*.graphql`,
