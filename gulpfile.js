@@ -20,6 +20,13 @@ gulp.task("default", function () {
 
 modules.forEach(module => {
     gulp.task(module, () => {
+        gulp.src([
+            `${source}/**/*.original.graphql`,
+            `${source}/*.original.graphql`,
+        ]).pipe(rename(function (path) {
+            path.basename = path.basename.replace(".original", ".types");
+        })).pipe(gulp.dest(`${dist}`));
+
         return packages[module]
             .src()
             .pipe(tslint({
@@ -42,15 +49,12 @@ gulp.task("build", function (cb) {
 
 function tasks() {
     modules.forEach(module => {
-        console.log(module)
         watchGraphql(source, module);
         watchTypescript(source, module);
     });
 }
 
 function watchGraphql(source, module) {
-    console.log(source)
-    console.log(module)
     gulp.watch(
         [
             `${source}/${module}/**/*.graphql`,
@@ -61,12 +65,6 @@ function watchGraphql(source, module) {
         ]
     ).on("change", function (event) {
         console.log("File " + event.path + " was " + event.type + ", running tasks...");
-        gulp.src([
-            `${source}/${module}/**/*.graphql`,
-            `${source}/${module}/*.graphql`,
-        ]).pipe(rename(function (path) {
-            path.basename = path.basename.replace(".original", ".types");
-        })).pipe(gulp.dest(`${dist}/${module}`));
     });
 }
 
