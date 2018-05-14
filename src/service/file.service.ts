@@ -136,7 +136,8 @@ export class FileService {
             image.size = fileSize;
             image.md5 = fileMd5;
             try {
-                await this.imageRepository.updateById(image.id, image);
+
+                await this.imageRepository.save(image);
             } catch (err) {
                 throw new HttpException("更新预保存图片失败", 403);
             }

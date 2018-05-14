@@ -35,7 +35,7 @@ export class ConfigService {
 
     async saveBucketConfig(body: BucketConfig): Promise<Bucket> {
         const id: number = body.isPublic ? 1 : 2;
-        let bucket: Bucket | undefined = await this.bucketRepository.findOne(id);
+        const bucket: Bucket | undefined = await this.bucketRepository.findOne(id);
         if (bucket) {
             bucket.name = body.name;
             bucket.operator = body.operator;
@@ -56,7 +56,7 @@ export class ConfigService {
         } else {
             const newBucket: Bucket = this.bucketRepository.create({
                 id,
-                publicOrPrivate:body.isPublic ? "public" : "private",
+                publicOrPrivate: body.isPublic ? "public" : "private",
                 name: body.name,
                 operator: body.operator,
                 password: crypto.createHash("md5").update(body.password).digest("hex"),
@@ -71,6 +71,9 @@ export class ConfigService {
             const audioConfig = new AudioConfig();
             const videoConfig = new VideoConfig();
             const imageConfig = new ImageConfig();
+            audioConfig.id = id;
+            videoConfig.id = id;
+            imageConfig.id = id;
             newBucket.audioConfig = audioConfig;
             newBucket.videoConfig = videoConfig;
             newBucket.imageConfig = imageConfig;
@@ -95,7 +98,8 @@ export class ConfigService {
         }
         try {
             for (let i = 0; i < buckets.length; i++) {
-                await this.imageConfigRepository.updateById(buckets[i].imageConfig.id, { format });
+                buckets[i].imageConfig.format = format;
+                await this.imageConfigRepository.save(buckets[i].imageConfig);
             }
         } catch (err) {
             throw new HttpException("图片保存格式更新失败" + err.toString(), 403);
@@ -116,7 +120,8 @@ export class ConfigService {
         }
         try {
             for (let i = 0; i < buckets.length; i++) {
-                await this.imageConfigRepository.updateById(buckets[i].imageConfig.id, { watermarkEnable });
+                buckets[i].imageConfig.watermarkEnable = watermarkEnable;
+                await this.imageConfigRepository.save(buckets[i].imageConfig);
             }
         } catch (err) {
             throw new HttpException("水印启用保存失败" + err.toString(), 403);
@@ -157,14 +162,13 @@ export class ConfigService {
                 throw new HttpException("水印图片保存失败" + err.toString(), 403);
             }
             try {
-                await this.imageConfigRepository.updateById(buckets[i].imageConfig.id, {
-                    watermarkSaveKey: "/" + buckets[i].directory + "/" + image.name + "." + image.type,
-                    watermarkGravity: obj.gravity,
-                    watermarkOpacity: obj.opacity,
-                    watermarkWs: obj.ws,
-                    watermarkX: obj.x,
-                    watermarkY: obj.y
-                });
+                buckets[i].imageConfig.watermarkSaveKey = "/" + buckets[i].directory + "/" + image.name + "." + image.type;
+                buckets[i].imageConfig.watermarkGravity = obj.gravity;
+                buckets[i].imageConfig.watermarkOpacity = obj.opacity;
+                buckets[i].imageConfig.watermarkWs = obj.ws;
+                buckets[i].imageConfig.watermarkX = obj.x;
+                buckets[i].imageConfig.watermarkY = obj.y;
+                await this.imageConfigRepository.save(buckets[i].imageConfig);
             } catch (err) {
                 throw new HttpException("水印配置更新失败" + err.toString(), 403);
             }
@@ -184,7 +188,8 @@ export class ConfigService {
         }
         try {
             for (let i = 0; i < buckets.length; i++) {
-                await this.audioConfigRepository.updateById(buckets[i].audioConfig.id, { format });
+                buckets[i].audioConfig.format = format;
+                await this.audioConfigRepository.save(buckets[i].audioConfig);
             }
         } catch (err) {
             throw new HttpException("音频保存格式更新失败" + err.toString(), 403);
@@ -208,7 +213,9 @@ export class ConfigService {
         }
         try {
             for (let i = 0; i < buckets.length; i++) {
-                await this.videoConfigRepository.updateById(buckets[i].videoConfig.id, { format, resolution });
+                buckets[i].videoConfig.format = format;
+                buckets[i].videoConfig.resolution = resolution;
+                await this.videoConfigRepository.save(buckets[i].videoConfig);
             }
         } catch (err) {
             throw new HttpException("视频保存格式更新失败" + err.toString(), 403);
