@@ -1,7 +1,6 @@
 
 import { Component } from "@nestjs/common";
-
-const allowExtension = require("../allowExtension.json");
+import allowExtension from "./allow.extension";
 
 @Component()
 export class KindUtil {
