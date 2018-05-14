@@ -1,5 +1,4 @@
-
-import { Catch, ExceptionFilter, HttpException } from "@nestjs/common";
+import { Catch, ExceptionFilter, HttpException, ArgumentsHost } from "@nestjs/common";
 
 /*错误码表
   200: 成功
@@ -15,9 +14,10 @@ import { Catch, ExceptionFilter, HttpException } from "@nestjs/common";
 @Catch(HttpException)
 export class UpyunExceptionFilter implements ExceptionFilter {
 
-    catch(exception: HttpException, response) {
+    catch(exception: HttpException, context: ArgumentsHost) {
         const status = exception.getStatus();
         const message = exception.getResponse();
+        const response = context.switchToHttp().getResponse()
         response
             .status(status)
             .json({
