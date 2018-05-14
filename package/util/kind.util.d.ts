@@ -1,5 +1,5 @@
 export declare class KindUtil {
     constructor();
-    getKind(type: string): "image" | "document" | "audio" | "video" | "file";
+    getKind(type: string): "image" | "file" | "audio" | "document" | "video";
     isImage(type: string): string;
 }
