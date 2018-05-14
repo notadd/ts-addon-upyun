@@ -7,12 +7,12 @@ import { KindUtil } from "./kind.util";
 /* URL做图处理字符串服务，可以根据请求体参数，拼接URL处理字符串 */
 @Injectable()
 export class ProcessStringUtil {
+
     private readonly gravity: Set<string> = new Set([ "northwest", "north", "northeast", "west", "center", "east", "southwest", "south", "southeast" ]);
 
     constructor(
         @Inject(KindUtil) private readonly kindUtil: KindUtil
-    ) {
-    }
+    ) {}
 
     // 根据请求体参数生成处理字符串
     makeImageProcessString(bucket: Bucket, imageProcessInfo: ImagePostProcessInfo | ImagePreProcessInfo): string {

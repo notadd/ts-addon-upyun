@@ -47,7 +47,7 @@ export class StoreComponent {
             if (!file) {
                 throw new HttpException("文件" + name + "不存在于数据库中", 404);
             }
-            await this.imageRepository.deleteById(file.id);
+            await this.imageRepository.remove(file as Image);
         } else {
             // 其他类型暂不支持
         }

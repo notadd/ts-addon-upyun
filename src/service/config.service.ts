@@ -34,52 +34,53 @@ export class ConfigService {
     }
 
     async saveBucketConfig(body: BucketConfig): Promise<Bucket> {
-        let exist: Bucket;
-        const newBucket: Bucket = this.bucketRepository.create({
-            name: body.name,
-            operator: body.operator,
-            password: crypto.createHash("md5").update(body.password).digest("hex"),
-            directory: body.directory,
-            baseUrl: body.baseUrl,
-            requestExpire: body.requestExpire
-        });
-        if (body.isPublic) {
-            exist = await this.bucketRepository.findOneById(1);
-        } else {
-            exist = await this.bucketRepository.findOneById(2);
-            newBucket.tokenExpire = body.tokenExpire;
-            newBucket.tokenSecretKey = body.tokenSecretKey;
-        }
-        if (exist) {
+        const id: number = body.isPublic ? 1 : 2;
+        let bucket: Bucket | undefined = await this.bucketRepository.findOne(id);
+        if (bucket) {
+            bucket.name = body.name;
+            bucket.operator = body.operator;
+            bucket.password = crypto.createHash("md5").update(body.password).digest("hex");
+            bucket.directory = body.directory;
+            bucket.baseUrl = body.baseUrl;
+            bucket.requestExpire = body.requestExpire;
+            if (!body.isPublic) {
+                bucket.tokenExpire = body.tokenExpire;
+                bucket.tokenSecretKey = body.tokenSecretKey;
+            }
             try {
-                await this.bucketRepository.updateById(exist.id, newBucket);
+                await this.bucketRepository.save(bucket);
             } catch (err) {
                 throw new HttpException("空间配置更新失败" + err.toString(), 403);
             }
+            return bucket;
+        } else {
+            const newBucket: Bucket = this.bucketRepository.create({
+                id,
+                publicOrPrivate:body.isPublic ? "public" : "private",
+                name: body.name,
+                operator: body.operator,
+                password: crypto.createHash("md5").update(body.password).digest("hex"),
+                directory: body.directory,
+                baseUrl: body.baseUrl,
+                requestExpire: body.requestExpire
+            });
+            if (!body.isPublic) {
+                newBucket.tokenExpire = body.tokenExpire;
+                newBucket.tokenSecretKey = body.tokenSecretKey;
+            }
+            const audioConfig = new AudioConfig();
+            const videoConfig = new VideoConfig();
+            const imageConfig = new ImageConfig();
+            newBucket.audioConfig = audioConfig;
+            newBucket.videoConfig = videoConfig;
+            newBucket.imageConfig = imageConfig;
+            try {
+                await this.bucketRepository.save(newBucket);
+            } catch (err) {
+                throw new HttpException("空间保存失败" + err.toString(), 403);
+            }
             return newBucket;
         }
-        const audioConfig = new AudioConfig();
-        const videoConfig = new VideoConfig();
-        const imageConfig = new ImageConfig();
-        if (body.isPublic) {
-            newBucket.id = 1;
-            newBucket.publicOrPrivate = "public";
-        } else {
-            newBucket.id = 2;
-            newBucket.publicOrPrivate = "private";
-        }
-        audioConfig.id = newBucket.id;
-        videoConfig.id = newBucket.id;
-        imageConfig.id = newBucket.id;
-        newBucket.audioConfig = audioConfig;
-        newBucket.videoConfig = videoConfig;
-        newBucket.imageConfig = imageConfig;
-        try {
-            await this.bucketRepository.save(newBucket);
-        } catch (err) {
-            throw new HttpException("空间保存失败" + err.toString(), 403);
-        }
-        return newBucket;
     }
 
     async saveImageFormatConfig(body: ImageFormatConfig): Promise<any> {
@@ -88,13 +89,13 @@ export class ConfigService {
         if (format !== "raw" && format !== "webp_damage" && format !== "webp_undamage") {
             throw new HttpException("图片保存格式不正确", 400);
         }
-        const buckets: Array<Bucket> = await this.bucketRepository.find({ relations: [ "imageConfig" ] });
+        const buckets: Array<Bucket> = await this.bucketRepository.find({ relations: ["imageConfig"] });
         if (buckets.length !== 2) {
             throw new HttpException("空间配置不存在", 401);
         }
         try {
             for (let i = 0; i < buckets.length; i++) {
-                await this.imageConfigRepository.updateById(buckets[ i ].imageConfig.id, { format });
+                await this.imageConfigRepository.updateById(buckets[i].imageConfig.id, { format });
             }
         } catch (err) {
             throw new HttpException("图片保存格式更新失败" + err.toString(), 403);
@@ -103,7 +104,7 @@ export class ConfigService {
     }
 
     async saveEnableImageWatermarkConfig(body: EnableImageWatermarkConfig): Promise<void> {
-        const buckets: Array<Bucket> = await this.bucketRepository.find({ relations: [ "imageConfig" ] });
+        const buckets: Array<Bucket> = await this.bucketRepository.find({ relations: ["imageConfig"] });
         if (buckets.length !== 2) {
             throw new HttpException("空间配置不存在", 401);
         }
@@ -115,7 +116,7 @@ export class ConfigService {
         }
         try {
             for (let i = 0; i < buckets.length; i++) {
-                await this.imageConfigRepository.updateById(buckets[ i ].imageConfig.id, { watermarkEnable });
+                await this.imageConfigRepository.updateById(buckets[i].imageConfig.id, { watermarkEnable });
             }
         } catch (err) {
             throw new HttpException("水印启用保存失败" + err.toString(), 403);
@@ -123,7 +124,7 @@ export class ConfigService {
     }
 
     async saveImageWatermarkConfig(file: any, obj: any): Promise<void> {
-        const buckets: Array<Bucket> = await this.bucketRepository.find({ relations: [ "imageConfig" ] });
+        const buckets: Array<Bucket> = await this.bucketRepository.find({ relations: ["imageConfig"] });
         let type = file.name.substr(file.name.lastIndexOf(".") + 1).toLowerCase();
         if (buckets.length !== 2) {
             throw new HttpException("空间配置不存在", 401);
@@ -131,20 +132,20 @@ export class ConfigService {
         const buffer: Buffer = await this.fileUtil.read(file.path);
         const md5 = crypto.createHash("md5").update(buffer).digest("hex");
         for (let i = 0; i < buckets.length; i++) {
-            if (buckets[ i ].imageConfig.format === "webp_damage" || buckets[ i ].imageConfig.format === "webp_undamage") {
+            if (buckets[i].imageConfig.format === "webp_damage" || buckets[i].imageConfig.format === "webp_undamage") {
                 type = "webp";
             }
             const image: Image = new Image();
             // 这里有坑，如果之前使用了await bucket.images，那么这个bucket的性质会改变，即便这样关联，最后image中仍旧没有bucketId值
-            image.bucket = buckets[ i ];
+            image.bucket = buckets[i];
             image.rawName = file.name;
             // 图片文件名为md5_时间戳
             image.name = md5 + "_" + (+new Date());
             image.type = type;
             image.md5 = md5;
             image.status = "post";
-            const { width, height, frames } = await this.restfulUtil.uploadFile(buckets[ i ], image, file, undefined);
-            const { fileSize, fileMd5 } = await this.restfulUtil.getFileInfo(buckets[ i ], image);
+            const { width, height, frames } = await this.restfulUtil.uploadFile(buckets[i], image, file, undefined);
+            const { fileSize, fileMd5 } = await this.restfulUtil.getFileInfo(buckets[i], image);
             image.width = width;
             image.height = height;
             image.frames = frames;
@@ -156,8 +157,8 @@ export class ConfigService {
                 throw new HttpException("水印图片保存失败" + err.toString(), 403);
             }
             try {
-                await this.imageConfigRepository.updateById(buckets[ i ].imageConfig.id, {
-                    watermarkSaveKey: "/" + buckets[ i ].directory + "/" + image.name + "." + image.type,
+                await this.imageConfigRepository.updateById(buckets[i].imageConfig.id, {
+                    watermarkSaveKey: "/" + buckets[i].directory + "/" + image.name + "." + image.type,
                     watermarkGravity: obj.gravity,
                     watermarkOpacity: obj.opacity,
                     watermarkWs: obj.ws,
@@ -177,13 +178,13 @@ export class ConfigService {
         if (format !== "raw" && format !== "mp3" && format !== "aac") {
             throw new HttpException("音频保存格式不正确", 400);
         }
-        const buckets: Array<Bucket> = await this.bucketRepository.find({ relations: [ "audioConfig" ] });
+        const buckets: Array<Bucket> = await this.bucketRepository.find({ relations: ["audioConfig"] });
         if (buckets.length !== 2) {
             throw new HttpException("空间配置不存在", 401);
         }
         try {
             for (let i = 0; i < buckets.length; i++) {
-                await this.audioConfigRepository.updateById(buckets[ i ].audioConfig.id, { format });
+                await this.audioConfigRepository.updateById(buckets[i].audioConfig.id, { format });
             }
         } catch (err) {
             throw new HttpException("音频保存格式更新失败" + err.toString(), 403);
@@ -201,13 +202,13 @@ export class ConfigService {
             throw new HttpException("视频分辨率格式不正确", 400);
         }
 
-        const buckets: Array<Bucket> = await this.bucketRepository.find({ relations: [ "videoConfig" ] });
+        const buckets: Array<Bucket> = await this.bucketRepository.find({ relations: ["videoConfig"] });
         if (buckets.length !== 2) {
             throw new HttpException("空间配置不存在", 401);
         }
         try {
             for (let i = 0; i < buckets.length; i++) {
-                await this.videoConfigRepository.updateById(buckets[ i ].videoConfig.id, { format, resolution });
+                await this.videoConfigRepository.updateById(buckets[i].videoConfig.id, { format, resolution });
             }
         } catch (err) {
             throw new HttpException("视频保存格式更新失败" + err.toString(), 403);
