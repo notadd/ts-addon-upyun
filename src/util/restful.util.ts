@@ -92,7 +92,6 @@ export class RestfulUtil {
         const url = "/" + bucket.name + "/" + bucket.directory;
         const date: string = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
         const Authorization = await this.authUtil.getHeaderAuth(bucket, "POST", url, date, undefined);
-        console.log(Authorization);
         await this.promiseUtil.do((resolve, reject) => {
             request.post({
                     url: requestUrl,

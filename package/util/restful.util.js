@@ -100,7 +100,6 @@ let RestfulUtil = class RestfulUtil {
             const url = "/" + bucket.name + "/" + bucket.directory;
             const date = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
             const Authorization = yield this.authUtil.getHeaderAuth(bucket, "POST", url, date, undefined);
-            console.log(Authorization);
             yield this.promiseUtil.do((resolve, reject) => {
                 request.post({
                     url: requestUrl,
