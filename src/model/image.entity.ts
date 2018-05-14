@@ -2,42 +2,27 @@ import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { AbstractFile } from "./abstract.file";
 import { Bucket } from "./bucket.entity";
 
-@Entity({
-    name: "image",
-})
+@Entity("image")
 export class Image extends AbstractFile {
 
-    @Column({
-        nullable: true,
-    })
+    @Column({ nullable: true })
     width: number;
 
-    @Column({
-        nullable: true,
-    })
+    @Column({ nullable: true })
     height: number;
 
-    @Column({
-        nullable: true,
-    })
+    @Column({ nullable: true })
     frames: number;
 
-    @Column({
-        nullable: true,
-    })
+    @Column({ nullable: true })
     bucketId: number;
 
-    @ManyToOne(
-        type => Bucket,
-        bucket => bucket.images,
-        {
-            cascadeInsert: false,
-            cascadeRemove: false,
-            cascadeUpdate: false,
-            nullable: false,
-            lazy: false,
-        },
-    )
+    @ManyToOne(type => Bucket, bucket => bucket.images, {
+        cascade: false,
+        nullable: false,
+        lazy: false,
+        eager: false
+    })
     @JoinColumn()
     bucket: Bucket;
 }
