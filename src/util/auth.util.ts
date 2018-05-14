@@ -1,11 +1,11 @@
 
-import { Component } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { Bucket } from "../model/bucket.entity";
 
 const crypto = require("crypto");
 
 /* 验证签名服务组件，包含获取头信息签名、请求体签名、token、回调通知验签等功能 */
-@Component()
+@Injectable()
 export class AuthUtil {
 
     constructor() {

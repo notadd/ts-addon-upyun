@@ -1,5 +1,5 @@
 
-import { Component, HttpException, Inject } from "@nestjs/common";
+import { Injectable, HttpException, Inject } from "@nestjs/common";
 import * as fs from "fs";
 import * as mime from "mime";
 import * as request from "request";
@@ -17,7 +17,7 @@ import { PromiseUtil } from "./promise.util";
 /* 包含了restfulAPI的各种功能
    删除文件、创建目录、删除目录、获取文件信息、获取目录文件列表、获取服务使用量
 */
-@Component()
+@Injectable()
 export class RestfulUtil {
     private readonly apihost = "https://v0.api.upyun.com";
 

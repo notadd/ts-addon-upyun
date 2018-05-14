@@ -1,5 +1,5 @@
 
-import { Component, HttpException, Inject } from "@nestjs/common";
+import { Injectable, HttpException, Inject } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { UploadProcessBody } from "../interface/file/upload.process.body";
@@ -18,7 +18,7 @@ import { RestfulUtil } from "../util/restful.util";
    回调通知时，后保存、后删除
    查找图片、创建访问图片的url等功能
 */
-@Component()
+@Injectable()
 export class FileService {
 
     constructor(

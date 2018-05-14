@@ -1,8 +1,8 @@
 
-import { Component, HttpException } from "@nestjs/common";
+import { Injectable, HttpException } from "@nestjs/common";
 
 /* Promise工具 */
-@Component()
+@Injectable()
 export class PromiseUtil {
     /* 保证Promise中抛出的异常可以被try-catch块正常接受到
        直接在.catch方法中抛出异常会出现意外状况

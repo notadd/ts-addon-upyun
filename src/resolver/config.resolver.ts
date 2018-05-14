@@ -2,7 +2,7 @@
 import { HttpException, Inject, UseInterceptors } from "@nestjs/common";
 import { Mutation, Query, Resolver } from "@nestjs/graphql";
 import { InjectRepository } from "@nestjs/typeorm";
-import { IncomingMessage } from "http";
+import { Request } from "express";
 import { Repository } from "typeorm";
 import { ExceptionInterceptor } from "../interceptor/exception.interceptor";
 import { AudioFormatConfig } from "../interface/config/audio.format.config";
@@ -36,7 +36,7 @@ export class ConfigResolver {
 
     /* 配置空间基本信息 */
     @Mutation("bucket")
-    async bucket(req: IncomingMessage, body: BucketConfig): Promise<Data> {
+    async bucket(req: Request, body: BucketConfig): Promise<Data> {
         const { isPublic, name, operator, password, directory, baseUrl, requestExpire } = body;
         if (isPublic === undefined || !name || !operator || !password || !directory || !baseUrl || !requestExpire) {
             throw new HttpException("缺少参数", 400);
@@ -68,7 +68,7 @@ export class ConfigResolver {
 
     /* 图片保存格式配置，目前公有空间、私有空间采用一个保存格式，会在两个配置信息中各保存一次 */
     @Mutation("imageFormat")
-    async imageFormat(req: IncomingMessage, body: ImageFormatConfig): Promise<Data> {
+    async imageFormat(req: Request, body: ImageFormatConfig): Promise<Data> {
         const format = body.format;
         if (format === undefined || format.length === 0) {
             throw new HttpException("缺少参数", 400);
@@ -79,7 +79,7 @@ export class ConfigResolver {
     }
 
     @Mutation("enableImageWatermark")
-    async enableImageWatermark(req: IncomingMessage, body: EnableImageWatermarkConfig): Promise<Data> {
+    async enableImageWatermark(req: Request, body: EnableImageWatermarkConfig): Promise<Data> {
         // 这里在schema中定义为枚举值，接受到参数为string
         const { enable } = body;
         if (enable === undefined || enable === undefined) {
@@ -99,7 +99,7 @@ export class ConfigResolver {
        如果客户端上传，客户端调用会比较繁杂
     */
     @Mutation("imageWatermark")
-    async imageWatermarkConfig(req: IncomingMessage, body: ImageWatermarkConfig): Promise<Data> {
+    async imageWatermarkConfig(req: Request, body: ImageWatermarkConfig): Promise<Data> {
         const tempPath = __dirname + "/" + body.name;
         try {
             const { name, base64, gravity, opacity, x, y, ws } = body;
@@ -152,7 +152,7 @@ export class ConfigResolver {
 
     /* 音频保存格式配置，目前公有空间、私有空间采用一个保存格式，会在两个配置信息中各保存一次 */
     @Mutation("audioFormat")
-    async audioFormat(req: IncomingMessage, body: AudioFormatConfig): Promise<Data> {
+    async audioFormat(req: Request, body: AudioFormatConfig): Promise<Data> {
         const format = body.format;
         if (!format) {
             throw new HttpException("缺少参数", 400);
@@ -164,7 +164,7 @@ export class ConfigResolver {
 
     /* 视频保存配置，目前公有空间、私有空间采用一个保存格式，会在两个配置信息中各保存一次 */
     @Mutation("videoFormat")
-    async videoFormat(req: IncomingMessage, body: VideoFormatConfig): Promise<Data> {
+    async videoFormat(req: Request, body: VideoFormatConfig): Promise<Data> {
         const { format, resolution } = body;
         if (!format || !resolution) {
             throw new HttpException("缺少参数", 400);

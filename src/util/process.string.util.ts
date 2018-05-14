@@ -1,11 +1,11 @@
 
-import { Component, HttpException, Inject } from "@nestjs/common";
+import { Injectable, HttpException, Inject } from "@nestjs/common";
 import { ImagePostProcessInfo, ImagePreProcessInfo } from "../interface/file/image.process.info";
 import { Bucket } from "../model/bucket.entity";
 import { KindUtil } from "./kind.util";
 
 /* URL做图处理字符串服务，可以根据请求体参数，拼接URL处理字符串 */
-@Component()
+@Injectable()
 export class ProcessStringUtil {
     private readonly gravity: Set<string> = new Set([ "northwest", "north", "northeast", "west", "center", "east", "southwest", "south", "southeast" ]);
 

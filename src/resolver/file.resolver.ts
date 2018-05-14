@@ -3,7 +3,6 @@ import { HttpException, Inject, UseInterceptors } from "@nestjs/common";
 import { Mutation, Query, Resolver } from "@nestjs/graphql";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Request } from "express";
-import { IncomingMessage } from "http";
 import { Repository } from "typeorm";
 import { ExceptionInterceptor } from "../interceptor/exception.interceptor";
 import { Data } from "../interface/data";
@@ -44,7 +43,7 @@ export class FileResolver {
     }
 
     @Query("downloadProcess")
-    async downloadProcess(req: IncomingMessage, body: FileLocationBody): Promise<DownloadProcessData> {
+    async downloadProcess(req: Request, body: FileLocationBody): Promise<DownloadProcessData> {
         const data: DownloadProcessData = {
             code: 200,
             message: "下载预处理成功",
@@ -144,7 +143,7 @@ export class FileResolver {
               data.url：访问文件的全部url，包括域名、目录、文件名、扩展名、token、文件密钥、处理字符串
    */
     @Query("one")
-    async getFile(req: IncomingMessage, body: OneBody): Promise<OneData> {
+    async getFile(req: Request, body: OneBody): Promise<OneData> {
         // 验证参数存在
         const { bucketName, name, type } = body;
         if (!bucketName || !name || !type) {
@@ -188,7 +187,7 @@ export class FileResolver {
               data.documents: 文档信息数组
     */
     @Query("all")
-    async files(req: IncomingMessage, body: AllBody): Promise<AllData> {
+    async files(req: Request, body: AllBody): Promise<AllData> {
         const data: AllData = {
             code: 200,
             message: "获取指定空间下所有文件成功",
@@ -221,7 +220,7 @@ export class FileResolver {
                data.message：响应信息
     */
     @Mutation("deleteFile")
-    async deleteFile(req: IncomingMessage, body: FileLocationBody): Promise<Data> {
+    async deleteFile(req: Request, body: FileLocationBody): Promise<Data> {
         const { bucketName, type, name } = body;
         if (!bucketName || !name || !type) {
             throw new HttpException("缺少参数", 400);

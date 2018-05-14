@@ -1,5 +1,5 @@
 
-import { Component, HttpException, Inject } from "@nestjs/common";
+import { Injectable, HttpException, Inject } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import * as  crypto from "crypto";
 import { Repository } from "typeorm";
@@ -19,7 +19,7 @@ import { RestfulUtil } from "../util/restful.util";
 /* 配置服务组件，包含了保存公有空间、私有空间、格式、水印等配置项的功能
    还可以获取公有、私有配置
 */
-@Component()
+@Injectable()
 export class ConfigService {
 
     constructor(

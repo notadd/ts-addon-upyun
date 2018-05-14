@@ -24,9 +24,9 @@ import { RestfulUtil } from "./util/restful.util";
 
 @Global()
 @Module({
-    modules: [ TypeOrmModule.forFeature([ Bucket, AudioConfig, VideoConfig, ImageConfig, Document, Audio, Video, File, Image ]) ],
+    imports: [ TypeOrmModule.forFeature([ Bucket, AudioConfig, VideoConfig, ImageConfig, Document, Audio, Video, File, Image ]) ],
     controllers: [ FileController ],
-    components: [
+    providers: [
         PromiseUtil, FileUtil, AuthUtil, KindUtil, RestfulUtil, ProcessStringUtil,
         ConfigService, FileService,
         ConfigResolver, FileResolver,
