@@ -37,16 +37,16 @@ export class FileService {
         const { md5, contentSecret, contentName } = body;
         // 设置各种上传参数
         if (contentSecret) {
-            policy[ "content-secret" ] = contentSecret;
+            policy["content-secret"] = contentSecret;
         }
         policy.bucket = bucket.name;
-        policy[ "ext-param" ] += bucket.name;
+        policy["ext-param"] += bucket.name;
         data.url += "/" + bucket.name;
         // 文件类型以文件扩展名确定，如果不存在扩展名为file
         const type: string = file.type || "";
         const kind = this.kindUtil.getKind(type);
         // 这里原图的save_key不保存它，在回调中直接删除
-        policy[ "save-key" ] += "/" + bucket.directory + "/" + md5 + "_" + (+new Date()) + "." + type;
+        policy["save-key"] += "/" + bucket.directory + "/" + md5 + "_" + (+new Date()) + "." + type;
         policy.expiration = Math.floor((+new Date()) / 1000) + bucket.requestExpire;
         policy.date = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
         // 根据配置，设置预处理参数，只有一个预处理任务
@@ -55,28 +55,28 @@ export class FileService {
                 "name": "thumb",
                 "x-gmkerl-thumb": "",
                 "save_as": "",
-                "notify_url": policy[ "notify-url" ]
+                "notify_url": policy["notify-url"]
             };
             const format = bucket.imageConfig.format || "raw";
             // 原图不处理
             if (format === "raw") {
                 // 保存为原图，为了防止没有预处理字符串时不进行预处理任务，加上了/scale/100
-                obj[ "x-gmkerl-thumb" ] = this.processStringUtil.makeImageProcessString(bucket, body.imagePreProcessInfo) + "/scale/100";
+                obj["x-gmkerl-thumb"] = this.processStringUtil.makeImageProcessString(bucket, body.imagePreProcessInfo) + "/scale/100";
                 // 这里将预处理的文件名设置为刚才保存的文件名，在回调中根据文件名来更新它，保存为原图时，
                 obj.save_as = "/" + bucket.directory + "/" + file.name + "." + file.type;
                 // apps字段应为json字符串
-                policy.apps = [ obj ];
+                policy.apps = [obj];
             } else if (format === "webp_damage") {
                 // 保存为有损webp
-                obj[ "x-gmkerl-thumb" ] = this.processStringUtil.makeImageProcessString(bucket, body.imagePreProcessInfo) + "/format/webp/strip/true";
+                obj["x-gmkerl-thumb"] = this.processStringUtil.makeImageProcessString(bucket, body.imagePreProcessInfo) + "/format/webp/strip/true";
                 obj.save_as = "/" + bucket.directory + "/" + file.name + "." + "webp";
                 // apps字段应为json字符串
-                policy.apps = [ obj ];
+                policy.apps = [obj];
             } else if (format === "webp_undamage") {
                 // 保存为无损webp
-                obj[ "x-gmkerl-thumb" ] = this.processStringUtil.makeImageProcessString(bucket, body.imagePreProcessInfo) + "/format/webp/lossless/true/strip/true";
+                obj["x-gmkerl-thumb"] = this.processStringUtil.makeImageProcessString(bucket, body.imagePreProcessInfo) + "/format/webp/lossless/true/strip/true";
                 obj.save_as = "/" + bucket.directory + "/" + file.name + "." + "webp";
-                policy.apps = [ obj ];
+                policy.apps = [obj];
             } else {
                 throw new Error("格式配置不正确，应该不能发生");
             }
@@ -166,25 +166,37 @@ export class FileService {
         return url;
     }
 
-    async getAll(data: any, bucket: Bucket) {
-        data.files = await bucket.files;
-        data.images = await bucket.images;
-        data.audios = await bucket.audios;
-        data.videos = await bucket.videos;
-        data.documents = await bucket.documents;
-        const addUrl = async function (value) {
+    async getAll(data: any, bucketName: string) {
+        const bucket: Bucket | undefined = await this.bucketRepository.createQueryBuilder("bucket")
+            .where({ name: bucketName })
+            .leftJoinAndSelect("bucket.files", "files")
+            .leftJoinAndSelect("bucket.images", "image")
+            .leftJoinAndSelect("bucket.audios", "audio")
+            .leftJoinAndSelect("bucket.videos", "video")
+            .leftJoinAndSelect("bucket.documents", "document")
+            .getOne();
+        if (!bucket) {
+            throw new HttpException("空间" + bucketName + "不存在", 401);
+        }
+        data.baseUrl = bucket.baseUrl;
+        data.files = bucket.files;
+        data.images = bucket.images;
+        data.audios = bucket.audios;
+        data.videos = bucket.videos;
+        data.documents = bucket.documents;
+        const addUrl = value => {
             value.url = "/" + bucket.directory + "/" + value.name + "." + value.type;
             if (value.contentSecret) {
                 value.url += "!" + value.contentSecret;
             }
             if (bucket.publicOrPrivate === "private") {
-                value.url += "?_upt=" + await this.authUtil.getToken(bucket, value.url);
+                value.url += "?_upt=" + this.authUtil.getToken(bucket, value.url);
             }
         };
-        await data.files.forEach(addUrl, this);
-        await data.images.forEach(addUrl, this);
-        await data.audios.forEach(addUrl, this);
-        await data.videos.forEach(addUrl, this);
-        await data.documents.forEach(addUrl, this);
+        data.files.forEach(addUrl);
+        data.images.forEach(addUrl);
+        data.audios.forEach(addUrl);
+        data.videos.forEach(addUrl);
+        data.documents.forEach(addUrl);
     }
 }

@@ -54,7 +54,7 @@ export class AuthUtil {
        @Param url：访问图片的url,不包含域名
        @Param bucket：空间配置
     */
-    async getToken(bucket: Bucket, url: string) {
+    getToken(bucket: Bucket, url: string) {
         const expireTime = Math.floor((+new Date()) / 1000) + bucket.tokenExpire;
         const str = bucket.tokenSecretKey + "&" + expireTime + "&" + url;
         const md5 = crypto.createHash("md5").update(str).digest("hex");

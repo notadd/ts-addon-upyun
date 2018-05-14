@@ -6,7 +6,6 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 
 @Module({
   imports: [UpyunModule, GraphQLModule, TypeOrmModule.forRoot({
-    name: "upyun",
     type: "postgres",
     host: "localhost",
     port: 5433,
