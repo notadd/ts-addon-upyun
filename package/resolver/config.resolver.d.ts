@@ -1,5 +1,5 @@
-/// <reference types="node" />
-import { IncomingMessage } from "http";
+/// <reference types="express" />
+import { Request } from "express";
 import { Repository } from "typeorm";
 import { AudioFormatConfig } from "../interface/config/audio.format.config";
 import { BucketConfig } from "../interface/config/bucket.config";
@@ -21,12 +21,12 @@ export declare class ConfigResolver {
     private readonly bucketRepository;
     private readonly gravity;
     constructor(fileUtil: FileUtil, kindUtil: KindUtil, restfulUtil: RestfulUtil, configService: ConfigService, bucketRepository: Repository<Bucket>);
-    bucket(req: IncomingMessage, body: BucketConfig): Promise<Data>;
-    imageFormat(req: IncomingMessage, body: ImageFormatConfig): Promise<Data>;
-    enableImageWatermark(req: IncomingMessage, body: EnableImageWatermarkConfig): Promise<Data>;
-    imageWatermarkConfig(req: IncomingMessage, body: ImageWatermarkConfig): Promise<Data>;
-    audioFormat(req: IncomingMessage, body: AudioFormatConfig): Promise<Data>;
-    videoFormat(req: IncomingMessage, body: VideoFormatConfig): Promise<Data>;
+    bucket(req: Request, body: BucketConfig): Promise<Data>;
+    imageFormat(req: Request, body: ImageFormatConfig): Promise<Data>;
+    enableImageWatermark(req: Request, body: EnableImageWatermarkConfig): Promise<Data>;
+    imageWatermarkConfig(req: Request, body: ImageWatermarkConfig): Promise<Data>;
+    audioFormat(req: Request, body: AudioFormatConfig): Promise<Data>;
+    videoFormat(req: Request, body: VideoFormatConfig): Promise<Data>;
     buckets(): Promise<Data & {
         buckets: Array<Bucket>;
     }>;

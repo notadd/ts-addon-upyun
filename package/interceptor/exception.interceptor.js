@@ -9,7 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const common_1 = require("@nestjs/common");
 require("rxjs/add/operator/catch");
 let ExceptionInterceptor = class ExceptionInterceptor {
-    intercept(dataOrRequest, context, stream$) {
+    intercept(context, stream$) {
         return stream$.catch((err, caught) => {
             if (err instanceof common_1.HttpException) {
                 return Promise.resolve({
@@ -33,7 +33,7 @@ let ExceptionInterceptor = class ExceptionInterceptor {
     }
 };
 ExceptionInterceptor = __decorate([
-    common_1.Interceptor()
+    common_1.Injectable()
 ], ExceptionInterceptor);
 exports.ExceptionInterceptor = ExceptionInterceptor;
 

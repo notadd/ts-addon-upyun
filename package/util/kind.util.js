@@ -35,7 +35,7 @@ let KindUtil = class KindUtil {
     }
 };
 KindUtil = __decorate([
-    common_1.Component(),
+    common_1.Injectable(),
     __metadata("design:paramtypes", [])
 ], KindUtil);
 exports.KindUtil = KindUtil;

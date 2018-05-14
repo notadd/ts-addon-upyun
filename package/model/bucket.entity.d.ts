@@ -20,9 +20,9 @@ export declare class Bucket {
     imageConfig: ImageConfig;
     audioConfig: AudioConfig;
     videoConfig: VideoConfig;
-    files: Promise<Array<File>>;
-    images: Promise<Array<Image>>;
-    audios: Promise<Array<Audio>>;
-    videos: Promise<Array<Video>>;
-    documents: Promise<Array<Document>>;
+    files: Array<File>;
+    images: Array<Image>;
+    audios: Array<Audio>;
+    videos: Array<Video>;
+    documents: Array<Document>;
 }

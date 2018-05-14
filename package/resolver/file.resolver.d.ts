@@ -1,7 +1,5 @@
-/// <reference types="node" />
 /// <reference types="express" />
 import { Request } from "express";
-import { IncomingMessage } from "http";
 import { Repository } from "typeorm";
 import { Data } from "../interface/data";
 import { AllBody } from "../interface/file/all.body";
@@ -30,9 +28,9 @@ export declare class FileResolver {
     private readonly imageRepository;
     private readonly bucketRepository;
     constructor(authUtil: AuthUtil, kindUtil: KindUtil, restfulUtil: RestfulUtil, fileService: FileService, configService: ConfigService, fileRepository: Repository<File>, imageRepository: Repository<Image>, bucketRepository: Repository<Bucket>);
-    downloadProcess(req: IncomingMessage, body: FileLocationBody): Promise<DownloadProcessData>;
+    downloadProcess(req: Request, body: FileLocationBody): Promise<DownloadProcessData>;
     uploadProcess(req: Request, body: UploadProcessBody): Promise<UploadProcessData>;
-    getFile(req: IncomingMessage, body: OneBody): Promise<OneData>;
-    files(req: IncomingMessage, body: AllBody): Promise<AllData>;
-    deleteFile(req: IncomingMessage, body: FileLocationBody): Promise<Data>;
+    getFile(req: Request, body: OneBody): Promise<OneData>;
+    files(req: Request, body: AllBody): Promise<AllData>;
+    deleteFile(req: Request, body: FileLocationBody): Promise<Data>;
 }

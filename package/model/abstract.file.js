@@ -17,58 +17,35 @@ __decorate([
     __metadata("design:type", Number)
 ], AbstractFile.prototype, "id", void 0);
 __decorate([
-    typeorm_1.Column({
-        length: 50,
-        nullable: false
-    }),
+    typeorm_1.Column({ length: 50 }),
     __metadata("design:type", String)
 ], AbstractFile.prototype, "rawName", void 0);
 __decorate([
-    typeorm_1.Column({
-        length: 50,
-        nullable: false,
-        unique: true
-    }),
+    typeorm_1.Column({ length: 50, unique: true }),
     __metadata("design:type", String)
 ], AbstractFile.prototype, "name", void 0);
 __decorate([
-    typeorm_1.Column({
-        nullable: true,
-        type: "simple-array"
-    }),
+    typeorm_1.Column({ nullable: true, type: "simple-array" }),
     __metadata("design:type", Array)
 ], AbstractFile.prototype, "tags", void 0);
 __decorate([
-    typeorm_1.Column({
-        length: 50,
-        nullable: false
-    }),
+    typeorm_1.Column({ length: 50 }),
     __metadata("design:type", String)
 ], AbstractFile.prototype, "md5", void 0);
 __decorate([
-    typeorm_1.Column({
-        length: 20,
-        nullable: true
-    }),
+    typeorm_1.Column({ length: 20, nullable: true }),
     __metadata("design:type", String)
 ], AbstractFile.prototype, "type", void 0);
 __decorate([
-    typeorm_1.Column({
-        nullable: true
-    }),
+    typeorm_1.Column({ nullable: true }),
     __metadata("design:type", Number)
 ], AbstractFile.prototype, "size", void 0);
 __decorate([
-    typeorm_1.Column({
-        length: "50",
-        nullable: true
-    }),
+    typeorm_1.Column({ length: "50", nullable: true }),
     __metadata("design:type", String)
 ], AbstractFile.prototype, "contentSecret", void 0);
 __decorate([
-    typeorm_1.Column({
-        nullable: false
-    }),
+    typeorm_1.Column({ nullable: false }),
     __metadata("design:type", String)
 ], AbstractFile.prototype, "status", void 0);
 __decorate([

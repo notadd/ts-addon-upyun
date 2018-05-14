@@ -21,8 +21,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const common_1 = require("@nestjs/common");
-const fs = require("fs");
 const promise_util_1 = require("./promise.util");
+const fs = require("fs");
 let FileUtil = class FileUtil {
     constructor(promiseUtil) {
         this.promiseUtil = promiseUtil;
@@ -117,7 +117,7 @@ let FileUtil = class FileUtil {
     }
 };
 FileUtil = __decorate([
-    common_1.Component(),
+    common_1.Injectable(),
     __param(0, common_1.Inject(promise_util_1.PromiseUtil)),
     __metadata("design:paramtypes", [promise_util_1.PromiseUtil])
 ], FileUtil);

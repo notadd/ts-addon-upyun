@@ -18,15 +18,11 @@ __decorate([
     __metadata("design:type", Number)
 ], VideoConfig.prototype, "id", void 0);
 __decorate([
-    typeorm_1.Column({
-        nullable: true,
-    }),
+    typeorm_1.Column({ nullable: true }),
     __metadata("design:type", String)
 ], VideoConfig.prototype, "format", void 0);
 __decorate([
-    typeorm_1.Column({
-        nullable: true,
-    }),
+    typeorm_1.Column({ nullable: true }),
     __metadata("design:type", String)
 ], VideoConfig.prototype, "resolution", void 0);
 __decorate([
@@ -35,9 +31,7 @@ __decorate([
     __metadata("design:type", bucket_entity_1.Bucket)
 ], VideoConfig.prototype, "bucket", void 0);
 VideoConfig = __decorate([
-    typeorm_1.Entity({
-        name: "videoConfig",
-    })
+    typeorm_1.Entity("videoConfig")
 ], VideoConfig);
 exports.VideoConfig = VideoConfig;
 

@@ -29,7 +29,7 @@ let PromiseUtil = class PromiseUtil {
     }
 };
 PromiseUtil = __decorate([
-    common_1.Component()
+    common_1.Injectable()
 ], PromiseUtil);
 exports.PromiseUtil = PromiseUtil;
 

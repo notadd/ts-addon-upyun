@@ -23,7 +23,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const common_1 = require("@nestjs/common");
 const graphql_1 = require("@nestjs/graphql");
 const typeorm_1 = require("@nestjs/typeorm");
-const http_1 = require("http");
 const typeorm_2 = require("typeorm");
 const exception_interceptor_1 = require("../interceptor/exception.interceptor");
 const bucket_entity_1 = require("../model/bucket.entity");
@@ -189,37 +188,37 @@ let ConfigResolver = class ConfigResolver {
 __decorate([
     graphql_1.Mutation("bucket"),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [http_1.IncomingMessage, Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], ConfigResolver.prototype, "bucket", null);
 __decorate([
     graphql_1.Mutation("imageFormat"),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [http_1.IncomingMessage, Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], ConfigResolver.prototype, "imageFormat", null);
 __decorate([
     graphql_1.Mutation("enableImageWatermark"),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [http_1.IncomingMessage, Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], ConfigResolver.prototype, "enableImageWatermark", null);
 __decorate([
     graphql_1.Mutation("imageWatermark"),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [http_1.IncomingMessage, Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], ConfigResolver.prototype, "imageWatermarkConfig", null);
 __decorate([
     graphql_1.Mutation("audioFormat"),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [http_1.IncomingMessage, Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], ConfigResolver.prototype, "audioFormat", null);
 __decorate([
     graphql_1.Mutation("videoFormat"),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [http_1.IncomingMessage, Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], ConfigResolver.prototype, "videoFormat", null);
 __decorate([

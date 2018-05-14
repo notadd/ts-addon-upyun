@@ -18,20 +18,20 @@ __decorate([
     __metadata("design:type", Number)
 ], AudioConfig.prototype, "id", void 0);
 __decorate([
-    typeorm_1.Column({
-        nullable: true,
-    }),
+    typeorm_1.Column({ nullable: true }),
     __metadata("design:type", String)
 ], AudioConfig.prototype, "format", void 0);
+__decorate([
+    typeorm_1.Column({ nullable: true, unique: true }),
+    __metadata("design:type", Number)
+], AudioConfig.prototype, "bucketId", void 0);
 __decorate([
     typeorm_1.OneToOne(type => bucket_entity_1.Bucket, bucket => bucket.audioConfig),
     typeorm_1.JoinColumn(),
     __metadata("design:type", bucket_entity_1.Bucket)
 ], AudioConfig.prototype, "bucket", void 0);
 AudioConfig = __decorate([
-    typeorm_1.Entity({
-        name: "audioConfig",
-    })
+    typeorm_1.Entity("audioConfig")
 ], AudioConfig);
 exports.AudioConfig = AudioConfig;
 

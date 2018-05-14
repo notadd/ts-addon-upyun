@@ -50,13 +50,11 @@ let AuthUtil = class AuthUtil {
         });
     }
     getToken(bucket, url) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const expireTime = Math.floor((+new Date()) / 1000) + bucket.tokenExpire;
-            const str = bucket.tokenSecretKey + "&" + expireTime + "&" + url;
-            const md5 = crypto.createHash("md5").update(str).digest("hex");
-            const middle8 = md5.substring(12, 20);
-            return middle8 + expireTime;
-        });
+        const expireTime = Math.floor((+new Date()) / 1000) + bucket.tokenExpire;
+        const str = bucket.tokenSecretKey + "&" + expireTime + "&" + url;
+        const md5 = crypto.createHash("md5").update(str).digest("hex");
+        const middle8 = md5.substring(12, 20);
+        return middle8 + expireTime;
     }
     notifyVerify(auth, bucket, method, url, date, contentMd5, body) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -109,7 +107,7 @@ let AuthUtil = class AuthUtil {
     }
 };
 AuthUtil = __decorate([
-    common_1.Component(),
+    common_1.Injectable(),
     __metadata("design:paramtypes", [])
 ], AuthUtil);
 exports.AuthUtil = AuthUtil;

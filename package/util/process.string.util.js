@@ -310,7 +310,7 @@ let ProcessStringUtil = class ProcessStringUtil {
     }
 };
 ProcessStringUtil = __decorate([
-    common_1.Component(),
+    common_1.Injectable(),
     __param(0, common_1.Inject(kind_util_1.KindUtil)),
     __metadata("design:paramtypes", [kind_util_1.KindUtil])
 ], ProcessStringUtil);

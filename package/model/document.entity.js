@@ -15,26 +15,21 @@ const bucket_entity_1 = require("./bucket.entity");
 let Document = class Document extends abstract_file_1.AbstractFile {
 };
 __decorate([
-    typeorm_1.Column({
-        nullable: true,
-    }),
+    typeorm_1.Column({ nullable: true }),
     __metadata("design:type", Number)
 ], Document.prototype, "bucketId", void 0);
 __decorate([
     typeorm_1.ManyToOne(type => bucket_entity_1.Bucket, bucket => bucket.documents, {
-        cascadeInsert: false,
-        cascadeUpdate: false,
-        cascadeRemove: false,
+        cascade: false,
         nullable: false,
         lazy: false,
+        eager: false
     }),
     typeorm_1.JoinColumn(),
     __metadata("design:type", bucket_entity_1.Bucket)
 ], Document.prototype, "bucket", void 0);
 Document = __decorate([
-    typeorm_1.Entity({
-        name: "document",
-    })
+    typeorm_1.Entity("document")
 ], Document);
 exports.Document = Document;
 

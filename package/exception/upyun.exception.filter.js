@@ -8,9 +8,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 const common_1 = require("@nestjs/common");
 let UpyunExceptionFilter = class UpyunExceptionFilter {
-    catch(exception, response) {
+    catch(exception, context) {
         const status = exception.getStatus();
         const message = exception.getResponse();
+        const response = context.switchToHttp().getResponse();
         response
             .status(status)
             .json({

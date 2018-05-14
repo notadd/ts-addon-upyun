@@ -43,56 +43,59 @@ let ConfigService = class ConfigService {
     }
     saveBucketConfig(body) {
         return __awaiter(this, void 0, void 0, function* () {
-            let exist;
-            const newBucket = this.bucketRepository.create({
-                name: body.name,
-                operator: body.operator,
-                password: crypto.createHash("md5").update(body.password).digest("hex"),
-                directory: body.directory,
-                baseUrl: body.baseUrl,
-                requestExpire: body.requestExpire
-            });
-            if (body.isPublic) {
-                exist = yield this.bucketRepository.findOneById(1);
-            }
-            else {
-                exist = yield this.bucketRepository.findOneById(2);
-                newBucket.tokenExpire = body.tokenExpire;
-                newBucket.tokenSecretKey = body.tokenSecretKey;
-            }
-            if (exist) {
+            const id = body.isPublic ? 1 : 2;
+            const bucket = yield this.bucketRepository.findOne(id);
+            if (bucket) {
+                bucket.name = body.name;
+                bucket.operator = body.operator;
+                bucket.password = crypto.createHash("md5").update(body.password).digest("hex");
+                bucket.directory = body.directory;
+                bucket.baseUrl = body.baseUrl;
+                bucket.requestExpire = body.requestExpire;
+                if (!body.isPublic) {
+                    bucket.tokenExpire = body.tokenExpire;
+                    bucket.tokenSecretKey = body.tokenSecretKey;
+                }
                 try {
-                    yield this.bucketRepository.updateById(exist.id, newBucket);
+                    yield this.bucketRepository.save(bucket);
                 }
                 catch (err) {
                     throw new common_1.HttpException("空间配置更新失败" + err.toString(), 403);
                 }
-                return newBucket;
-            }
-            const audioConfig = new audio_config_entity_1.AudioConfig();
-            const videoConfig = new video_config_entity_1.VideoConfig();
-            const imageConfig = new image_config_entity_1.ImageConfig();
-            if (body.isPublic) {
-                newBucket.id = 1;
-                newBucket.publicOrPrivate = "public";
+                return bucket;
             }
             else {
-                newBucket.id = 2;
-                newBucket.publicOrPrivate = "private";
+                const newBucket = this.bucketRepository.create({
+                    id,
+                    publicOrPrivate: body.isPublic ? "public" : "private",
+                    name: body.name,
+                    operator: body.operator,
+                    password: crypto.createHash("md5").update(body.password).digest("hex"),
+                    directory: body.directory,
+                    baseUrl: body.baseUrl,
+                    requestExpire: body.requestExpire
+                });
+                if (!body.isPublic) {
+                    newBucket.tokenExpire = body.tokenExpire;
+                    newBucket.tokenSecretKey = body.tokenSecretKey;
+                }
+                const audioConfig = new audio_config_entity_1.AudioConfig();
+                const videoConfig = new video_config_entity_1.VideoConfig();
+                const imageConfig = new image_config_entity_1.ImageConfig();
+                audioConfig.id = id;
+                videoConfig.id = id;
+                imageConfig.id = id;
+                newBucket.audioConfig = audioConfig;
+                newBucket.videoConfig = videoConfig;
+                newBucket.imageConfig = imageConfig;
+                try {
+                    yield this.bucketRepository.save(newBucket);
+                }
+                catch (err) {
+                    throw new common_1.HttpException("空间保存失败" + err.toString(), 403);
+                }
+                return newBucket;
             }
-            audioConfig.id = newBucket.id;
-            videoConfig.id = newBucket.id;
-            imageConfig.id = newBucket.id;
-            newBucket.audioConfig = audioConfig;
-            newBucket.videoConfig = videoConfig;
-            newBucket.imageConfig = imageConfig;
-            try {
-                yield this.bucketRepository.save(newBucket);
-            }
-            catch (err) {
-                throw new common_1.HttpException("空间保存失败" + err.toString(), 403);
-            }
-            return newBucket;
         });
     }
     saveImageFormatConfig(body) {
@@ -108,7 +111,8 @@ let ConfigService = class ConfigService {
             }
             try {
                 for (let i = 0; i < buckets.length; i++) {
-                    yield this.imageConfigRepository.updateById(buckets[i].imageConfig.id, { format });
+                    buckets[i].imageConfig.format = format;
+                    yield this.imageConfigRepository.save(buckets[i].imageConfig);
                 }
             }
             catch (err) {
@@ -132,7 +136,8 @@ let ConfigService = class ConfigService {
             }
             try {
                 for (let i = 0; i < buckets.length; i++) {
-                    yield this.imageConfigRepository.updateById(buckets[i].imageConfig.id, { watermarkEnable });
+                    buckets[i].imageConfig.watermarkEnable = watermarkEnable;
+                    yield this.imageConfigRepository.save(buckets[i].imageConfig);
                 }
             }
             catch (err) {
@@ -174,14 +179,13 @@ let ConfigService = class ConfigService {
                     throw new common_1.HttpException("水印图片保存失败" + err.toString(), 403);
                 }
                 try {
-                    yield this.imageConfigRepository.updateById(buckets[i].imageConfig.id, {
-                        watermarkSaveKey: "/" + buckets[i].directory + "/" + image.name + "." + image.type,
-                        watermarkGravity: obj.gravity,
-                        watermarkOpacity: obj.opacity,
-                        watermarkWs: obj.ws,
-                        watermarkX: obj.x,
-                        watermarkY: obj.y
-                    });
+                    buckets[i].imageConfig.watermarkSaveKey = "/" + buckets[i].directory + "/" + image.name + "." + image.type;
+                    buckets[i].imageConfig.watermarkGravity = obj.gravity;
+                    buckets[i].imageConfig.watermarkOpacity = obj.opacity;
+                    buckets[i].imageConfig.watermarkWs = obj.ws;
+                    buckets[i].imageConfig.watermarkX = obj.x;
+                    buckets[i].imageConfig.watermarkY = obj.y;
+                    yield this.imageConfigRepository.save(buckets[i].imageConfig);
                 }
                 catch (err) {
                     throw new common_1.HttpException("水印配置更新失败" + err.toString(), 403);
@@ -203,7 +207,8 @@ let ConfigService = class ConfigService {
             }
             try {
                 for (let i = 0; i < buckets.length; i++) {
-                    yield this.audioConfigRepository.updateById(buckets[i].audioConfig.id, { format });
+                    buckets[i].audioConfig.format = format;
+                    yield this.audioConfigRepository.save(buckets[i].audioConfig);
                 }
             }
             catch (err) {
@@ -228,7 +233,9 @@ let ConfigService = class ConfigService {
             }
             try {
                 for (let i = 0; i < buckets.length; i++) {
-                    yield this.videoConfigRepository.updateById(buckets[i].videoConfig.id, { format, resolution });
+                    buckets[i].videoConfig.format = format;
+                    buckets[i].videoConfig.resolution = resolution;
+                    yield this.videoConfigRepository.save(buckets[i].videoConfig);
                 }
             }
             catch (err) {
@@ -239,7 +246,7 @@ let ConfigService = class ConfigService {
     }
 };
 ConfigService = __decorate([
-    common_1.Component(),
+    common_1.Injectable(),
     __param(0, common_1.Inject(file_util_1.FileUtil)),
     __param(1, common_1.Inject(restful_util_1.RestfulUtil)),
     __param(2, typeorm_1.InjectRepository(image_entity_1.Image)),

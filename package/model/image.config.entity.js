@@ -18,52 +18,35 @@ __decorate([
     __metadata("design:type", Number)
 ], ImageConfig.prototype, "id", void 0);
 __decorate([
-    typeorm_1.Column({
-        nullable: true,
-    }),
+    typeorm_1.Column({ nullable: true }),
     __metadata("design:type", String)
 ], ImageConfig.prototype, "format", void 0);
 __decorate([
-    typeorm_1.Column({
-        nullable: true,
-    }),
+    typeorm_1.Column({ nullable: true }),
     __metadata("design:type", Number)
 ], ImageConfig.prototype, "watermarkEnable", void 0);
 __decorate([
-    typeorm_1.Column({
-        length: 80,
-        nullable: true,
-    }),
+    typeorm_1.Column({ length: 80, nullable: true }),
     __metadata("design:type", String)
 ], ImageConfig.prototype, "watermarkSaveKey", void 0);
 __decorate([
-    typeorm_1.Column({
-        nullable: true,
-    }),
+    typeorm_1.Column({ nullable: true, }),
     __metadata("design:type", String)
 ], ImageConfig.prototype, "watermarkGravity", void 0);
 __decorate([
-    typeorm_1.Column({
-        nullable: true,
-    }),
+    typeorm_1.Column({ nullable: true, }),
     __metadata("design:type", Number)
 ], ImageConfig.prototype, "watermarkX", void 0);
 __decorate([
-    typeorm_1.Column({
-        nullable: true,
-    }),
+    typeorm_1.Column({ nullable: true, }),
     __metadata("design:type", Number)
 ], ImageConfig.prototype, "watermarkY", void 0);
 __decorate([
-    typeorm_1.Column({
-        nullable: true,
-    }),
+    typeorm_1.Column({ nullable: true }),
     __metadata("design:type", Number)
 ], ImageConfig.prototype, "watermarkOpacity", void 0);
 __decorate([
-    typeorm_1.Column({
-        nullable: true,
-    }),
+    typeorm_1.Column({ nullable: true }),
     __metadata("design:type", Number)
 ], ImageConfig.prototype, "watermarkWs", void 0);
 __decorate([
@@ -72,9 +55,7 @@ __decorate([
     __metadata("design:type", bucket_entity_1.Bucket)
 ], ImageConfig.prototype, "bucket", void 0);
 ImageConfig = __decorate([
-    typeorm_1.Entity({
-        name: "imageConfig",
-    })
+    typeorm_1.Entity("imageConfig")
 ], ImageConfig);
 exports.ImageConfig = ImageConfig;
 

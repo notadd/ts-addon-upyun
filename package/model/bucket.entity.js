@@ -25,140 +25,107 @@ __decorate([
     __metadata("design:type", Number)
 ], Bucket.prototype, "id", void 0);
 __decorate([
-    typeorm_1.Column({
-        length: 20,
-        nullable: false,
-        unique: true,
-    }),
+    typeorm_1.Column({ length: 20, unique: true }),
     __metadata("design:type", String)
 ], Bucket.prototype, "publicOrPrivate", void 0);
 __decorate([
-    typeorm_1.Column({
-        length: 50,
-        nullable: false,
-        unique: true,
-    }),
+    typeorm_1.Column({ length: 50, unique: true }),
     __metadata("design:type", String)
 ], Bucket.prototype, "name", void 0);
 __decorate([
-    typeorm_1.Column({
-        length: 50,
-        nullable: false,
-    }),
+    typeorm_1.Column({ length: 50 }),
     __metadata("design:type", String)
 ], Bucket.prototype, "operator", void 0);
 __decorate([
-    typeorm_1.Column({
-        length: 50,
-        nullable: false,
-    }),
+    typeorm_1.Column({ length: 50 }),
     __metadata("design:type", String)
 ], Bucket.prototype, "password", void 0);
 __decorate([
-    typeorm_1.Column({
-        length: 20,
-        nullable: false,
-    }),
+    typeorm_1.Column({ length: 20 }),
     __metadata("design:type", String)
 ], Bucket.prototype, "directory", void 0);
 __decorate([
-    typeorm_1.Column({
-        nullable: false,
-    }),
+    typeorm_1.Column(),
     __metadata("design:type", Number)
 ], Bucket.prototype, "requestExpire", void 0);
 __decorate([
-    typeorm_1.Column({
-        length: 50,
-        nullable: false,
-        unique: true,
-    }),
+    typeorm_1.Column({ length: 50, unique: true }),
     __metadata("design:type", String)
 ], Bucket.prototype, "baseUrl", void 0);
 __decorate([
-    typeorm_1.Column({
-        length: 250,
-        nullable: true,
-    }),
+    typeorm_1.Column({ length: 250, nullable: true }),
     __metadata("design:type", String)
 ], Bucket.prototype, "tokenSecretKey", void 0);
 __decorate([
-    typeorm_1.Column({
-        nullable: true,
-    }),
+    typeorm_1.Column({ nullable: true }),
     __metadata("design:type", Number)
 ], Bucket.prototype, "tokenExpire", void 0);
 __decorate([
     typeorm_1.OneToOne(type => image_config_entity_1.ImageConfig, imageConfig => imageConfig.bucket, {
-        cascadeInsert: true,
-        cascadeUpdate: true,
-        cascadeRemove: true,
+        cascade: ["insert"],
         lazy: false,
+        eager: false
     }),
     __metadata("design:type", image_config_entity_1.ImageConfig)
 ], Bucket.prototype, "imageConfig", void 0);
 __decorate([
     typeorm_1.OneToOne(type => audio_config_entity_1.AudioConfig, audioConfig => audioConfig.bucket, {
-        cascadeInsert: true,
-        cascadeUpdate: true,
-        cascadeRemove: true,
+        cascade: ["insert"],
         lazy: false,
+        eager: false
     }),
     __metadata("design:type", audio_config_entity_1.AudioConfig)
 ], Bucket.prototype, "audioConfig", void 0);
 __decorate([
     typeorm_1.OneToOne(type => video_config_entity_1.VideoConfig, videoConfig => videoConfig.bucket, {
-        cascadeInsert: true,
-        cascadeUpdate: true,
-        cascadeRemove: true,
+        cascade: ["insert"],
         lazy: false,
+        eager: false
     }),
     __metadata("design:type", video_config_entity_1.VideoConfig)
 ], Bucket.prototype, "videoConfig", void 0);
 __decorate([
     typeorm_1.OneToMany(type => file_entity_1.File, file => file.bucket, {
-        cascadeInsert: true,
-        cascadeUpdate: true,
-        lazy: true,
+        cascade: ["insert"],
+        lazy: false,
+        eager: false
     }),
-    __metadata("design:type", Promise)
+    __metadata("design:type", Array)
 ], Bucket.prototype, "files", void 0);
 __decorate([
     typeorm_1.OneToMany(type => image_entity_1.Image, image => image.bucket, {
-        cascadeInsert: true,
-        cascadeUpdate: true,
-        lazy: true,
+        cascade: ["insert"],
+        lazy: false,
+        eager: false
     }),
-    __metadata("design:type", Promise)
+    __metadata("design:type", Array)
 ], Bucket.prototype, "images", void 0);
 __decorate([
     typeorm_1.OneToMany(type => audio_entity_1.Audio, audio => audio.bucket, {
-        cascadeInsert: true,
-        cascadeUpdate: true,
-        lazy: true,
+        cascade: ["insert"],
+        lazy: false,
+        eager: false
     }),
-    __metadata("design:type", Promise)
+    __metadata("design:type", Array)
 ], Bucket.prototype, "audios", void 0);
 __decorate([
     typeorm_1.OneToMany(type => video_entity_1.Video, video => video.bucket, {
-        cascadeInsert: true,
-        cascadeUpdate: true,
-        lazy: true,
+        cascade: ["insert"],
+        lazy: false,
+        eager: false
     }),
-    __metadata("design:type", Promise)
+    __metadata("design:type", Array)
 ], Bucket.prototype, "videos", void 0);
 __decorate([
     typeorm_1.OneToMany(type => document_entity_1.Document, document => document.bucket, {
-        cascadeInsert: true,
-        cascadeUpdate: true,
-        lazy: true,
+        cascade: ["insert"],
+        lazy: false,
+        eager: false
     }),
-    __metadata("design:type", Promise)
+    __metadata("design:type", Array)
 ], Bucket.prototype, "documents", void 0);
 Bucket = __decorate([
-    typeorm_1.Entity({
-        name: "bucket",
-    })
+    typeorm_1.Entity("bucket")
 ], Bucket);
 exports.Bucket = Bucket;
 

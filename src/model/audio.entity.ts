@@ -9,7 +9,7 @@ export class Audio extends AbstractFile {
     bucketId: number;
 
     @ManyToOne(type => Bucket, bucket => bucket.audios, {
-        cascade:false,
+        cascade: false,
         nullable: false,
         lazy: false,
     })

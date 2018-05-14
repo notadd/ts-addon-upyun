@@ -100,6 +100,7 @@ let RestfulUtil = class RestfulUtil {
             const url = "/" + bucket.name + "/" + bucket.directory;
             const date = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
             const Authorization = yield this.authUtil.getHeaderAuth(bucket, "POST", url, date, undefined);
+            console.log(Authorization);
             yield this.promiseUtil.do((resolve, reject) => {
                 request.post({
                     url: requestUrl,
@@ -120,6 +121,7 @@ let RestfulUtil = class RestfulUtil {
                     if (body) {
                         try {
                             const { msg, code, id } = JSON.parse(body);
+                            console.log(body);
                             reject(new common_1.HttpException(msg, code));
                         }
                         catch (err) {
@@ -263,7 +265,7 @@ let RestfulUtil = class RestfulUtil {
     }
 };
 RestfulUtil = __decorate([
-    common_1.Component(),
+    common_1.Injectable(),
     __param(0, common_1.Inject(auth_util_1.AuthUtil)),
     __param(1, common_1.Inject(promise_util_1.PromiseUtil)),
     __param(2, common_1.Inject(process_string_util_1.ProcessStringUtil)),

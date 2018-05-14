@@ -25,5 +25,5 @@ export declare class FileService {
     preSaveFile(bucket: Bucket, body: UploadProcessBody): Promise<File | Image | Video | Audio | Document>;
     postSaveTask(bucket: Bucket, name: string, body: any, kind: string): Promise<void>;
     makeUrl(bucket: Bucket, file: File | Image | Video | Audio | Document, body: any, kind: string): Promise<string>;
-    getAll(data: any, bucket: Bucket): Promise<void>;
+    getAll(data: any, bucketName: string): Promise<void>;
 }

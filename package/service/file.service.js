@@ -136,7 +136,7 @@ let FileService = class FileService {
                 image.size = fileSize;
                 image.md5 = fileMd5;
                 try {
-                    yield this.imageRepository.updateById(image.id, image);
+                    yield this.imageRepository.save(image);
                 }
                 catch (err) {
                     throw new common_1.HttpException("更新预保存图片失败", 403);
@@ -165,34 +165,44 @@ let FileService = class FileService {
             return url;
         });
     }
-    getAll(data, bucket) {
+    getAll(data, bucketName) {
         return __awaiter(this, void 0, void 0, function* () {
-            data.files = yield bucket.files;
-            data.images = yield bucket.images;
-            data.audios = yield bucket.audios;
-            data.videos = yield bucket.videos;
-            data.documents = yield bucket.documents;
-            const addUrl = function (value) {
-                return __awaiter(this, void 0, void 0, function* () {
-                    value.url = "/" + bucket.directory + "/" + value.name + "." + value.type;
-                    if (value.contentSecret) {
-                        value.url += "!" + value.contentSecret;
-                    }
-                    if (bucket.publicOrPrivate === "private") {
-                        value.url += "?_upt=" + (yield this.authUtil.getToken(bucket, value.url));
-                    }
-                });
+            const bucket = yield this.bucketRepository.createQueryBuilder("bucket")
+                .where({ name: bucketName })
+                .leftJoinAndSelect("bucket.files", "files")
+                .leftJoinAndSelect("bucket.images", "image")
+                .leftJoinAndSelect("bucket.audios", "audio")
+                .leftJoinAndSelect("bucket.videos", "video")
+                .leftJoinAndSelect("bucket.documents", "document")
+                .getOne();
+            if (!bucket) {
+                throw new common_1.HttpException("空间" + bucketName + "不存在", 401);
+            }
+            data.baseUrl = bucket.baseUrl;
+            data.files = bucket.files;
+            data.images = bucket.images;
+            data.audios = bucket.audios;
+            data.videos = bucket.videos;
+            data.documents = bucket.documents;
+            const addUrl = value => {
+                value.url = "/" + bucket.directory + "/" + value.name + "." + value.type;
+                if (value.contentSecret) {
+                    value.url += "!" + value.contentSecret;
+                }
+                if (bucket.publicOrPrivate === "private") {
+                    value.url += "?_upt=" + this.authUtil.getToken(bucket, value.url);
+                }
             };
-            yield data.files.forEach(addUrl, this);
-            yield data.images.forEach(addUrl, this);
-            yield data.audios.forEach(addUrl, this);
-            yield data.videos.forEach(addUrl, this);
-            yield data.documents.forEach(addUrl, this);
+            data.files.forEach(addUrl);
+            data.images.forEach(addUrl);
+            data.audios.forEach(addUrl);
+            data.videos.forEach(addUrl);
+            data.documents.forEach(addUrl);
         });
     }
 };
 FileService = __decorate([
-    common_1.Component(),
+    common_1.Injectable(),
     __param(0, common_1.Inject(auth_util_1.AuthUtil)),
     __param(1, common_1.Inject(kind_util_1.KindUtil)),
     __param(2, common_1.Inject(restful_util_1.RestfulUtil)),

@@ -15,26 +15,21 @@ const bucket_entity_1 = require("./bucket.entity");
 let Video = class Video extends abstract_file_1.AbstractFile {
 };
 __decorate([
-    typeorm_1.Column({
-        nullable: true,
-    }),
+    typeorm_1.Column({ nullable: true }),
     __metadata("design:type", Number)
 ], Video.prototype, "bucketId", void 0);
 __decorate([
     typeorm_1.ManyToOne(type => bucket_entity_1.Bucket, bucket => bucket.videos, {
-        cascadeInsert: false,
-        cascadeUpdate: false,
-        cascadeRemove: false,
+        cascade: false,
         nullable: false,
         lazy: false,
+        eager: false
     }),
     typeorm_1.JoinColumn(),
     __metadata("design:type", bucket_entity_1.Bucket)
 ], Video.prototype, "bucket", void 0);
 Video = __decorate([
-    typeorm_1.Entity({
-        name: "video",
-    })
+    typeorm_1.Entity("video")
 ], Video);
 exports.Video = Video;
 

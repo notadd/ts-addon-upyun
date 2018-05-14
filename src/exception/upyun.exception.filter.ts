@@ -17,7 +17,7 @@ export class UpyunExceptionFilter implements ExceptionFilter {
     catch(exception: HttpException, context: ArgumentsHost) {
         const status = exception.getStatus();
         const message = exception.getResponse();
-        const response = context.switchToHttp().getResponse()
+        const response = context.switchToHttp().getResponse();
         response
             .status(status)
             .json({
