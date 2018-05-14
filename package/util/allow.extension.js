@@ -1,5 +1,7 @@
-{
-    "image": [
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = {
+    image: [
         "jpg",
         "jpeg",
         "png",
@@ -16,7 +18,7 @@
         "raw",
         "apng"
     ],
-    "audio": [
+    audio: [
         "m4a",
         "cda",
         "wav",
@@ -29,7 +31,7 @@
         "flac",
         "aac"
     ],
-    "video": [
+    video: [
         "avi",
         "mov",
         "asf",
@@ -46,7 +48,7 @@
         "xv",
         "vob"
     ],
-    "document": [
+    document: [
         "txt",
         "doc",
         "docs",
@@ -64,4 +66,6 @@
         "rtf",
         "docm"
     ]
-}
+};
+
+//# sourceMappingURL=allow.extension.js.map

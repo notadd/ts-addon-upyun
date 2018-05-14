@@ -30,5 +30,5 @@ export declare const StoreComponentToken = "StoreComponentToken";
 export declare const StoreComponentProvider: {
     provide: string;
     useFactory: (kindUtil: KindUtil, fileUtil: FileUtil, authUtil: AuthUtil, restfulUtil: RestfulUtil, fileService: FileService, processStringUtil: ProcessStringUtil, imageRepository: Repository<Image>, bucketRepository: Repository<Bucket>) => StoreComponent;
-    inject: (string | typeof AuthUtil | typeof KindUtil | typeof ProcessStringUtil | typeof RestfulUtil | typeof FileService | typeof FileUtil)[];
+    inject: any[];
 };

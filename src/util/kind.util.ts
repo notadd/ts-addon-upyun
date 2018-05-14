@@ -5,17 +5,16 @@ import allowExtension from "./allow.extension";
 @Component()
 export class KindUtil {
 
-    constructor() {
-    }
+    constructor() { }
 
     getKind(type: string) {
-        if (allowExtension.image.includes(type)) {
+        if (allowExtension.image.find(item => type === item)) {
             return "image";
-        } else if (allowExtension.audio.includes(type)) {
+        } else if (allowExtension.audio.find(item => type === item)) {
             return "audio";
-        } else if (allowExtension.video.includes(type)) {
+        } else if (allowExtension.video.find(item => type === item)) {
             return "video";
-        } else if (allowExtension.document.includes(type)) {
+        } else if (allowExtension.document.find(item => type === item)) {
             return "document";
         } else {
             return "file";
@@ -23,6 +22,6 @@ export class KindUtil {
     }
 
     isImage(type: string) {
-        return allowExtension.image.includes(type);
+        return allowExtension.image.find(item => type === item);
     }
 }
