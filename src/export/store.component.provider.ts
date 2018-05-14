@@ -1,35 +1,34 @@
-import * as crypto from "crypto";
-import * as os from "os";
-import { Repository } from "typeorm";
-import { HttpException, Inject } from "@nestjs/common";
-import { getRepositoryToken } from "@nestjs/typeorm/typeorm.utils";
 import { ImagePostProcessInfo, ImagePreProcessInfo } from "../interface/file/image.process.info";
-import { Audio } from "../model/audio.entity";
-import { Bucket } from "../model/bucket.entity";
+import { ProcessStringUtil } from "../util/process.string.util";
+import { HttpException, Inject } from "@nestjs/common";
+import { FileService } from "../service/file.service";
+import { getRepositoryToken } from "@nestjs/typeorm";
 import { Document } from "../model/document.entity";
-import { File } from "../model/file.entity";
+import { RestfulUtil } from "../util/restful.util";
+import { Bucket } from "../model/bucket.entity";
 import { Image } from "../model/image.entity";
 import { Video } from "../model/video.entity";
-import { FileService } from "../service/file.service";
+import { Audio } from "../model/audio.entity";
 import { AuthUtil } from "../util/auth.util";
 import { FileUtil } from "../util/file.util";
 import { KindUtil } from "../util/kind.util";
-import { ProcessStringUtil } from "../util/process.string.util";
-import { RestfulUtil } from "../util/restful.util";
+import { File } from "../model/file.entity";
+import { Repository } from "typeorm";
+import * as crypto from "crypto";
+import * as os from "os";
 
 export class StoreComponent {
 
     constructor(
-        @Inject(KindUtil) private readonly kindUtil: KindUtil,
-        @Inject(FileUtil) private readonly fileUtil: FileUtil,
-        @Inject(AuthUtil) private readonly authUtil: AuthUtil,
-        @Inject(RestfulUtil) private readonly resufulUtil: RestfulUtil,
-        @Inject(FileService) private readonly fileService: FileService,
-        @Inject(ProcessStringUtil) private readonly processStringUtil: ProcessStringUtil,
-        @Inject("UpyunModule.ImageRepository") private readonly imageRepository: Repository<Image>,
-        @Inject("UpyunModule.BucketRepository") private readonly bucketRepository: Repository<Bucket>
-    ) {
-    }
+        private readonly kindUtil: KindUtil,
+        private readonly fileUtil: FileUtil,
+        private readonly authUtil: AuthUtil,
+        private readonly resufulUtil: RestfulUtil,
+        private readonly fileService: FileService,
+        private readonly processStringUtil: ProcessStringUtil,
+        private readonly imageRepository: Repository<Image>,
+        private readonly bucketRepository: Repository<Bucket>
+    ) { }
 
     async delete(bucketName: string, name: string, type: string): Promise<void> {
         // 验证参数
@@ -124,7 +123,7 @@ export class StoreComponent {
         return { bucketName, name, type };
     }
 
-    async getUrl(req: any, bucketName: string, name: string, type: string, imagePostProcessInfo: ImagePostProcessInfo): Promise<string> {
+    async getUrl(req: any, bucketName: string, name: string, type: string, imagePostProcessInfo: ImagePostProcessInfo|undefined): Promise<string> {
         // 验证参数
         if (!bucketName || !name || !type) {
             throw new HttpException("缺少参数", 400);
