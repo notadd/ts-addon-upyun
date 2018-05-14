@@ -59,7 +59,7 @@ export class StoreComponent {
         bucketName: string,
         rawName: string,
         base64: string,
-        imagePreProcessInfo: ImagePreProcessInfo,
+        imagePreProcessInfo: ImagePreProcessInfo | undefined,
     ): Promise<{ bucketName: string, name: string, type: string }> {
 
         if (!bucketName || !rawName || !base64) {
@@ -123,7 +123,7 @@ export class StoreComponent {
         return { bucketName, name, type };
     }
 
-    async getUrl(req: any, bucketName: string, name: string, type: string, imagePostProcessInfo: ImagePostProcessInfo|undefined): Promise<string> {
+    async getUrl(req: any, bucketName: string, name: string, type: string, imagePostProcessInfo: ImagePostProcessInfo | undefined): Promise<string> {
         // 验证参数
         if (!bucketName || !name || !type) {
             throw new HttpException("缺少参数", 400);
