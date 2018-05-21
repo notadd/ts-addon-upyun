@@ -7,13 +7,11 @@ import { Image } from "../model/image.entity";
 import { Video } from "../model/video.entity";
 import { AuthUtil } from "../util/auth.util";
 import { ProcessStringUtil } from "./process.string.util";
-import { PromiseUtil } from "./promise.util";
 export declare class RestfulUtil {
     private readonly authUtil;
-    private readonly promiseUtil;
     private readonly processStringUtil;
     private readonly apihost;
-    constructor(authUtil: AuthUtil, promiseUtil: PromiseUtil, processStringUtil: ProcessStringUtil);
+    constructor(authUtil: AuthUtil, processStringUtil: ProcessStringUtil);
     uploadFile(bucket: Bucket, file: File | Image | Video | Audio | Document, uploadFile: any, imagePreProcessInfo: ImagePreProcessInfo): Promise<{
         width: number;
         height: number;

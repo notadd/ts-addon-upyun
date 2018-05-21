@@ -7,10 +7,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const common_1 = require("@nestjs/common");
-require("rxjs/add/operator/catch");
+const catchError_1 = require("rxjs/operators/catchError");
 let ExceptionInterceptor = class ExceptionInterceptor {
     intercept(context, stream$) {
-        return stream$.catch((err, caught) => {
+        return stream$.pipe(catchError_1.catchError((err, caught) => {
             if (err instanceof common_1.HttpException) {
                 return Promise.resolve({
                     code: err.getStatus(),
@@ -29,7 +29,7 @@ let ExceptionInterceptor = class ExceptionInterceptor {
                     message: "出现了意外错误:" + err.toString()
                 });
             }
-        });
+        }));
     }
 };
 ExceptionInterceptor = __decorate([

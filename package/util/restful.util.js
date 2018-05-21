@@ -26,20 +26,18 @@ const mime = require("mime");
 const request = require("request");
 const auth_util_1 = require("../util/auth.util");
 const process_string_util_1 = require("./process.string.util");
-const promise_util_1 = require("./promise.util");
 let RestfulUtil = class RestfulUtil {
-    constructor(authUtil, promiseUtil, processStringUtil) {
+    constructor(authUtil, processStringUtil) {
         this.authUtil = authUtil;
-        this.promiseUtil = promiseUtil;
         this.processStringUtil = processStringUtil;
         this.apihost = "https://v0.api.upyun.com";
     }
     uploadFile(bucket, file, uploadFile, imagePreProcessInfo) {
         return __awaiter(this, void 0, void 0, function* () {
             const contentMd5 = file.md5;
-            const saveKey = "/" + bucket.directory + "/" + file.name + "." + file.type;
-            const requestUrl = this.apihost + "/" + bucket.name + saveKey;
-            const url = "/" + bucket.name + saveKey;
+            const saveKey = `/${bucket.directory}/${file.name}.${file.type}`;
+            const requestUrl = `${this.apihost}/${bucket.name}${saveKey}`;
+            const url = `/${bucket.name}${saveKey}`;
             const date = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
             const Authorization = yield this.authUtil.getHeaderAuth(bucket, "PUT", url, date, contentMd5);
             const format = bucket.imageConfig.format || "raw";
@@ -53,8 +51,7 @@ let RestfulUtil = class RestfulUtil {
             else {
                 xGmkerlThumb += "/format/webp/lossless/true/strip/true";
             }
-            let height, width, frames;
-            yield this.promiseUtil.do((resolve, reject) => {
+            const headers = yield new Promise((resolve, reject) => {
                 fs.createReadStream(uploadFile.path).pipe(request.put({
                     url: requestUrl,
                     headers: {
@@ -70,10 +67,7 @@ let RestfulUtil = class RestfulUtil {
                         return;
                     }
                     if (res.statusCode === 200) {
-                        width = res.headers["x-upyun-width"];
-                        height = res.headers["x-upyun-height"];
-                        frames = res.headers["x-upyun-frames"];
-                        resolve();
+                        resolve(res.headers);
                         return;
                     }
                     if (body) {
@@ -91,16 +85,20 @@ let RestfulUtil = class RestfulUtil {
                     return;
                 }));
             });
-            return { width, height, frames };
+            return {
+                width: headers["x-upyun-width"],
+                height: headers["x-upyun-height"],
+                frames: headers["x-upyun-frames"]
+            };
         });
     }
     createDirectory(bucket) {
         return __awaiter(this, void 0, void 0, function* () {
-            const requestUrl = this.apihost + "/" + bucket.name + "/" + bucket.directory;
-            const url = "/" + bucket.name + "/" + bucket.directory;
+            const requestUrl = `${this.apihost}/${bucket.name}/${bucket.directory}`;
+            const url = `/${bucket.name}/${bucket.directory}`;
             const date = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
             const Authorization = yield this.authUtil.getHeaderAuth(bucket, "POST", url, date, undefined);
-            yield this.promiseUtil.do((resolve, reject) => {
+            yield new Promise((resolve, reject) => {
                 request.post({
                     url: requestUrl,
                     headers: {
@@ -120,7 +118,6 @@ let RestfulUtil = class RestfulUtil {
                     if (body) {
                         try {
                             const { msg, code, id } = JSON.parse(body);
-                            console.log(body);
                             reject(new common_1.HttpException(msg, code));
                         }
                         catch (err) {
@@ -138,12 +135,12 @@ let RestfulUtil = class RestfulUtil {
     }
     deleteFile(bucket, file) {
         return __awaiter(this, void 0, void 0, function* () {
-            const savekey = "/" + bucket.directory + "/" + file.name + "." + file.type;
-            const requestUrl = this.apihost + "/" + bucket.name + savekey;
-            const url = "/" + bucket.name + savekey;
+            const savekey = `/${bucket.directory}/${file.name}.${file.type}`;
+            const requestUrl = `${this.apihost}/${bucket.name}${savekey}`;
+            const url = `/${bucket.name}${savekey}`;
             const date = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
             const Authorization = yield this.authUtil.getHeaderAuth(bucket, "DELETE", url, date, "");
-            yield this.promiseUtil.do((resolve, reject) => {
+            yield new Promise((resolve, reject) => {
                 request.delete({
                     url: requestUrl,
                     headers: {
@@ -179,13 +176,12 @@ let RestfulUtil = class RestfulUtil {
     }
     getFileInfo(bucket, file) {
         return __awaiter(this, void 0, void 0, function* () {
-            const savekey = "/" + bucket.directory + "/" + file.name + "." + file.type;
-            const requestUrl = this.apihost + "/" + bucket.name + savekey;
-            const url = "/" + bucket.name + savekey;
+            const savekey = `/${bucket.directory}/${file.name}.${file.type}`;
+            const requestUrl = `${this.apihost}/${bucket.name}${savekey}`;
+            const url = `/${bucket.name}${savekey}`;
             const date = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
             const Authorization = yield this.authUtil.getHeaderAuth(bucket, "HEAD", url, date, "");
-            let fileSize, fileDate, fileMd5;
-            yield this.promiseUtil.do((resolve, reject) => {
+            const headers = yield new Promise((resolve, reject) => {
                 request.head({
                     url: requestUrl,
                     headers: {
@@ -198,10 +194,7 @@ let RestfulUtil = class RestfulUtil {
                         return;
                     }
                     if (res.statusCode === 200) {
-                        fileSize = +res.headers["x-upyun-file-size"];
-                        fileDate = +res.headers["x-upyun-file-date"];
-                        fileMd5 = res.headers["content-md5"];
-                        resolve();
+                        resolve(res.headers);
                         return;
                     }
                     if (body) {
@@ -219,18 +212,21 @@ let RestfulUtil = class RestfulUtil {
                     return;
                 });
             });
-            return { fileSize, fileDate, fileMd5 };
+            return {
+                fileSize: +headers["x-upyun-file-size"],
+                fileDate: +headers["x-upyun-file-date"],
+                fileMd5: headers["content-md5"]
+            };
         });
     }
     getFileList(bucket) {
         return __awaiter(this, void 0, void 0, function* () {
-            const saveKey = "/" + bucket.directory;
-            const requestUrl = this.apihost + "/" + bucket.name + saveKey;
-            const url = "/" + bucket.name + saveKey;
+            const saveKey = `/${bucket.directory}`;
+            const requestUrl = `${this.apihost}/${bucket.name}${saveKey}`;
+            const url = `/${bucket.name}${saveKey}`;
             const date = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
             const Authorization = yield this.authUtil.getHeaderAuth(bucket, "GET", url, date, "");
-            let info;
-            yield this.promiseUtil.do((resolve, reject) => {
+            const body = yield new Promise((resolve, reject) => {
                 request.get({
                     url: requestUrl,
                     headers: {
@@ -243,21 +239,21 @@ let RestfulUtil = class RestfulUtil {
                         return;
                     }
                     if (res.statusCode === 200) {
-                        info = body.split("\n").map((value, index, raw) => {
-                            const temp = value.split("\t");
-                            return {
-                                name: temp[0],
-                                isDirectory: (temp[1] === "N" ? false : true),
-                                size: parseInt(temp[2]),
-                                timestamp: parseInt(temp[3])
-                            };
-                        });
-                        resolve();
+                        resolve(body);
                         return;
                     }
                     reject(new common_1.HttpException("获取文件列表失败", 402));
                     return;
                 });
+            });
+            const info = body.split("\n").map((value, index, raw) => {
+                const temp = value.split("\t");
+                return {
+                    name: temp[0],
+                    isDirectory: (temp[1] === "N" ? false : true),
+                    size: parseInt(temp[2]),
+                    timestamp: parseInt(temp[3])
+                };
             });
             return info;
         });
@@ -266,10 +262,8 @@ let RestfulUtil = class RestfulUtil {
 RestfulUtil = __decorate([
     common_1.Injectable(),
     __param(0, common_1.Inject(auth_util_1.AuthUtil)),
-    __param(1, common_1.Inject(promise_util_1.PromiseUtil)),
-    __param(2, common_1.Inject(process_string_util_1.ProcessStringUtil)),
+    __param(1, common_1.Inject(process_string_util_1.ProcessStringUtil)),
     __metadata("design:paramtypes", [auth_util_1.AuthUtil,
-        promise_util_1.PromiseUtil,
         process_string_util_1.ProcessStringUtil])
 ], RestfulUtil);
 exports.RestfulUtil = RestfulUtil;

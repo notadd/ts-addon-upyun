@@ -27,7 +27,6 @@ const auth_util_1 = require("./util/auth.util");
 const file_util_1 = require("./util/file.util");
 const kind_util_1 = require("./util/kind.util");
 const process_string_util_1 = require("./util/process.string.util");
-const promise_util_1 = require("./util/promise.util");
 const restful_util_1 = require("./util/restful.util");
 let UpyunModule = class UpyunModule {
 };
@@ -37,7 +36,7 @@ UpyunModule = __decorate([
         imports: [typeorm_1.TypeOrmModule.forFeature([bucket_entity_1.Bucket, audio_config_entity_1.AudioConfig, video_config_entity_1.VideoConfig, image_config_entity_1.ImageConfig, document_entity_1.Document, audio_entity_1.Audio, video_entity_1.Video, file_entity_1.File, image_entity_1.Image])],
         controllers: [file_controller_1.FileController],
         providers: [
-            promise_util_1.PromiseUtil, file_util_1.FileUtil, auth_util_1.AuthUtil, kind_util_1.KindUtil, restful_util_1.RestfulUtil, process_string_util_1.ProcessStringUtil,
+            file_util_1.FileUtil, auth_util_1.AuthUtil, kind_util_1.KindUtil, restful_util_1.RestfulUtil, process_string_util_1.ProcessStringUtil,
             config_service_1.ConfigService, file_service_1.FileService,
             config_resolver_1.ConfigResolver, file_resolver_1.FileResolver,
             store_component_provider_1.StoreComponentProvider

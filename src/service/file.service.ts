@@ -41,12 +41,12 @@ export class FileService {
         }
         policy.bucket = bucket.name;
         policy["ext-param"] += bucket.name;
-        data.url += "/" + bucket.name;
+        data.url += `/${bucket.name}`;
         // 文件类型以文件扩展名确定，如果不存在扩展名为file
         const type: string = file.type || "";
         const kind = this.kindUtil.getKind(type);
         // 这里原图的save_key不保存它，在回调中直接删除
-        policy["save-key"] += "/" + bucket.directory + "/" + md5 + "_" + (+new Date()) + "." + type;
+        policy["save-key"] += `/${bucket.directory}/${md5}_${+new Date()}.${type}`;
         policy.expiration = Math.floor((+new Date()) / 1000) + bucket.requestExpire;
         policy.date = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
         // 根据配置，设置预处理参数，只有一个预处理任务
@@ -63,19 +63,19 @@ export class FileService {
                 // 保存为原图，为了防止没有预处理字符串时不进行预处理任务，加上了/scale/100
                 obj["x-gmkerl-thumb"] = this.processStringUtil.makeImageProcessString(bucket, body.imagePreProcessInfo) + "/scale/100";
                 // 这里将预处理的文件名设置为刚才保存的文件名，在回调中根据文件名来更新它，保存为原图时，
-                obj.save_as = "/" + bucket.directory + "/" + file.name + "." + file.type;
+                obj.save_as = `/${bucket.directory}/${file.name}.${file.type}`;
                 // apps字段应为json字符串
                 policy.apps = [obj];
             } else if (format === "webp_damage") {
                 // 保存为有损webp
                 obj["x-gmkerl-thumb"] = this.processStringUtil.makeImageProcessString(bucket, body.imagePreProcessInfo) + "/format/webp/strip/true";
-                obj.save_as = "/" + bucket.directory + "/" + file.name + "." + "webp";
+                obj.save_as = `/${bucket.directory}/${file.name}.webp`;
                 // apps字段应为json字符串
                 policy.apps = [obj];
             } else if (format === "webp_undamage") {
                 // 保存为无损webp
                 obj["x-gmkerl-thumb"] = this.processStringUtil.makeImageProcessString(bucket, body.imagePreProcessInfo) + "/format/webp/lossless/true/strip/true";
-                obj.save_as = "/" + bucket.directory + "/" + file.name + "." + "webp";
+                obj.save_as = `/${bucket.directory}/${file.name}.webp`;
                 policy.apps = [obj];
             } else {
                 throw new Error("格式配置不正确，应该不能发生");
@@ -100,7 +100,7 @@ export class FileService {
             const image = new Image();
             image.rawName = contentName;
             // 这个文件名会设置到预处理参数apps的save_as中去，而不是上传参数的save_key中，那个文件名不保存，在回调中直接删除
-            image.name = md5 + "_" + (+new Date());
+            image.name = `${md5}_${+new Date()}`;
             image.md5 = md5;
             image.tags = tags;
             image.type = type;
@@ -136,7 +136,6 @@ export class FileService {
             image.size = fileSize;
             image.md5 = fileMd5;
             try {
-
                 await this.imageRepository.save(image);
             } catch (err) {
                 throw new HttpException("更新预保存图片失败", 403);
@@ -149,8 +148,7 @@ export class FileService {
 
     // 创建url
     async makeUrl(bucket: Bucket, file: File | Image | Video | Audio | Document, body: any, kind: string): Promise<string> {
-        let url: string = "/" + bucket.directory + "/" + file.name + "." + file.type;
-        url += "!";
+        let url = `/${bucket.directory}/${file.name}.${file.type}!`;
         if (file.contentSecret) {
             url += file.contentSecret;
         }
@@ -176,7 +174,7 @@ export class FileService {
             .leftJoinAndSelect("bucket.documents", "document")
             .getOne();
         if (!bucket) {
-            throw new HttpException("空间" + bucketName + "不存在", 401);
+            throw new HttpException(`空间name=${bucketName}不存在`, 401);
         }
         data.baseUrl = bucket.baseUrl;
         data.files = bucket.files;
@@ -185,9 +183,9 @@ export class FileService {
         data.videos = bucket.videos;
         data.documents = bucket.documents;
         const addUrl = value => {
-            value.url = "/" + bucket.directory + "/" + value.name + "." + value.type;
+            value.url = `/${bucket.directory}/${value.name}.${value.type}`;
             if (value.contentSecret) {
-                value.url += "!" + value.contentSecret;
+                value.url += `!${value.contentSecret}`;
             }
             if (bucket.publicOrPrivate === "private") {
                 value.url += "?_upt=" + this.authUtil.getToken(bucket, value.url);

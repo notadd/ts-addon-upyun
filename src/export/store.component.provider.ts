@@ -37,7 +37,7 @@ export class StoreComponent {
         }
         const bucket: Bucket = await this.bucketRepository.findOne({ name: bucketName });
         if (!bucket) {
-            throw new HttpException("指定空间" + bucketName + "不存在", 401);
+            throw new HttpException(`指定空间name=${bucketName}不存在`, 401);
         }
         // 根据文件种类，查找、删除数据库
         let file: Image | Audio | Video | Document | File;
@@ -45,7 +45,7 @@ export class StoreComponent {
         if (kind === "image") {
             file = await this.imageRepository.findOne({ name, bucketId: bucket.id });
             if (!file) {
-                throw new HttpException("文件" + name + "不存在于数据库中", 404);
+                throw new HttpException(`文件name=${name}不存在于数据库中`, 404);
             }
             await this.imageRepository.remove(file as Image);
         } else {
@@ -68,15 +68,15 @@ export class StoreComponent {
 
         const bucket: Bucket = await this.bucketRepository.createQueryBuilder("bucket")
             .leftJoinAndSelect("bucket.imageConfig", "imageConfig")
-            .where("bucket.name = :name", { name: bucketName })
+            .where({ name: bucketName })
             .getOne();
         if (!bucket) {
-            throw new HttpException("指定空间" + bucketName + "不存在", 401);
+            throw new HttpException(`指定空间name=${bucketName}不存在`, 401);
         }
         const buffer: Buffer = Buffer.from(base64, "base64");
         const md5 = crypto.createHash("md5").update(buffer).digest("hex");
-        const name = md5 + "_" + (+new Date());
-        const tempPath = os.tmpdir + "/" + rawName;
+        const name = `${md5}_${+new Date()}`;
+        const tempPath = `${os.tmpdir}/${rawName}`;
         await this.fileUtil.write(tempPath, buffer);
         let file: Image | Audio | Video | Document | File;
         const uploadFile = { path: tempPath };
@@ -130,10 +130,10 @@ export class StoreComponent {
         }
         const bucket: Bucket = await this.bucketRepository.createQueryBuilder("bucket")
             .leftJoinAndSelect("bucket.imageConfig", "imageConfig")
-            .where("bucket.name = :name", { name: bucketName })
+            .where({ name: bucketName })
             .getOne();
         if (!bucket) {
-            throw new HttpException("指定空间" + bucketName + "不存在", 401);
+            throw new HttpException(`指定空间name=${bucketName}不存在`, 401);
         }
         let url: string;
         // 根据文件种类，查找、删除数据库
@@ -142,7 +142,7 @@ export class StoreComponent {
         if (kind === "image") {
             file = await this.imageRepository.findOne({ name, bucketId: bucket.id });
             if (!file) {
-                throw new HttpException("指定图片" + name + "." + type + "不存在", 404);
+                throw new HttpException(`指定图片${name}.${type}不存在`, 404);
             }
         } else {
             // 其他类型暂不支持

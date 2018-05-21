@@ -220,7 +220,6 @@ export class ConfigService {
         } catch (err) {
             throw new HttpException("视频保存格式更新失败" + err.toString(), 403);
         }
-
         return;
     }
 }

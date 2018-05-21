@@ -19,7 +19,6 @@ import { AuthUtil } from "./util/auth.util";
 import { FileUtil } from "./util/file.util";
 import { KindUtil } from "./util/kind.util";
 import { ProcessStringUtil } from "./util/process.string.util";
-import { PromiseUtil } from "./util/promise.util";
 import { RestfulUtil } from "./util/restful.util";
 
 @Global()
@@ -27,7 +26,7 @@ import { RestfulUtil } from "./util/restful.util";
     imports: [ TypeOrmModule.forFeature([ Bucket, AudioConfig, VideoConfig, ImageConfig, Document, Audio, Video, File, Image ]) ],
     controllers: [ FileController ],
     providers: [
-        PromiseUtil, FileUtil, AuthUtil, KindUtil, RestfulUtil, ProcessStringUtil,
+        FileUtil, AuthUtil, KindUtil, RestfulUtil, ProcessStringUtil,
         ConfigService, FileService,
         ConfigResolver, FileResolver,
         StoreComponentProvider

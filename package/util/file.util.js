@@ -8,9 +8,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -21,47 +18,48 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const common_1 = require("@nestjs/common");
-const promise_util_1 = require("./promise.util");
 const fs = require("fs");
 let FileUtil = class FileUtil {
-    constructor(promiseUtil) {
-        this.promiseUtil = promiseUtil;
-    }
+    constructor() { }
     write(path, buffer) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.promiseUtil.do((resolver, reject) => {
+            yield new Promise((resolver, reject) => {
                 fs.writeFile(path, buffer, (err) => {
                     if (err) {
                         reject(new common_1.HttpException("文件写入磁盘错误:" + err.toString(), 406));
+                        return;
                     }
                     resolver();
+                    return;
                 });
             });
         });
     }
     read(path) {
         return __awaiter(this, void 0, void 0, function* () {
-            let result;
-            yield this.promiseUtil.do((resolver, reject) => {
+            const buffer = yield new Promise((resolver, reject) => {
                 fs.readFile(path, (err, buffer) => {
                     if (err) {
                         reject(new common_1.HttpException("读取文件错误:" + err.toString(), 406));
+                        return;
                     }
-                    result = buffer;
-                    resolver();
+                    resolver(buffer);
+                    return;
                 });
             });
-            return result;
+            return buffer;
         });
     }
     delete(path) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.promiseUtil.do((resolver, reject) => {
+            yield new Promise((resolver, reject) => {
                 fs.unlink(path, (err) => {
                     if (err) {
                         reject(new common_1.HttpException("文件删除错误:" + err.toString(), 406));
+                        return;
                     }
                     resolver();
+                    return;
                 });
             });
         });
@@ -69,12 +67,14 @@ let FileUtil = class FileUtil {
     deleteIfExist(path) {
         return __awaiter(this, void 0, void 0, function* () {
             if (fs.existsSync(path)) {
-                yield this.promiseUtil.do((resolver, reject) => {
+                yield new Promise((resolver, reject) => {
                     fs.unlink(path, (err) => {
                         if (err) {
                             reject(new common_1.HttpException("文件删除错误:" + err.toString(), 406));
+                            return;
                         }
                         resolver();
+                        return;
                     });
                 });
             }
@@ -83,14 +83,14 @@ let FileUtil = class FileUtil {
     size(path) {
         return __awaiter(this, void 0, void 0, function* () {
             if (fs.existsSync(path)) {
-                let size;
-                yield this.promiseUtil.do((resolver, reject) => {
+                const size = yield new Promise((resolver, reject) => {
                     fs.stat(path, (err, stats) => {
                         if (err) {
                             reject(new common_1.HttpException("获取文件状态错误:" + err.toString(), 406));
+                            return;
                         }
-                        size = stats.size;
-                        resolver();
+                        resolver(stats.size);
+                        return;
                     });
                 });
                 return size;
@@ -105,12 +105,14 @@ let FileUtil = class FileUtil {
     }
     mkdir(path) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.promiseUtil.do((resolver, reject) => {
+            yield new Promise((resolver, reject) => {
                 fs.mkdir(path, (err) => {
                     if (err) {
                         reject(new common_1.HttpException("创建目录错误:" + err.toString(), 406));
+                        return;
                     }
                     resolver();
+                    return;
                 });
             });
         });
@@ -118,8 +120,7 @@ let FileUtil = class FileUtil {
 };
 FileUtil = __decorate([
     common_1.Injectable(),
-    __param(0, common_1.Inject(promise_util_1.PromiseUtil)),
-    __metadata("design:paramtypes", [promise_util_1.PromiseUtil])
+    __metadata("design:paramtypes", [])
 ], FileUtil);
 exports.FileUtil = FileUtil;
 

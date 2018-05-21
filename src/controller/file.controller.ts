@@ -38,7 +38,6 @@ export class FileController {
         const contentMd5 = headers[ "content-md5" ];
         const auth = headers.authorization;
         const date = headers.date;
-        console.log(body);
         // 接收到默认MIME类型，说明是上传回调
         if (contentType === "application/x-www-form-urlencoded") {
             const code = +body.code;

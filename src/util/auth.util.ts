@@ -7,8 +7,7 @@ import * as crypto from "crypto";
 @Injectable()
 export class AuthUtil {
 
-    constructor() {
-    }
+    constructor() { }
 
     /* 获取请求头信息中签名，restfulAPI与form回调通知签名使用这种签名方式
       @Param data：响应信息
@@ -19,15 +18,9 @@ export class AuthUtil {
       @Param contentMd5：请求体md5值
     */
     async getHeaderAuth(bucket: Bucket, method: string, url: string, date: string, md5: string): Promise<string> {
-        let ori = "";
-        ori += method.toUpperCase() + "&";
-        ori += url + "&";
-        ori += date;
-        if (md5 && md5 !== "") {
-            ori += "&" + md5;
-        }
+        const ori = `${method.toUpperCase()}&${url}&${date}${md5 ? "&" + md5 : ""}`;
         const signTemp = crypto.createHmac("sha1", bucket.password).update(ori).digest().toString("base64");
-        return "UPYUN " + bucket.operator + ":" + signTemp;
+        return `UPYUN ${bucket.operator}:${signTemp}`;
     }
 
     /* 获取请求体信息签名，form表单上传采用这种签名方式
@@ -37,17 +30,9 @@ export class AuthUtil {
        @Param policy：上传参数对象
     */
     async getBodyAuth(bucket: Bucket, method: string, policy: any): Promise<string> {
-        let ori = "";
-        ori += method.toUpperCase() + "&";
-        ori += "/" + policy.bucket + "&";
-        ori += policy.date + "&";
-        // 拼接上传参数json字符串的base64编码
-        ori += Buffer.from(JSON.stringify(policy)).toString("base64");
-        if (policy[ "content-md5" ] && policy[ "content-md5" ] !== "") {
-            ori += "&" + policy[ "content-md5" ];
-        }
+        const ori = `${method.toUpperCase()}&${`/${policy.bucket}`}&${policy.date}&${Buffer.from(JSON.stringify(policy)).toString("base64")}${policy["content-md5"] ? `&${policy["content-md5"]}` : ""}`;
         const signTemp = crypto.createHmac("sha1", bucket.password).update(ori).digest("base64");
-        return "UPYUN " + bucket.operator + ":" + signTemp;
+        return `UPYUN ${bucket.operator}:${signTemp}`;
     }
 
     /* 获取访问私有空间图片token
@@ -56,7 +41,7 @@ export class AuthUtil {
     */
     getToken(bucket: Bucket, url: string) {
         const expireTime = Math.floor((+new Date()) / 1000) + bucket.tokenExpire;
-        const str = bucket.tokenSecretKey + "&" + expireTime + "&" + url;
+        const str = `${bucket.tokenSecretKey}&${expireTime}&${url}`;
         const md5 = crypto.createHash("md5").update(str).digest("hex");
         // 获取中间8位
         const middle8 = md5.substring(12, 20);
@@ -76,10 +61,10 @@ export class AuthUtil {
         let rawBody = "";
         const keys = Object.keys(body);
         keys.forEach((key, index) => {
-            if (body[ key ] && !isNaN(parseInt(body[ key ])) && key !== "task_ids") {
-                body[ key ] = parseInt(body[ key ]);
+            if (body[key] && !isNaN(parseInt(body[key])) && key !== "task_ids") {
+                body[key] = parseInt(body[key]);
             }
-            rawBody += key + "=" + encodeURIComponent(body[ key ]);
+            rawBody += key + "=" + encodeURIComponent(body[key]);
             if (index < keys.length - 1) {
                 rawBody += "&";
             }
@@ -88,12 +73,7 @@ export class AuthUtil {
         if (genarateMd5 !== contentMd5) {
             return false;
         }
-        // 生成签名
-        let ori = "";
-        ori += method.toUpperCase() + "&";
-        ori += url + "&";
-        ori += date + "&";
-        ori += contentMd5;
+        const ori = `${method.toUpperCase()}&${url}&${date}&${contentMd5}`;
         const localSign = crypto.createHmac("sha1", bucket.password).update(ori).digest("base64");
         // 获取响应头信息中签名字符串
         const remoteSign = auth.substr(auth.lastIndexOf(":") + 1);
@@ -115,12 +95,7 @@ export class AuthUtil {
         if (contentMd5 !== genarateMd5) {
             return false;
         }
-        // 生成签名
-        let ori = "";
-        ori += method.toUpperCase() + "&";
-        ori += url + "&";
-        ori += date + "&";
-        ori += contentMd5;
+        const ori = `${method.toUpperCase()}&${url}&${date}&${contentMd5}`;
         const localSign = crypto.createHmac("sha1", bucket.password).update(ori).digest("base64");
         // 获取响应头信息中签名字符串
         const remoteSign = auth.substr(auth.lastIndexOf(":") + 1);

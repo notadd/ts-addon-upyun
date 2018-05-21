@@ -100,7 +100,7 @@ export class ConfigResolver {
     */
     @Mutation("imageWatermark")
     async imageWatermarkConfig(req: Request, body: ImageWatermarkConfig): Promise<Data> {
-        const tempPath = __dirname + "/" + body.name;
+        const tempPath = `${__dirname}/${body.name}`;
         try {
             const { name, base64, gravity, opacity, x, y, ws } = body;
             await this.fileUtil.write(tempPath, Buffer.from(base64, "base64"));

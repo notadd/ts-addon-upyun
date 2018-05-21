@@ -38,14 +38,14 @@ class StoreComponent {
             }
             const bucket = yield this.bucketRepository.findOne({ name: bucketName });
             if (!bucket) {
-                throw new common_1.HttpException("指定空间" + bucketName + "不存在", 401);
+                throw new common_1.HttpException(`指定空间name=${bucketName}不存在`, 401);
             }
             let file;
             const kind = this.kindUtil.getKind(type);
             if (kind === "image") {
                 file = yield this.imageRepository.findOne({ name, bucketId: bucket.id });
                 if (!file) {
-                    throw new common_1.HttpException("文件" + name + "不存在于数据库中", 404);
+                    throw new common_1.HttpException(`文件name=${name}不存在于数据库中`, 404);
                 }
                 yield this.imageRepository.remove(file);
             }
@@ -62,15 +62,15 @@ class StoreComponent {
             }
             const bucket = yield this.bucketRepository.createQueryBuilder("bucket")
                 .leftJoinAndSelect("bucket.imageConfig", "imageConfig")
-                .where("bucket.name = :name", { name: bucketName })
+                .where({ name: bucketName })
                 .getOne();
             if (!bucket) {
-                throw new common_1.HttpException("指定空间" + bucketName + "不存在", 401);
+                throw new common_1.HttpException(`指定空间name=${bucketName}不存在`, 401);
             }
             const buffer = Buffer.from(base64, "base64");
             const md5 = crypto.createHash("md5").update(buffer).digest("hex");
-            const name = md5 + "_" + (+new Date());
-            const tempPath = os.tmpdir + "/" + rawName;
+            const name = `${md5}_${+new Date()}`;
+            const tempPath = `${os.tmpdir}/${rawName}`;
             yield this.fileUtil.write(tempPath, buffer);
             let file;
             const uploadFile = { path: tempPath };
@@ -124,10 +124,10 @@ class StoreComponent {
             }
             const bucket = yield this.bucketRepository.createQueryBuilder("bucket")
                 .leftJoinAndSelect("bucket.imageConfig", "imageConfig")
-                .where("bucket.name = :name", { name: bucketName })
+                .where({ name: bucketName })
                 .getOne();
             if (!bucket) {
-                throw new common_1.HttpException("指定空间" + bucketName + "不存在", 401);
+                throw new common_1.HttpException(`指定空间name=${bucketName}不存在`, 401);
             }
             let url;
             let file;
@@ -135,7 +135,7 @@ class StoreComponent {
             if (kind === "image") {
                 file = yield this.imageRepository.findOne({ name, bucketId: bucket.id });
                 if (!file) {
-                    throw new common_1.HttpException("指定图片" + name + "." + type + "不存在", 404);
+                    throw new common_1.HttpException(`指定图片${name}.${type}不存在`, 404);
                 }
             }
             else {

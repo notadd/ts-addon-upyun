@@ -48,7 +48,6 @@ let FileController = class FileController {
             const contentMd5 = headers["content-md5"];
             const auth = headers.authorization;
             const date = headers.date;
-            console.log(body);
             if (contentType === "application/x-www-form-urlencoded") {
                 const code = +body.code;
                 if (code !== 200) {
