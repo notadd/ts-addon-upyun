@@ -98,7 +98,7 @@ let ConfigResolver = class ConfigResolver {
     }
     imageWatermarkConfig(req, body) {
         return __awaiter(this, void 0, void 0, function* () {
-            const tempPath = __dirname + "/" + body.name;
+            const tempPath = `${__dirname}/${body.name}`;
             try {
                 const { name, base64, gravity, opacity, x, y, ws } = body;
                 yield this.fileUtil.write(tempPath, Buffer.from(base64, "base64"));

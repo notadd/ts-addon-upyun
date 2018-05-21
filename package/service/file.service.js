@@ -52,10 +52,10 @@ let FileService = class FileService {
             }
             policy.bucket = bucket.name;
             policy["ext-param"] += bucket.name;
-            data.url += "/" + bucket.name;
+            data.url += `/${bucket.name}`;
             const type = file.type || "";
             const kind = this.kindUtil.getKind(type);
-            policy["save-key"] += "/" + bucket.directory + "/" + md5 + "_" + (+new Date()) + "." + type;
+            policy["save-key"] += `/${bucket.directory}/${md5}_${+new Date()}.${type}`;
             policy.expiration = Math.floor((+new Date()) / 1000) + bucket.requestExpire;
             policy.date = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
             if (kind === "image") {
@@ -68,17 +68,17 @@ let FileService = class FileService {
                 const format = bucket.imageConfig.format || "raw";
                 if (format === "raw") {
                     obj["x-gmkerl-thumb"] = this.processStringUtil.makeImageProcessString(bucket, body.imagePreProcessInfo) + "/scale/100";
-                    obj.save_as = "/" + bucket.directory + "/" + file.name + "." + file.type;
+                    obj.save_as = `/${bucket.directory}/${file.name}.${file.type}`;
                     policy.apps = [obj];
                 }
                 else if (format === "webp_damage") {
                     obj["x-gmkerl-thumb"] = this.processStringUtil.makeImageProcessString(bucket, body.imagePreProcessInfo) + "/format/webp/strip/true";
-                    obj.save_as = "/" + bucket.directory + "/" + file.name + "." + "webp";
+                    obj.save_as = `/${bucket.directory}/${file.name}.webp`;
                     policy.apps = [obj];
                 }
                 else if (format === "webp_undamage") {
                     obj["x-gmkerl-thumb"] = this.processStringUtil.makeImageProcessString(bucket, body.imagePreProcessInfo) + "/format/webp/lossless/true/strip/true";
-                    obj.save_as = "/" + bucket.directory + "/" + file.name + "." + "webp";
+                    obj.save_as = `/${bucket.directory}/${file.name}.webp`;
                     policy.apps = [obj];
                 }
                 else {
@@ -101,7 +101,7 @@ let FileService = class FileService {
             if (kind === "image") {
                 const image = new image_entity_1.Image();
                 image.rawName = contentName;
-                image.name = md5 + "_" + (+new Date());
+                image.name = `${md5}_${+new Date()}`;
                 image.md5 = md5;
                 image.tags = tags;
                 image.type = type;
@@ -150,8 +150,7 @@ let FileService = class FileService {
     }
     makeUrl(bucket, file, body, kind) {
         return __awaiter(this, void 0, void 0, function* () {
-            let url = "/" + bucket.directory + "/" + file.name + "." + file.type;
-            url += "!";
+            let url = `/${bucket.directory}/${file.name}.${file.type}!`;
             if (file.contentSecret) {
                 url += file.contentSecret;
             }
@@ -176,7 +175,7 @@ let FileService = class FileService {
                 .leftJoinAndSelect("bucket.documents", "document")
                 .getOne();
             if (!bucket) {
-                throw new common_1.HttpException("空间" + bucketName + "不存在", 401);
+                throw new common_1.HttpException(`空间name=${bucketName}不存在`, 401);
             }
             data.baseUrl = bucket.baseUrl;
             data.files = bucket.files;
@@ -185,9 +184,9 @@ let FileService = class FileService {
             data.videos = bucket.videos;
             data.documents = bucket.documents;
             const addUrl = value => {
-                value.url = "/" + bucket.directory + "/" + value.name + "." + value.type;
+                value.url = `/${bucket.directory}/${value.name}.${value.type}`;
                 if (value.contentSecret) {
-                    value.url += "!" + value.contentSecret;
+                    value.url += `!${value.contentSecret}`;
                 }
                 if (bucket.publicOrPrivate === "private") {
                     value.url += "?_upt=" + this.authUtil.getToken(bucket, value.url);

@@ -20,38 +20,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const common_1 = require("@nestjs/common");
 const crypto = require("crypto");
 let AuthUtil = class AuthUtil {
-    constructor() {
-    }
+    constructor() { }
     getHeaderAuth(bucket, method, url, date, md5) {
         return __awaiter(this, void 0, void 0, function* () {
-            let ori = "";
-            ori += method.toUpperCase() + "&";
-            ori += url + "&";
-            ori += date;
-            if (md5 && md5 !== "") {
-                ori += "&" + md5;
-            }
+            const ori = `${method.toUpperCase()}&${url}&${date}${md5 ? "&" + md5 : ""}`;
             const signTemp = crypto.createHmac("sha1", bucket.password).update(ori).digest().toString("base64");
-            return "UPYUN " + bucket.operator + ":" + signTemp;
+            return `UPYUN ${bucket.operator}:${signTemp}`;
         });
     }
     getBodyAuth(bucket, method, policy) {
         return __awaiter(this, void 0, void 0, function* () {
-            let ori = "";
-            ori += method.toUpperCase() + "&";
-            ori += "/" + policy.bucket + "&";
-            ori += policy.date + "&";
-            ori += Buffer.from(JSON.stringify(policy)).toString("base64");
-            if (policy["content-md5"] && policy["content-md5"] !== "") {
-                ori += "&" + policy["content-md5"];
-            }
+            const ori = `${method.toUpperCase()}&${`/${policy.bucket}`}&${policy.date}&${Buffer.from(JSON.stringify(policy)).toString("base64")}${policy["content-md5"] ? `&${policy["content-md5"]}` : ""}`;
             const signTemp = crypto.createHmac("sha1", bucket.password).update(ori).digest("base64");
-            return "UPYUN " + bucket.operator + ":" + signTemp;
+            return `UPYUN ${bucket.operator}:${signTemp}`;
         });
     }
     getToken(bucket, url) {
         const expireTime = Math.floor((+new Date()) / 1000) + bucket.tokenExpire;
-        const str = bucket.tokenSecretKey + "&" + expireTime + "&" + url;
+        const str = `${bucket.tokenSecretKey}&${expireTime}&${url}`;
         const md5 = crypto.createHash("md5").update(str).digest("hex");
         const middle8 = md5.substring(12, 20);
         return middle8 + expireTime;
@@ -73,11 +59,7 @@ let AuthUtil = class AuthUtil {
             if (genarateMd5 !== contentMd5) {
                 return false;
             }
-            let ori = "";
-            ori += method.toUpperCase() + "&";
-            ori += url + "&";
-            ori += date + "&";
-            ori += contentMd5;
+            const ori = `${method.toUpperCase()}&${url}&${date}&${contentMd5}`;
             const localSign = crypto.createHmac("sha1", bucket.password).update(ori).digest("base64");
             const remoteSign = auth.substr(auth.lastIndexOf(":") + 1);
             if (localSign === remoteSign) {
@@ -92,11 +74,7 @@ let AuthUtil = class AuthUtil {
             if (contentMd5 !== genarateMd5) {
                 return false;
             }
-            let ori = "";
-            ori += method.toUpperCase() + "&";
-            ori += url + "&";
-            ori += date + "&";
-            ori += contentMd5;
+            const ori = `${method.toUpperCase()}&${url}&${date}&${contentMd5}`;
             const localSign = crypto.createHmac("sha1", bucket.password).update(ori).digest("base64");
             const remoteSign = auth.substr(auth.lastIndexOf(":") + 1);
             if (localSign === remoteSign) {
