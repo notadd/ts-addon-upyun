@@ -2,11 +2,11 @@ mutation config{
   
   public:bucket(
     isPublic:true,
-    name:"benchu1",
-    operator:"caozuoyuan",
-    password:"a12345678",
-    directory:"mulu1",
-    baseUrl:"http://benchu1.test.upcdn.net",
+    name:"",
+    operator:"",
+    password:"",
+    directory:"",
+    baseUrl:"",
     requestExpire:1800
   ){
     code
@@ -15,14 +15,14 @@ mutation config{
   
   private:bucket(
     isPublic:false,
-    name:"benchu2",
-    operator:"caozuoyuan",
-    password:"a12345678",
-    directory:"mulu2",
-    baseUrl:"http://benchu2.test.upcdn.net",
+    name:"",
+    operator:"",
+    password:"",
+    directory:"",
+    baseUrl:"",
     requestExpire:1800,
     tokenExpire:1800,
-    tokenSecretKey:"dBpyszVlsmo4GHMkmr"
+    tokenSecretKey:""
   ){
     code
     message
