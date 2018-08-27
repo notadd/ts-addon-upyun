@@ -1,6 +1,6 @@
 {
     "name": "@notadd/addon-upyun",
-    "version": "2.1.1",
+    "version": "2.1.2",
     "description": "Package Open in Browser for already.",
     "main": "index.js",
     "repository": {
@@ -15,9 +15,9 @@
     "author": "notadd",
     "license": "Apache-2.0",
     "dependencies": {
-        "rxjs-compat": "^6.2.2",
+        "mime": "^2.3.1",
         "request": "^2.88.0",
-        "mime": "^2.3.1"
+        "rxjs-compat": "^6.2.2"
     },
     "bugs": {
         "url": "https://github.com/notadd/ts-addon-upyun/issues"
