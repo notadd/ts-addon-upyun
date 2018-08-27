@@ -1,4 +1,3 @@
-/// <reference types="express" />
 import { Request } from "express";
 import { Repository } from "typeorm";
 import { AudioFormatConfig } from "../interface/config/audio.format.config";

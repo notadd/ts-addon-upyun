@@ -1,4 +1,3 @@
-/// <reference types="express" />
 import { Request } from "express";
 import { Repository } from "typeorm";
 import { Data } from "../interface/data";
