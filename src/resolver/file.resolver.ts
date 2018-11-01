@@ -79,7 +79,7 @@ export class FileResolver {
     }
 
     @Mutation("uploadProcess")
-    async uploadProcess(req: Request, body: UploadProcessBody): Promise<UploadProcessData> {
+    async uploadProcess(req: Request, body: UploadProcessBody,context): Promise<UploadProcessData> {
         const data: UploadProcessData = {
             code: 200,
             message: "上传预处理成功",
@@ -122,7 +122,7 @@ export class FileResolver {
             "date": "",
             "content-md5": md5,
             // 异步回调通知路径，图片异步预处理回调也是这个接口
-            "notify-url": req.protocol + "://" + req.get("host") + "/upyun/file/notify",
+            "notify-url": context.req.protocol + "://" + context.req.get("host") + "/upyun/file/notify",
             // 图片生存期限默认为180天
             "x-upyun-meta-ttl": 180,
             // 扩展参数，包含了空间名
