@@ -79,7 +79,7 @@ export class FileResolver {
     }
 
     @Mutation("uploadProcess")
-    async uploadProcess(req: Request, body: UploadProcessBody,context): Promise<UploadProcessData> {
+    async uploadProcess(req: Request, body: UploadProcessBody, context): Promise<UploadProcessData> {
         const data: UploadProcessData = {
             code: 200,
             message: "上传预处理成功",
