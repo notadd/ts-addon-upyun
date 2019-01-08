@@ -80,7 +80,7 @@ let FileResolver = class FileResolver {
             return data;
         });
     }
-    uploadProcess(req, body) {
+    uploadProcess(req, body, context) {
         return __awaiter(this, void 0, void 0, function* () {
             const data = {
                 code: 200,
@@ -117,7 +117,7 @@ let FileResolver = class FileResolver {
                 "expiration": undefined,
                 "date": "",
                 "content-md5": md5,
-                "notify-url": req.protocol + "://" + req.get("host") + "/upyun/file/notify",
+                "notify-url": context.req.protocol + "://" + context.req.get("host") + "/upyun/file/notify",
                 "x-upyun-meta-ttl": 180,
                 "ext-param": ""
             };
@@ -206,7 +206,7 @@ __decorate([
 __decorate([
     graphql_1.Mutation("uploadProcess"),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], FileResolver.prototype, "uploadProcess", null);
 __decorate([

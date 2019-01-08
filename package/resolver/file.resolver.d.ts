@@ -28,7 +28,7 @@ export declare class FileResolver {
     private readonly bucketRepository;
     constructor(authUtil: AuthUtil, kindUtil: KindUtil, restfulUtil: RestfulUtil, fileService: FileService, configService: ConfigService, fileRepository: Repository<File>, imageRepository: Repository<Image>, bucketRepository: Repository<Bucket>);
     downloadProcess(req: Request, body: FileLocationBody): Promise<DownloadProcessData>;
-    uploadProcess(req: Request, body: UploadProcessBody): Promise<UploadProcessData>;
+    uploadProcess(req: Request, body: UploadProcessBody, context: any): Promise<UploadProcessData>;
     getFile(req: Request, body: OneBody): Promise<OneData>;
     files(req: Request, body: AllBody): Promise<AllData>;
     deleteFile(req: Request, body: FileLocationBody): Promise<Data>;

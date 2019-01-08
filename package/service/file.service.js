@@ -53,8 +53,8 @@ let FileService = class FileService {
             policy.bucket = bucket.name;
             policy["ext-param"] += bucket.name;
             data.url += `/${bucket.name}`;
-            const type = file.type || "";
-            const kind = this.kindUtil.getKind(type);
+            const type = file && file.type || "";
+            const kind = type ? this.kindUtil.getKind(type) : "file";
             policy["save-key"] += `/${bucket.directory}/${md5}_${+new Date()}.${type}`;
             policy.expiration = Math.floor((+new Date()) / 1000) + bucket.requestExpire;
             policy.date = new Date(+new Date() + bucket.requestExpire * 1000).toUTCString();
@@ -117,6 +117,9 @@ let FileService = class FileService {
                 return image;
             }
             else {
+                const file = new file_entity_1.File();
+                file.type = type;
+                return file;
             }
         });
     }
