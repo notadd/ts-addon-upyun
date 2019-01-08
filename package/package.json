@@ -1,6 +1,6 @@
 {
     "name": "@notadd/addon-upyun",
-    "version": "2.3.0",
+    "version": "3.0.0",
     "description": "Package Open in Browser for already.",
     "main": "index.js",
     "repository": {
