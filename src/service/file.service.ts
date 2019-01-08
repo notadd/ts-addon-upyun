@@ -43,8 +43,8 @@ export class FileService {
         policy["ext-param"] += bucket.name;
         data.url += `/${bucket.name}`;
         // 文件类型以文件扩展名确定，如果不存在扩展名为file
-        const type: string = file.type || "";
-        const kind = this.kindUtil.getKind(type);
+        const type: string = file && file.type || "";
+        const kind = type ? this.kindUtil.getKind(type) : "file";
         // 这里原图的save_key不保存它，在回调中直接删除
         policy["save-key"] += `/${bucket.directory}/${md5}_${+new Date()}.${type}`;
         policy.expiration = Math.floor((+new Date()) / 1000) + bucket.requestExpire;
@@ -114,7 +114,9 @@ export class FileService {
             }
             return image;
         } else {
-            // 还不支持
+            const file = new File();
+            file.type = type;
+            return file;
         }
     }
 
