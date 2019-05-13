@@ -15,7 +15,7 @@
     "author": "notadd",
     "license": "Apache-2.0",
     "dependencies": {
-        "mime": "^2.3.1",
+        "mime": "^2.4.2",
         "request": "^2.88.0",
         "rxjs-compat": "^6.2.2"
     },
