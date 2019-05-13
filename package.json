@@ -33,7 +33,7 @@
     "reflect-metadata": "^0.1.13",
     "request": "^2.88.0",
     "rxjs": "^6.5.2",
-    "rxjs-compat": "^6.1.0",
+    "rxjs-compat": "^6.5.2",
     "typeorm": "^0.2.5",
     "snyk": "^1.161.1"
   },

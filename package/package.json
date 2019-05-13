@@ -17,7 +17,7 @@
     "dependencies": {
         "mime": "^2.4.2",
         "request": "^2.88.0",
-        "rxjs-compat": "^6.2.2"
+        "rxjs-compat": "^6.5.2"
     },
     "bugs": {
         "url": "https://github.com/notadd/ts-addon-upyun/issues"
