@@ -20,8 +20,8 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "@nestjs/common": "^5.0.0",
-    "@nestjs/core": "^5.0.0",
+    "@nestjs/common": "^5.7.4",
+    "@nestjs/core": "^5.7.4",
     "@nestjs/graphql": "^3.0.0",
     "@nestjs/typeorm": "^3.1.0",
     "apollo-server-core": "^1.4.0",
