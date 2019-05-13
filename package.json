@@ -40,7 +40,7 @@
   "devDependencies": {
     "@notadd/gulp-typescript": "^4.0.2",
     "@types/express": "^4.16.1",
-    "@types/node": "^8.0.28",
+    "@types/node": "^8.10.48",
     "gulp": "^3.9.1",
     "gulp-rename": "^1.2.2",
     "gulp-sequence": "^1.0.0",
