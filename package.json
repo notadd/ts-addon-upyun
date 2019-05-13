@@ -34,7 +34,7 @@
     "request": "^2.88.0",
     "rxjs": "^6.5.2",
     "rxjs-compat": "^6.5.2",
-    "typeorm": "^0.2.5",
+    "typeorm": "^0.2.17",
     "snyk": "^1.163.3"
   },
   "devDependencies": {
