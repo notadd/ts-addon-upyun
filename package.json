@@ -51,7 +51,7 @@
     "nodemon": "^1.19.0",
     "ts-node": "^8.1.0",
     "tslint": "^5.16.0",
-    "typescript": "^2.9.2"
+    "typescript": "^3.4.5"
   },
   "workspaces": [
     "package"
