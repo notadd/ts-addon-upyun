@@ -35,7 +35,7 @@
     "rxjs": "^6.5.2",
     "rxjs-compat": "^6.5.2",
     "typeorm": "^0.2.17",
-    "snyk": "^1.189.0"
+    "snyk": "^1.231.0"
   },
   "devDependencies": {
     "@notadd/gulp-typescript": "^4.0.2",
