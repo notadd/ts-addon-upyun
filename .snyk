@@ -1,5 +1,5 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.13.5
+version: v1.19.0
 ignore: {}
 # patches apply the minimum changes required to fix a vulnerability
 patch:
@@ -31,3 +31,6 @@ patch:
         patched: '2019-07-04T05:46:09.252Z'
     - snyk > snyk-php-plugin > @snyk/composer-lockfile-parser > lodash:
         patched: '2019-07-04T05:46:09.252Z'
+  SNYK-JS-LODASH-567746:
+    - '@nestjs/graphql > merge-graphql-schemas > @graphql-toolkit/schema-merging > @graphql-toolkit/common > lodash':
+        patched: '2020-12-28T08:51:34.145Z'
